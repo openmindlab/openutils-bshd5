@@ -1,15 +1,18 @@
 package it.openutils.dao.hibernate;
 
+import it.openutils.hibernate.example.FilterMetadata;
+
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.criterion.Order;
 import org.hibernate.type.Type;
 
 
 /**
- * @author fgiust
- * @version $Revision$ ($Author$)
+ * @author Fabrizio Giustina
+ * @version $Id$
  */
 public interface HibernateDAO<T extends Object, K extends Serializable>
 {
@@ -107,9 +110,25 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
      * @param filter an instance of the object with the properties you whish to filter on.
+     * @param maxResults maximum number of results
+     * @param page result page (first result is maxResults * page)
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, Map<String, FilterMetadata> metadata, final int maxResults, final int page);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
      * @return list of objects
      */
     List<T> findFiltered(final T filter);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, Map<String, FilterMetadata> metadata);
 
     /**
      * Return the first object related to the implementation of this DAO filtered using properties of the provided

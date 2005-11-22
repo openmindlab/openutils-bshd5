@@ -75,47 +75,53 @@
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-support</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-hibernate</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-dao</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-aop</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>10.1.1.0</version>
+            <scope>test</scope>
         </dependency>
         <!--
             ====================================================================================

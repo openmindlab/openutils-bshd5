@@ -1,20 +1,15 @@
 package it.openutils.dao.hibernate;
 
+import it.openutils.hibernate.example.EnhancedExample;
+import it.openutils.hibernate.example.FilterMetadata;
+
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
@@ -26,7 +21,6 @@ import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
-import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -34,7 +28,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Base Hibernate DAO.
- * @author fgiust
+ * @author Fabrizio Giustina
  * @version $Id$
  */
 public abstract class HibernateDAOImpl<T extends Object, K extends Serializable> extends HibernateDaoSupport
@@ -45,9 +39,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * Logger.
      */
-    protected static Logger log = Logger.getLogger(HibernateDAOImpl.class);
-
-    public static final String LIKE_EXPRESSION = "${like}";
+    private static Logger log = Logger.getLogger(HibernateDAOImpl.class);
 
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#find(java.lang.String)
@@ -185,22 +177,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(T)
-     */
-    public List<T> findFiltered(final T filter)
-    {
-        return findFiltered(filter, 500, 0);
-    }
-
-    /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFilteredFirst(T)
-     */
-    public T findFilteredFirst(final T filter)
-    {
-        return getFirstInCollection(findFiltered(filter, 1, 0));
-    }
-
-    /**
      * @see it.openutils.dao.hibernate.HibernateDAO#saveOrUpdate(null)
      */
     public void saveOrUpdate(final T obj)
@@ -267,9 +243,42 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
+     * @see it.openutils.dao.hibernate.HibernateDAO#findFilteredFirst(T)
+     */
+    public T findFilteredFirst(final T filter)
+    {
+        return getFirstInCollection(findFiltered(filter, 1, 0));
+    }
+
+    /**
+     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(T)
+     */
+    public List<T> findFiltered(final T filter)
+    {
+        return findFiltered(filter, new HashMap<String, FilterMetadata>(0));
+    }
+
+    /**
+     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(T)
+     */
+    public List<T> findFiltered(final T filter, final Map<String, FilterMetadata> metadata)
+    {
+        return findFiltered(filter, metadata, Integer.MAX_VALUE, 0);
+    }
+
+    /**
      * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(null, int, int)
      */
     public List<T> findFiltered(final T filter, final int maxResults, final int page)
+    {
+        return findFiltered(filter, new HashMap<String, FilterMetadata>(0), maxResults, page);
+    }
+
+    /**
+     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(null, int, int)
+     */
+    public List<T> findFiltered(final T filter, final Map<String, FilterMetadata> metadata, final int maxResults,
+        final int page)
     {
         final Order[] orderProperties = this.getDefaultOrder();
 
@@ -294,7 +303,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                     }
                 }
 
-                fillCriteria(crit, filter);
+                EnhancedExample.create(crit, filter, metadata);
 
                 return crit.list();
             }
@@ -392,32 +401,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * Check if the given object is a simple java type
-     * @param object object to check
-     * @return <code>true</code>if the given object is a simple type
-     */
-    private boolean isSimpleType(Object object)
-    {
-
-        Class< ? extends Object> objClass = object.getClass();
-
-        return objClass.isPrimitive()
-            || objClass.equals(Integer.class)
-            || objClass.equals(Long.class)
-            || objClass.equals(Short.class)
-            || objClass.equals(Boolean.class)
-            || objClass.equals(String.class)
-            || objClass.equals(Double.class)
-            || objClass.equals(Float.class)
-            || objClass.equals(Date.class)
-            || objClass.equals(Byte.class)
-            || objClass.equals(BigDecimal.class)
-            || objClass.equals(Timestamp.class)
-            || objClass.equals(Character.class)
-            || objClass.equals(Calendar.class);
-    }
-
-    /**
      * Convenience method to set paramers in the query given based on the actual object type in passed in as the value.
      * You may need to add more functionaly to this as desired (or not use this at all).
      * @param query the Query to set
@@ -431,239 +414,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             return;
         }
         query.setParameter(key, value);
-    }
-
-    /**
-     * Fills a criteria object calling addCondition() for any non-null property or for any component in collections.
-     * @param crit Criteria
-     * @param filter javabean which will be analyzed for non-null properties
-     * @throws HibernateException exception while building the criteria
-     */
-    protected void fillCriteria(Criteria crit, Object filter) throws HibernateException
-    {
-        if ((filter instanceof Set || filter instanceof List) && !((Collection) filter).isEmpty())
-        {
-            // collection: the new criteria has already been created, now we only nee to analize content
-            Iterator iterator = ((Collection) filter).iterator();
-            while (iterator.hasNext())
-            {
-                Object element = iterator.next();
-                fillCriteria(crit, element);
-            }
-        }
-
-        Map<String, Object> properties;
-        try
-        {
-            properties = PropertyUtils.describe(filter);
-        }
-        catch (Throwable e)
-        {
-            if (e instanceof InvocationTargetException)
-            {
-                e = ((InvocationTargetException) e).getTargetException();
-            }
-
-            throw new DataRetrievalFailureException(
-                "Unable to build filter, PropertyUtils.describe throws an exception while analizing class "
-                    + ClassUtils.getShortClassName(filter, "NULL")
-                    + ":"
-                    + e.getClass(),
-                e);
-        }
-
-        Iterator<String> iterator = properties.keySet().iterator();
-        while (iterator.hasNext())
-        {
-            String propertyName = iterator.next();
-
-            Object value = properties.get(propertyName);
-
-            // add only non-null values, ignore read-only properties
-            if (value != null && PropertyUtils.isWriteable(filter, propertyName))
-            {
-                addCondition(crit, propertyName, value, filter);
-            }
-        }
-    }
-
-    /**
-     * Adds contitions to an existing criteria or create sub-criteria for associations.
-     * @param crit Criteria
-     * @param propertyName property name in parent bean
-     * @param value property value
-     * @throws HibernateException exception while building the criteria
-     */
-    private void addCondition(Criteria crit, String propertyName, Object value, Object parentObject)
-        throws HibernateException
-    {
-        if (isSimpleType(value))
-        {
-            if (value instanceof String)
-            {
-
-                // don't filter on empty strings!
-                if (StringUtils.isBlank((String) value))
-                {
-                    return;
-                }
-
-                if (StringUtils.contains((String) value, LIKE_EXPRESSION))
-                {
-                    String valoreDescr = (String) value;
-                    valoreDescr = StringUtils.replace(valoreDescr, "%", "");
-                    valoreDescr = StringUtils.replace(valoreDescr, LIKE_EXPRESSION, "%");
-                    crit.add(Restrictions.like(propertyName, valoreDescr));
-                    log.debug("crit.add(Expression.like(" + propertyName + ", " + valoreDescr + "))");
-                    return;
-                }
-
-            }
-
-            if (log.isDebugEnabled())
-            {
-                log.debug("crit.add(Expression.eq(" + propertyName + ", " + value + "))");
-            }
-
-            crit.add(Restrictions.eq(propertyName, value));
-        }
-        else if (value instanceof MutableDateRange)
-        {
-            Date from = ((MutableDateRange) value).getFrom();
-            Date to = ((MutableDateRange) value).getTo();
-            if (from != null && to != null)
-            {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.add(Restrictions.between(" + propertyName + "," + from + ", " + to + ")");
-                }
-                crit.add(Restrictions.between(propertyName, from, to));
-            }
-            else if (from != null)
-            {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.add(Restrictions.ge(" + propertyName + "," + from + ")");
-                }
-                crit.add(Restrictions.ge(propertyName, from));
-            }
-            else if (to != null)
-            {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.add(Restrictions.le(" + propertyName + ", " + to + ")");
-                }
-                crit.add(Restrictions.le(propertyName, to));
-            }
-        }
-        else
-        {
-            if (containsSomething(value))
-            {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.createCriteria(" + propertyName + ")");
-                }
-                Criteria childrenCriteria = crit.createCriteria(propertyName);
-
-                fillCriteria(childrenCriteria, value);
-            }
-        }
-    }
-
-    /**
-     * Check if the bean contains at least a valid property.
-     * @param bean javabean
-     * @return <code>true</code> if the bean contains at least a valid property
-     */
-    private boolean containsSomething(Object bean)
-    {
-
-        if (bean == null)
-        {
-            return false;
-        }
-        if (isSimpleType(bean))
-        {
-            return true;
-        }
-        else if (bean instanceof MutableDateRange)
-        {
-            return ((MutableDateRange) bean).isSet();
-        }
-
-        if (bean instanceof Collection)
-        {
-            // log.debug("**COL**");
-            Collection coll = ((Collection) bean);
-            if (coll.isEmpty())
-            {
-                return false;
-            }
-
-            if (containsSomething(coll.iterator().next()))
-            {
-                return true;
-            }
-        }
-        else if (bean instanceof Map)
-        {
-            // log.debug("**MAP**");
-            Map coll = ((Map) bean);
-            if (coll.isEmpty())
-            {
-                return false;
-            }
-
-            if (containsSomething(coll.values().iterator().next()))
-            {
-                return true;
-            }
-        }
-
-        Map<String, Object> properties;
-        try
-        {
-            properties = PropertyUtils.describe(bean);
-        }
-        catch (Throwable e)
-        {
-            if (e instanceof InvocationTargetException)
-            {
-                e = ((InvocationTargetException) e).getTargetException();
-            }
-
-            log.error("Unable to build filter, PropertyUtils.describe throws an exception while analizing class "
-                + ClassUtils.getShortClassName(bean, "NULL"), e);
-            return false;
-        }
-
-        for (Map.Entry<String, Object> property : properties.entrySet())
-        {
-
-            if (!PropertyUtils.isWriteable(bean, property.getKey()))
-            {
-                // skip readonly properties
-                continue;
-            }
-
-            Object propertyValue = property.getValue();
-            if (propertyValue == null)
-            {
-                continue;
-            }
-
-            if (isSimpleType(propertyValue) || containsSomething(propertyValue))
-            {
-                return true;
-            }
-        }
-
-        if (log.isDebugEnabled())
-        {
-            // log.debug(ClassUtils.getShortClassName(bean.getClass()) + " is empty");
-        }
-        return false;
     }
 
     /**
