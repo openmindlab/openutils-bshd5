@@ -19,7 +19,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
@@ -76,38 +75,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                         crit.addOrder(orderProperties[j]);
                     }
 
-                }
-                return crit.list();
-            }
-        });
-    }
-
-    /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(java.lang.String, java.lang.Object)
-     */
-    public List<T> findFiltered(String propName, Object filter)
-    {
-        return findFiltered(propName, filter, getDefaultOrder());
-    }
-
-    /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(String, Object, Order[])
-     */
-    public List<T> findFiltered(final String propName, final Object filter, final Order[] orderProperties)
-    {
-
-        return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
-        {
-
-            public Object doInHibernate(Session ses) throws HibernateException
-            {
-                Criteria crit = ses.createCriteria(getReferenceClass());
-                crit.add(Restrictions.eq(propName, filter));
-
-                for (int j = 0; j < orderProperties.length; j++)
-                {
-                    Order order = orderProperties[j];
-                    crit.addOrder(order);
                 }
                 return crit.list();
             }
@@ -259,6 +226,14 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
+     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(java.lang.Object, org.hibernate.criterion.Order[])
+     */
+    public List<T> findFiltered(T filter, Order[] orderProperties)
+    {
+        return findFiltered(filter, orderProperties, new HashMap<String, FilterMetadata>(0), Integer.MAX_VALUE, 0);
+    }
+
+    /**
      * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(T)
      */
     public List<T> findFiltered(final T filter, final Map<String, FilterMetadata> metadata)
@@ -280,7 +255,17 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     public List<T> findFiltered(final T filter, final Map<String, FilterMetadata> metadata, final int maxResults,
         final int page)
     {
-        final Order[] orderProperties = this.getDefaultOrder();
+        return findFiltered(filter, null, metadata, maxResults, page);
+    }
+
+    /**
+     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(null, int, int)
+     */
+    public List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
+        final int maxResults, final int page)
+    {
+        final Order[] orderProperties = customOrder != null && customOrder.length > 0 ? customOrder : this
+            .getDefaultOrder();
 
         return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
         {

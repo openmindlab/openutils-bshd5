@@ -38,23 +38,6 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     List<T> findAll(final Order[] orderProperties);
 
     /**
-     * Return all objects related to the implementation of this DAO with a filter. Use the session given.
-     * @param propName the name of the property to use for filtering
-     * @param filter the value of the filter
-     * @return List of filtered objects
-     */
-    List<T> findFiltered(String propName, Object filter);
-
-    /**
-     * Return all objects related to the implementation of this DAO with a filter. Use the session given.
-     * @param propName the name of the property to use for filtering
-     * @param filter the value of the filter
-     * @param orderProperties the name of the property used for ordering
-     * @return list of filtered objects
-     */
-    List<T> findFiltered(final String propName, final Object filter, final Order[] orderProperties);
-
-    /**
      * Execute a query.
      * @param query a query expressed in Hibernate's query language
      * @param obj filter value
@@ -119,9 +102,27 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
      * @param filter an instance of the object with the properties you whish to filter on.
+     * @param maxResults maximum number of results
+     * @param page result page (first result is maxResults * page)
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
+        final int maxResults, final int page);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
      * @return list of objects
      */
     List<T> findFiltered(final T filter);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param orderProperties the name of the property used for ordering
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, final Order[] orderProperties);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
