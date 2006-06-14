@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sourceforge.openutils</groupId>
     <artifactId>openutils-bshd5</artifactId>
     <name>openutils base Spring-Hibernate DAO for java 5.0</name>
-    <version>1.0-SNAPSHOT</version>
-    <description></description>
+    <version>0.3</version>
+    <description />
     <url>http://openutils.sourceforge.net</url>
     <issueManagement>
         <system>sourceforge</system>
@@ -32,11 +30,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:svn:https://svn.sourceforge.net/svnroot/openutils/trunk/openutils-bshd5</connection>
-        <developerConnection>
-            scm:svn:https://svn.sourceforge.net/svnroot/openutils/trunk/openutils-bshd5
-        </developerConnection>
-        <url>http://svn.sourceforge.net/viewcvs.cgi/openutils/trunk/openutils-bshd5</url>
+        <connection>scm:svn:https://svn.sourceforge.net/svnroot/openutils/tags/openutils-bshd5-0.3</connection>
+        <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/openutils/tags/openutils-bshd5-0.3</developerConnection>
+        <url>http://svn.sourceforge.net/viewcvs.cgi/openutils/tags/openutils-bshd5-0.3</url>
     </scm>
     <organization>
         <name>Fabrizio Giustina</name>
