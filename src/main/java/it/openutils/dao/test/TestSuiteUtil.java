@@ -13,8 +13,9 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -30,7 +31,7 @@ public abstract class TestSuiteUtil
     /**
      * logger.
      */
-    private static Log log = LogFactory.getLog(TestSuiteUtil.class);
+    private static Logger log = LoggerFactory.getLogger(TestSuiteUtil.class);
 
     /**
      * Iterates over the classes accessible via the iterator and adds them to the test suite.

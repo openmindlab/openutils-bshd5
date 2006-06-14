@@ -9,19 +9,20 @@ import javax.sql.DataSource;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.DatabaseSequenceFilter;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.excel.XlsDataSet;
 import org.dbunit.dataset.filter.ITableFilter;
 import org.dbunit.dataset.filter.SequenceTableFilter;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -43,7 +44,7 @@ public abstract class BaseDAOTestCase extends TestCase
     /**
      * logger. Not static so it can be reuser in tests
      */
-    protected Log log = LogFactory.getLog(getClass());
+    protected Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Resource bundle.
@@ -88,29 +89,44 @@ public abstract class BaseDAOTestCase extends TestCase
             // ignore
         }
 
+        // insert values
+        IDataSet dataSet = null;
+
         String datesetFileName = "/" + ClassUtils.getShortClassName(getClass()) + "-load.xml";
         InputStream testData = getClass().getResourceAsStream(datesetFileName);
 
-        if (testData == null)
-        {
-            log.debug("No test data found with name [" + datesetFileName + "]");
-        }
-
         if (testData != null)
         {
+            if (log.isDebugEnabled())
+            {
+                log.debug("loading dataset {}", datesetFileName);
+            }
 
-            // insert values
-            IDataSet dataSet = null;
+            dataSet = new XmlDataSet(testData);
+        }
+        else
+        {
+            // check for excel
+            datesetFileName = "/" + ClassUtils.getShortClassName(getClass()) + "-load.xls";
+            testData = getClass().getResourceAsStream(datesetFileName);
 
             if (testData != null)
             {
                 if (log.isDebugEnabled())
                 {
-                    log.debug("loading dataset " + datesetFileName);
+                    log.debug("loading dataset {}", datesetFileName);
                 }
 
-                dataSet = new XmlDataSet(testData);
+                dataSet = new XlsDataSet(testData);
             }
+        }
+
+        if (dataSet == null)
+        {
+            log.debug("No test data found with name [{}]", datesetFileName);
+        }
+        else
+        {
 
             DataSource dataSource = (DataSource) ctx.getBean("dataSource");
             IDatabaseConnection connection = new DatabaseConnection(dataSource.getConnection());

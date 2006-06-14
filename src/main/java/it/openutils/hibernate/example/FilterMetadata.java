@@ -4,6 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -18,7 +20,7 @@ public interface FilterMetadata
     FilterMetadata LIKE = new FilterMetadata()
     {
 
-        private Log log = LogFactory.getLog(FilterMetadata.class);
+        private Logger log = LoggerFactory.getLogger(FilterMetadata.class);
 
         public void createFilter(Criteria crit, String propertyName, Object propertyValue)
         {
