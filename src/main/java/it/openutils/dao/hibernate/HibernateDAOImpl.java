@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -20,6 +19,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
 import org.hibernate.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -38,7 +39,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * Logger.
      */
-    private static Logger log = Logger.getLogger(HibernateDAOImpl.class);
+    private static Logger log = LoggerFactory.getLogger(HibernateDAOImpl.class);
 
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#find(java.lang.String)
