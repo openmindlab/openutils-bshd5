@@ -300,7 +300,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      * Return the specific Object class that will be used for class-specific implementation of this DAO.
      * @return the reference Class
      */
-    protected abstract Class getReferenceClass();
+    protected abstract Class<T> getReferenceClass();
 
     /**
      * Return a list of <code>Order</code> object to be used for the default ordering of the collection.
