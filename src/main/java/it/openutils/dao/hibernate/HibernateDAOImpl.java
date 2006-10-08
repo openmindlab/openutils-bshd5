@@ -6,7 +6,6 @@ import it.openutils.hibernate.example.FilterMetadata;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +43,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#find(java.lang.String)
      */
+    @SuppressWarnings("unchecked")
     public List<T> find(String query)
     {
         return getHibernateTemplate().find(query);
@@ -60,6 +60,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#findAll(org.hibernate.criterion.Order[])
      */
+    @SuppressWarnings("unchecked")
     public List<T> findAll(final Order[] orderProperties)
     {
 
@@ -93,6 +94,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#find(String, Object[], Type[])
      */
+    @SuppressWarnings("unchecked")
     public List<T> find(final String query, final Object[] obj, final Type[] type)
     {
         return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
@@ -109,6 +111,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#load(java.io.Serializable)
      */
+    @SuppressWarnings("unchecked")
     public T load(K key)
     {
         T result = (T) getHibernateTemplate().load(getReferenceClass(), key);
@@ -119,6 +122,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#load(java.io.Serializable)
      */
+    @SuppressWarnings("unchecked")
     public T loadIfAvailable(K key)
     {
         T result;
@@ -189,6 +193,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#merge(T)
      */
+    @SuppressWarnings("unchecked")
     public T merge(final T obj)
     {
         return (T) getHibernateTemplate().execute(new HibernateCallback()
@@ -205,6 +210,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#save(java.lang.Object)
      */
+    @SuppressWarnings("unchecked")
     public K save(T obj)
     {
         return (K) getHibernateTemplate().save(obj);
@@ -262,6 +268,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(null, int, int)
      */
+    @SuppressWarnings("unchecked")
     public List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page)
     {
@@ -364,7 +371,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      * @param params the parameter Map
      * @return Query
      */
-    protected List< ? > getNamedQuery(final String name, final Map params, final int marResults)
+    protected List< ? > getNamedQuery(final String name, final Map<String, Object> params, final int marResults)
     {
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
@@ -375,10 +382,9 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                 q.setMaxResults(marResults);
                 if (params != null)
                 {
-                    for (Iterator i = params.entrySet().iterator(); i.hasNext();)
+                    for (Map.Entry<String, Object> entry : params.entrySet())
                     {
-                        Map.Entry entry = (Map.Entry) i.next();
-                        setParameterValue(q, (String) entry.getKey(), entry.getValue());
+                        setParameterValue(q, entry.getKey(), entry.getValue());
                     }
                 }
                 return q.list();
@@ -407,6 +413,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      * @param list collection
      * @return first element in the list
      */
+    @SuppressWarnings("unchecked")
     private T getFirstInCollection(Collection<T> list)
     {
         if (list != null && !list.isEmpty())

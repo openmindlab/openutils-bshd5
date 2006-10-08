@@ -130,7 +130,7 @@ public class EnhancedExample
                 if ((value instanceof Set || value instanceof List) && !((Collection) value).isEmpty())
                 {
                     // collection: the new criteria has already been created, now we only nee to analize content
-                    Iterator iterator = ((Collection) value).iterator();
+                    Iterator< ? > iterator = ((Collection< ? >) value).iterator();
 
                     if (iterator.hasNext())
                     {
@@ -153,6 +153,7 @@ public class EnhancedExample
      * @param bean javabean
      * @return <code>true</code> if the bean contains at least a valid property
      */
+    @SuppressWarnings("unchecked")
     private boolean containsSomething(Object bean)
     {
 
@@ -171,8 +172,7 @@ public class EnhancedExample
 
         if (bean instanceof Collection)
         {
-            // log.debug("**COL**");
-            Collection coll = ((Collection) bean);
+            Collection< ? > coll = ((Collection< ? >) bean);
             if (coll.isEmpty())
             {
                 return false;
@@ -185,8 +185,7 @@ public class EnhancedExample
         }
         else if (bean instanceof Map)
         {
-            // log.debug("**MAP**");
-            Map coll = ((Map) bean);
+            Map< ? , ? > coll = ((Map< ? , ? >) bean);
             if (coll.isEmpty())
             {
                 return false;
@@ -250,12 +249,13 @@ public class EnhancedExample
      * @param filter javabean which will be analyzed for non-null properties
      * @throws HibernateException exception while building the criteria
      */
+    @SuppressWarnings("unchecked")
     private void fillCriteria(Criteria crit, Object filter) throws HibernateException
     {
         if ((filter instanceof Set || filter instanceof List) && !((Collection) filter).isEmpty())
         {
             // collection: the new criteria has already been created, now we only need to analize content
-            Iterator iterator = ((Collection) filter).iterator();
+            Iterator< ? > iterator = ((Collection< ? >) filter).iterator();
             while (iterator.hasNext())
             {
                 Object element = iterator.next();
