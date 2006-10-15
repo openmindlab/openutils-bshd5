@@ -5,7 +5,8 @@ import java.util.Date;
 
 /**
  * @author fgiust
- * @version $Revision$ ($Author$)
+ * @version $Id: $
+ * @deprecated use FilterMetadata
  */
 public class MutableDateRange extends Date
 {
