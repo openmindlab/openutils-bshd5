@@ -17,17 +17,17 @@ import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
 
 
 /**
  * @author Fabrizio Giustina
- * @version $Id$
+ * @version $Id: $
  */
 public class EnhancedExample
 {
@@ -37,13 +37,13 @@ public class EnhancedExample
     private EnhancedExample(Criteria crit, Object filter, Map<String, FilterMetadata> metadata)
     {
         this.metadata = metadata == null ? new HashMap<String, FilterMetadata>(0) : metadata;
-        fillCriteria(crit, filter);
+        fillCriteria(null, crit, filter);
     }
 
     /**
      * Logger.
      */
-    private static Log log = LogFactory.getLog(EnhancedExample.class);
+    private static Logger log = LoggerFactory.getLogger(EnhancedExample.class);
 
     /**
      * Fills a criteria object calling addCondition() for any non-null property or for any component in collections.
@@ -76,7 +76,6 @@ public class EnhancedExample
                 return;
             }
 
-            // @todo handle nested properties
             FilterMetadata fmd = metadata.get(propertyName);
 
             if (fmd == null)
@@ -84,35 +83,33 @@ public class EnhancedExample
                 fmd = FilterMetadata.EQUAL;
             }
 
-            fmd.createFilter(crit, propertyName, value);
+            String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils.substringAfterLast(
+                propertyName,
+                ".") : propertyName;
+
+            fmd.createFilter(crit, simplePropertyName, value);
 
         }
-        else if (value instanceof MutableDateRange)
+        else if (value instanceof MutableDateRange) // @todo MutableDateRange should be removed, use a FilterMetadata
+        // for this scope
         {
             Date from = ((MutableDateRange) value).getFrom();
             Date to = ((MutableDateRange) value).getTo();
             if (from != null && to != null)
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.add(Restrictions.between(" + propertyName + "," + from + ", " + to + ")");
-                }
+                log.debug("crit.add(Restrictions.between({},{}, {})", new Object[]{propertyName, from, to});
                 crit.add(Restrictions.between(propertyName, from, to));
             }
             else if (from != null)
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.add(Restrictions.ge(" + propertyName + "," + from + ")");
-                }
+
+                log.debug("crit.add(Restrictions.ge({}, {})", propertyName, to);
+
                 crit.add(Restrictions.ge(propertyName, from));
             }
             else if (to != null)
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.add(Restrictions.le(" + propertyName + ", " + to + ")");
-                }
+                log.debug("crit.add(Restrictions.le({}, {})", propertyName, to);
                 crit.add(Restrictions.le(propertyName, to));
             }
         }
@@ -120,29 +117,29 @@ public class EnhancedExample
         {
             if (containsSomething(value))
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.createCriteria(" + propertyName + ")");
-                }
 
                 // @todo handle multiple associations in lists?
                 // see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-879
                 if ((value instanceof Set || value instanceof List) && !((Collection) value).isEmpty())
                 {
                     // collection: the new criteria has already been created, now we only nee to analize content
-                    Iterator iterator = ((Collection) value).iterator();
 
-                    if (iterator.hasNext())
+                    for (Object element : ((Collection) value))
                     {
-                        Object element = iterator.next();
-                        Criteria childrenCriteria = crit.createCriteria(propertyName);
-                        fillCriteria(childrenCriteria, element);
+                        String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils
+                            .substringAfterLast(propertyName, ".") : propertyName;
+                        log.debug("crit.createCriteria({})", simplePropertyName);
+                        Criteria childrenCriteria = crit.createCriteria(simplePropertyName);
+                        fillCriteria(propertyName, childrenCriteria, element);
                     }
                 }
                 else
                 {
-                    Criteria childrenCriteria = crit.createCriteria(propertyName);
-                    fillCriteria(childrenCriteria, value);
+                    String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils
+                        .substringAfterLast(propertyName, ".") : propertyName;
+                    log.debug("crit.createCriteria({})", simplePropertyName);
+                    Criteria childrenCriteria = crit.createCriteria(simplePropertyName);
+                    fillCriteria(propertyName, childrenCriteria, value);
                 }
             }
         }
@@ -171,7 +168,7 @@ public class EnhancedExample
 
         if (bean instanceof Collection)
         {
-            // log.debug("**COL**");
+
             Collection coll = ((Collection) bean);
             if (coll.isEmpty())
             {
@@ -185,7 +182,6 @@ public class EnhancedExample
         }
         else if (bean instanceof Map)
         {
-            // log.debug("**MAP**");
             Map coll = ((Map) bean);
             if (coll.isEmpty())
             {
@@ -236,11 +232,6 @@ public class EnhancedExample
             }
         }
 
-        if (log.isDebugEnabled())
-        {
-            // log.debug(ClassUtils.getShortClassName(bean.getClass()) + " is empty");
-        }
-
         return false;
     }
 
@@ -250,16 +241,14 @@ public class EnhancedExample
      * @param filter javabean which will be analyzed for non-null properties
      * @throws HibernateException exception while building the criteria
      */
-    private void fillCriteria(Criteria crit, Object filter) throws HibernateException
+    private void fillCriteria(String parentPropertyName, Criteria crit, Object filter) throws HibernateException
     {
         if ((filter instanceof Set || filter instanceof List) && !((Collection) filter).isEmpty())
         {
             // collection: the new criteria has already been created, now we only need to analize content
-            Iterator iterator = ((Collection) filter).iterator();
-            while (iterator.hasNext())
+            for (Object element : ((Collection) filter))
             {
-                Object element = iterator.next();
-                fillCriteria(crit, element);
+                fillCriteria(parentPropertyName, crit, element);
             }
         }
 
@@ -293,7 +282,10 @@ public class EnhancedExample
             // add only non-null values, ignore read-only properties
             if (value != null && PropertyUtils.isWriteable(filter, propertyName))
             {
-                addCondition(crit, propertyName, value, filter);
+                String composedPropertyName = (parentPropertyName == null) ? propertyName : parentPropertyName
+                    + "."
+                    + propertyName;
+                addCondition(crit, composedPropertyName, value, filter);
             }
         }
     }
