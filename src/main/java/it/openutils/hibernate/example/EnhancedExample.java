@@ -83,7 +83,9 @@ public class EnhancedExample
                 fmd = FilterMetadata.EQUAL;
             }
 
-            String simplePropertyName = StringUtils.substringAfterLast(propertyName, ".");
+            String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils.substringAfterLast(
+                propertyName,
+                ".") : propertyName;
 
             fmd.createFilter(crit, simplePropertyName, value);
 
@@ -115,7 +117,6 @@ public class EnhancedExample
         {
             if (containsSomething(value))
             {
-                log.debug("crit.createCriteria({})", propertyName);
 
                 // @todo handle multiple associations in lists?
                 // see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-879
@@ -125,13 +126,19 @@ public class EnhancedExample
 
                     for (Object element : ((Collection) value))
                     {
-                        Criteria childrenCriteria = crit.createCriteria(propertyName);
+                        String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils
+                            .substringAfterLast(propertyName, ".") : propertyName;
+                        log.debug("crit.createCriteria({})", simplePropertyName);
+                        Criteria childrenCriteria = crit.createCriteria(simplePropertyName);
                         fillCriteria(propertyName, childrenCriteria, element);
                     }
                 }
                 else
                 {
-                    Criteria childrenCriteria = crit.createCriteria(propertyName);
+                    String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils
+                        .substringAfterLast(propertyName, ".") : propertyName;
+                    log.debug("crit.createCriteria({})", simplePropertyName);
+                    Criteria childrenCriteria = crit.createCriteria(simplePropertyName);
                     fillCriteria(propertyName, childrenCriteria, value);
                 }
             }
