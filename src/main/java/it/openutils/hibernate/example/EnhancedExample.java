@@ -313,7 +313,7 @@ public class EnhancedExample
             || objClass.equals(BigDecimal.class)
             || objClass.equals(Timestamp.class)
             || objClass.equals(Character.class)
-            || objClass.equals(Calendar.class);
+            || Calendar.class.isAssignableFrom(objClass);
     }
 
 }
