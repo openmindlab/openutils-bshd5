@@ -231,7 +231,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      */
     public List<T> findFiltered(final T filter)
     {
-        return findFiltered(filter, new HashMap<String, FilterMetadata>(0));
+        return findFiltered(filter, getDefaultFilterMetadata());
     }
 
     /**
@@ -239,7 +239,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      */
     public List<T> findFiltered(T filter, Order[] orderProperties)
     {
-        return findFiltered(filter, orderProperties, new HashMap<String, FilterMetadata>(0), Integer.MAX_VALUE, 0);
+        return findFiltered(filter, orderProperties, getDefaultFilterMetadata(), Integer.MAX_VALUE, 0);
     }
 
     /**
@@ -255,7 +255,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      */
     public List<T> findFiltered(final T filter, final int maxResults, final int page)
     {
-        return findFiltered(filter, new HashMap<String, FilterMetadata>(0), maxResults, page);
+        return findFiltered(filter, getDefaultFilterMetadata(), maxResults, page);
     }
 
     /**
@@ -409,6 +409,16 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             return;
         }
         query.setParameter(key, value);
+    }
+
+    /**
+     * Returns the default set of FilterMetadata that will be applied to any query. The default implementation doesn't
+     * set any default filter, subclasses may override this.
+     * @return map of property name - filter metadata
+     */
+    protected Map<String, FilterMetadata> getDefaultFilterMetadata()
+    {
+        return new HashMap<String, FilterMetadata>(0);
     }
 
     /**
