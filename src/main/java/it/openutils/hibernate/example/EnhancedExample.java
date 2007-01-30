@@ -67,6 +67,11 @@ public class EnhancedExample
     private void addCondition(Criteria crit, String propertyName, Object value, Object parentObject)
         throws HibernateException
     {
+
+        String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils.substringAfterLast(
+            propertyName,
+            ".") : propertyName;
+
         if (isSimpleType(value))
         {
 
@@ -83,10 +88,6 @@ public class EnhancedExample
                 fmd = FilterMetadata.EQUAL;
             }
 
-            String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils.substringAfterLast(
-                propertyName,
-                ".") : propertyName;
-
             fmd.createFilter(crit, simplePropertyName, value);
 
         }
@@ -97,7 +98,7 @@ public class EnhancedExample
             Date to = ((MutableDateRange) value).getTo();
             if (from != null && to != null)
             {
-                log.debug("crit.add(Restrictions.between({},{}, {})", new Object[]{propertyName, from, to});
+                log.debug("crit.add(Restrictions.between({},{}, {})", new Object[]{propertyName, from, to });
                 crit.add(Restrictions.between(propertyName, from, to));
             }
             else if (from != null)
@@ -117,26 +118,38 @@ public class EnhancedExample
         {
             if (containsSomething(value))
             {
-
                 // @todo handle multiple associations in lists?
                 // see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-879
                 if ((value instanceof Set || value instanceof List) && !((Collection) value).isEmpty())
                 {
                     // collection: the new criteria has already been created, now we only nee to analize content
 
-                    for (Object element : ((Collection) value))
+                    for (Object element : ((Collection< ? extends Object>) value))
                     {
-                        String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils
-                            .substringAfterLast(propertyName, ".") : propertyName;
+
                         log.debug("crit.createCriteria({})", simplePropertyName);
                         Criteria childrenCriteria = crit.createCriteria(simplePropertyName);
                         fillCriteria(propertyName, childrenCriteria, element);
                     }
                 }
+                else if ((value instanceof Map) && !((Map) value).isEmpty())
+                {
+                    FilterMetadata fmd = metadata.get(propertyName);
+
+                    if (fmd != null)
+                    {
+                        fmd.createFilter(crit, simplePropertyName, value);
+                    }
+                    else
+                    {
+                        log.warn(
+                            "Maps are not handled without a FilterMetadata. Property is {} and value is {}.",
+                            propertyName,
+                            value);
+                    }
+                }
                 else
                 {
-                    String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils
-                        .substringAfterLast(propertyName, ".") : propertyName;
                     log.debug("crit.createCriteria({})", simplePropertyName);
                     Criteria childrenCriteria = crit.createCriteria(simplePropertyName);
                     fillCriteria(propertyName, childrenCriteria, value);

@@ -28,7 +28,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * Base Hibernate DAO.
  * @author Fabrizio Giustina
- * @version $Id$
+ * @version $Id: $
+ * @param <T> Persistence class
+ * @param <K> Object Key
  */
 public abstract class HibernateDAOImpl<T extends Object, K extends Serializable> extends HibernateDaoSupport
     implements
@@ -41,7 +43,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     private static Logger log = LoggerFactory.getLogger(HibernateDAOImpl.class);
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#find(java.lang.String)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public List<T> find(String query)
@@ -50,7 +52,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findAll()
+     * {@inheritDoc}
      */
     public List<T> findAll()
     {
@@ -58,7 +60,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findAll(org.hibernate.criterion.Order[])
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public List<T> findAll(final Order[] orderProperties)
@@ -84,15 +86,15 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#find(java.lang.String, java.lang.Object, org.hibernate.type.Type)
+     * {@inheritDoc}
      */
     public List<T> find(String query, Object obj, Type type)
     {
-        return find(query, new Object[]{obj}, new Type[]{type});
+        return find(query, new Object[]{obj }, new Type[]{type });
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#find(String, Object[], Type[])
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public List<T> find(final String query, final Object[] obj, final Type[] type)
@@ -109,7 +111,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#load(java.io.Serializable)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public T load(K key)
@@ -120,7 +122,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#load(java.io.Serializable)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public T loadIfAvailable(K key)
@@ -149,7 +151,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#saveOrUpdate(null)
+     * {@inheritDoc}
      */
     public void saveOrUpdate(final T obj)
     {
@@ -157,7 +159,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#update(null)
+     * {@inheritDoc}
      */
     public void update(T obj)
     {
@@ -165,7 +167,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#delete(null)
+     * {@inheritDoc}
      */
     public boolean delete(final K key)
     {
@@ -183,7 +185,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#refresh(null)
+     * {@inheritDoc}
      */
     public void refresh(T obj)
     {
@@ -191,7 +193,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#merge(T)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public T merge(final T obj)
@@ -208,7 +210,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#save(java.lang.Object)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public K save(T obj)
@@ -217,7 +219,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFilteredFirst(T)
+     * {@inheritDoc}
      */
     public T findFilteredFirst(final T filter)
     {
@@ -225,23 +227,23 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(T)
+     * {@inheritDoc}
      */
     public List<T> findFiltered(final T filter)
     {
-        return findFiltered(filter, new HashMap<String, FilterMetadata>(0));
+        return findFiltered(filter, getDefaultFilterMetadata());
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(java.lang.Object, org.hibernate.criterion.Order[])
+     * {@inheritDoc}
      */
     public List<T> findFiltered(T filter, Order[] orderProperties)
     {
-        return findFiltered(filter, orderProperties, new HashMap<String, FilterMetadata>(0), Integer.MAX_VALUE, 0);
+        return findFiltered(filter, orderProperties, getDefaultFilterMetadata(), Integer.MAX_VALUE, 0);
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(T)
+     * {@inheritDoc}
      */
     public List<T> findFiltered(final T filter, final Map<String, FilterMetadata> metadata)
     {
@@ -249,15 +251,15 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(null, int, int)
+     * {@inheritDoc}
      */
     public List<T> findFiltered(final T filter, final int maxResults, final int page)
     {
-        return findFiltered(filter, new HashMap<String, FilterMetadata>(0), maxResults, page);
+        return findFiltered(filter, getDefaultFilterMetadata(), maxResults, page);
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(null, int, int)
+     * {@inheritDoc}
      */
     public List<T> findFiltered(final T filter, final Map<String, FilterMetadata> metadata, final int maxResults,
         final int page)
@@ -266,7 +268,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * @see it.openutils.dao.hibernate.HibernateDAO#findFiltered(null, int, int)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     public List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
@@ -285,7 +287,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                 crit.setMaxResults(maxResults);
                 crit.setFirstResult(maxResults * page);
 
-                if (null != orderProperties && orderProperties.length > 0)
+                if (orderProperties != null && orderProperties.length > 0)
                 {
                     for (Order order : orderProperties)
                     {
@@ -295,9 +297,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                         }
                     }
                 }
-
                 EnhancedExample.create(crit, filter, metadata);
-
                 return crit.list();
             }
         });
@@ -321,9 +321,10 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * Obtain an instance of Query for a named query string defined in the mapping file.
      * @param name the name of a query defined externally
+     * @param maxResults max number of results
      * @return Query
      */
-    protected List< ? > getNamedQuery(final String name, final int marResults)
+    protected List< ? > getNamedQuery(final String name, final int maxResults)
     {
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
@@ -331,7 +332,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
-                q.setMaxResults(marResults);
+                q.setMaxResults(maxResults);
                 return q.list();
             }
         });
@@ -341,9 +342,10 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      * Obtain an instance of Query for a named query string defined in the mapping file. Use the parameters given.
      * @param name the name of a query defined externally
      * @param params the parameter array
+     * @param maxResults max number of results
      * @return Query
      */
-    protected List< ? > getNamedQuery(final String name, final Serializable[] params, final int marResults)
+    protected List< ? > getNamedQuery(final String name, final Serializable[] params, final int maxResults)
     {
 
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
@@ -352,7 +354,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
-                q.setMaxResults(marResults);
+                q.setMaxResults(maxResults);
                 if (null != params)
                 {
                     for (int i = 0; i < params.length; i++)
@@ -369,9 +371,10 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      * Obtain an instance of Query for a named query string defined in the mapping file. Use the parameters given.
      * @param name the name of a query defined externally
      * @param params the parameter Map
+     * @param maxResults max number of results
      * @return Query
      */
-    protected List< ? > getNamedQuery(final String name, final Map<String, Object> params, final int marResults)
+    protected List< ? > getNamedQuery(final String name, final Map<String, Object> params, final int maxResults)
     {
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
@@ -379,7 +382,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
-                q.setMaxResults(marResults);
+                q.setMaxResults(maxResults);
                 if (params != null)
                 {
                     for (Map.Entry<String, Object> entry : params.entrySet())
@@ -406,6 +409,16 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             return;
         }
         query.setParameter(key, value);
+    }
+
+    /**
+     * Returns the default set of FilterMetadata that will be applied to any query. The default implementation doesn't
+     * set any default filter, subclasses may override this.
+     * @return map of property name - filter metadata
+     */
+    protected Map<String, FilterMetadata> getDefaultFilterMetadata()
+    {
+        return new HashMap<String, FilterMetadata>(0);
     }
 
     /**

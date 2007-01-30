@@ -4,10 +4,11 @@ import java.util.Date;
 
 
 /**
- * @author fgiust
+ * @author Fabrizio Giustina
  * @version $Id: $
  * @deprecated use FilterMetadata
  */
+@Deprecated
 public class MutableDateRange extends Date
 {
 
