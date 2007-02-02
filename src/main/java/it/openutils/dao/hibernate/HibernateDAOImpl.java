@@ -18,8 +18,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
 import org.hibernate.type.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -36,11 +34,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     implements
     HibernateDAO<T, K>
 {
-
-    /**
-     * Logger.
-     */
-    private static Logger log = LoggerFactory.getLogger(HibernateDAOImpl.class);
 
     /**
      * {@inheritDoc}
