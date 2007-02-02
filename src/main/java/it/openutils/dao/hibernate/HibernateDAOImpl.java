@@ -26,7 +26,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * Base Hibernate DAO.
  * @author Fabrizio Giustina
- * @version $Id: $
+ * @version $Id$
  * @param <T> Persistence class
  * @param <K> Object Key
  */
@@ -34,6 +34,81 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     implements
     HibernateDAO<T, K>
 {
+
+    /**
+     * @author carone
+     * @version $Id$
+     */
+    private final class HibernateCallbackForExecution implements HibernateCallback
+    {
+
+        /**
+         * 
+         */
+        private final T filter;
+
+        /**
+         * 
+         */
+        private final int page;
+
+        /**
+         * 
+         */
+        private final int maxResults;
+
+        /**
+         * 
+         */
+        private final Map<String, FilterMetadata> metadata;
+
+        /**
+         * 
+         */
+        private final Order[] orderProperties;
+
+        /**
+         * @param filter
+         * @param page
+         * @param maxResults
+         * @param metadata
+         * @param orderProperties
+         */
+        private HibernateCallbackForExecution(
+            T filter,
+            int page,
+            int maxResults,
+            Map<String, FilterMetadata> metadata,
+            Order[] orderProperties)
+        {
+            this.filter = filter;
+            this.page = page;
+            this.maxResults = maxResults;
+            this.metadata = metadata;
+            this.orderProperties = orderProperties;
+        }
+
+        public Object doInHibernate(Session ses) throws HibernateException
+        {
+            Criteria crit = ses.createCriteria(filter.getClass());
+            crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+            crit.setMaxResults(maxResults);
+            crit.setFirstResult(maxResults * page);
+
+            if (orderProperties != null && orderProperties.length > 0)
+            {
+                for (Order order : orderProperties)
+                {
+                    if (order != null)
+                    {
+                        crit.addOrder(order);
+                    }
+                }
+            }
+            EnhancedExample.create(crit, filter, metadata);
+            return crit.list();
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -270,30 +345,8 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
         final Order[] orderProperties = customOrder != null && customOrder.length > 0 ? customOrder : this
             .getDefaultOrder();
 
-        return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
-        {
-
-            public Object doInHibernate(Session ses) throws HibernateException
-            {
-                Criteria crit = ses.createCriteria(filter.getClass());
-                crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-                crit.setMaxResults(maxResults);
-                crit.setFirstResult(maxResults * page);
-
-                if (orderProperties != null && orderProperties.length > 0)
-                {
-                    for (Order order : orderProperties)
-                    {
-                        if (order != null)
-                        {
-                            crit.addOrder(order);
-                        }
-                    }
-                }
-                EnhancedExample.create(crit, filter, metadata);
-                return crit.list();
-            }
-        });
+        return (List<T>) getHibernateTemplate().execute(
+            new HibernateCallbackForExecution(filter, page, maxResults, metadata, orderProperties));
     }
 
     /**
