@@ -3,6 +3,7 @@ package it.openutils.hibernate.example;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +25,11 @@ public interface FilterMetadata
 
         public void createFilter(Criteria crit, String propertyName, Object propertyValue)
         {
-            String valoreDescr = "%" + (String) propertyValue + "%";
-            crit.add(Restrictions.like(propertyName, valoreDescr));
+            crit.add(Restrictions.ilike(propertyName, (String) propertyValue, MatchMode.ANYWHERE));
 
             if (log.isDebugEnabled())
             {
-                log.debug("crit.add(Expression.like(" + propertyName + ", " + valoreDescr + "))");
+                log.debug("crit.add(Expression.like(" + propertyName + ", '%" + propertyValue + "%' ))");
             }
         }
     };
@@ -41,14 +41,12 @@ public interface FilterMetadata
 
         public void createFilter(Criteria crit, String propertyName, Object propertyValue)
         {
+            if (log.isDebugEnabled())
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug("crit.add(Expression.eq(" + propertyName + ", " + propertyValue + "))");
-                }
-
-                crit.add(Restrictions.eq(propertyName, propertyValue));
+                log.debug("crit.add(Expression.eq(" + propertyName + ", " + propertyValue + "))");
             }
+
+            crit.add(Restrictions.eq(propertyName, propertyValue));
         }
     };
 }
