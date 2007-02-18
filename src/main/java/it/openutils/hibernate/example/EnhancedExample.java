@@ -72,7 +72,7 @@ public class EnhancedExample
             propertyName,
             ".") : propertyName;
 
-        if (isSimpleType(value))
+        if (isSimpleType(value) || value.getClass().isEnum())
         {
 
             // don't filter on empty strings!
