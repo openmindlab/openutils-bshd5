@@ -16,6 +16,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -43,29 +44,31 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     {
 
         /**
-         * 
+         *
          */
         private final T filter;
 
         /**
-         * 
+         *
          */
         private final int page;
 
         /**
-         * 
+         *
          */
         private final int maxResults;
 
         /**
-         * 
+         *
          */
         private final Map<String, FilterMetadata> metadata;
 
         /**
-         * 
+         *
          */
         private final Order[] orderProperties;
+
+        private List<Criterion> additionalCriteria;
 
         /**
          * @param filter
@@ -79,13 +82,15 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             int page,
             int maxResults,
             Map<String, FilterMetadata> metadata,
-            Order[] orderProperties)
+            Order[] orderProperties,
+            List<Criterion> additionalCriteria)
         {
             this.filter = filter;
             this.page = page;
             this.maxResults = maxResults;
             this.metadata = metadata;
             this.orderProperties = orderProperties;
+            this.additionalCriteria = additionalCriteria;
         }
 
         public Object doInHibernate(Session ses) throws HibernateException
@@ -106,6 +111,13 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                 }
             }
             EnhancedExample.create(crit, filter, metadata);
+            if (additionalCriteria != null && !additionalCriteria.isEmpty())
+            {
+                for (Criterion criterion : additionalCriteria)
+                {
+                    crit.add(criterion);
+                }
+            }
             return crit.list();
         }
     }
@@ -342,11 +354,21 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     public List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page)
     {
+        return findFiltered(filter, customOrder, metadata, maxResults, page, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public List<T> findFiltered(T filter, Order[] customOrder, Map<String, FilterMetadata> metadata, int maxResults,
+        int page, List<Criterion> additionalCriteria)
+    {
         final Order[] orderProperties = customOrder != null && customOrder.length > 0 ? customOrder : this
             .getDefaultOrder();
 
         return (List<T>) getHibernateTemplate().execute(
-            new HibernateCallbackForExecution(filter, page, maxResults, metadata, orderProperties));
+            new HibernateCallbackForExecution(filter, page, maxResults, metadata, orderProperties, additionalCriteria));
     }
 
     /**

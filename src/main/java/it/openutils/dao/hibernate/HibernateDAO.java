@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.type.Type;
 
@@ -14,7 +15,7 @@ import org.hibernate.type.Type;
  * @author Fabrizio Giustina
  * @version $Id$
  * @param <T> Persistence class
- * @param <K> Object Key 
+ * @param <K> Object Key
  */
 public interface HibernateDAO<T extends Object, K extends Serializable>
 {
@@ -38,6 +39,14 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @return a list of all instances
      */
     List<T> findAll(final Order[] orderProperties);
+
+    /**
+     * Return all objects related to the implementation of this DAO with no filter.
+     * @param orderProperties <code>desc</code> or <code>asc</code>
+     * @param criteria Additional Criterion conditions
+     * @return a list of all instances
+     */
+    List<T> findAll(final Order[] orderProperties, List<Criterion> criteria);
 
     /**
      * Execute a query.
@@ -93,7 +102,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     List<T> findFiltered(final T filter, final int maxResults, final int page);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance. 
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
      * @param filter an instance of the object with the properties you whish to filter on.
      * @param metadata filter metadata
      * @param maxResults maximum number of results
@@ -106,13 +115,26 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
      * @param filter an instance of the object with the properties you whish to filter on.
      * @param customOrder order criterias
-     * @param metadata filter metadata 
+     * @param metadata filter metadata
      * @param maxResults maximum number of results
      * @param page result page (first result is maxResults * page)
      * @return list of objects
      */
     List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param customOrder order criterias
+     * @param metadata filter metadata
+     * @param maxResults maximum number of results
+     * @param page result page (first result is maxResults * page)
+     * @param additionalCriteria additional criteria
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
+        final int maxResults, final int page, List<Criterion> additionalCriteria);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
@@ -132,7 +154,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
      * @param filter an instance of the object with the properties you whish to filter on.
-     * @param metadata filter metadata  
+     * @param metadata filter metadata
      * @return list of objects
      */
     List<T> findFiltered(final T filter, Map<String, FilterMetadata> metadata);
@@ -144,6 +166,15 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @return first object in the collection
      */
     T findFilteredFirst(final T filter);
+
+    /**
+     * Return the first object related to the implementation of this DAO filtered using properties of the provided
+     * instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param criteria additional criterion
+     * @return first object in the collection
+     */
+    T findFilteredFirst(final T filter, final List<Criterion> criteria);
 
     /**
      * Used by the base DAO classes but here for your modification Remove a persistent instance from the datastore. The
