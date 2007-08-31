@@ -168,6 +168,37 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
+    public List<T> findAll(final Order[] orderProperties, final List<Criterion> criteria)
+    {
+        return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
+        {
+
+            public Object doInHibernate(Session ses) throws HibernateException
+            {
+                Criteria crit = ses.createCriteria(getReferenceClass());
+                if (null != orderProperties)
+                {
+                    for (int j = 0; j < orderProperties.length; j++)
+                    {
+                        crit.addOrder(orderProperties[j]);
+                    }
+
+                }
+                if (criteria != null)
+                {
+                    for (Criterion criterion : criteria)
+                    {
+                        crit.add(criterion);
+                    }
+                }
+                return crit.list();
+            }
+        });
+    }
+    /**
+     * {@inheritDoc}
+     */
     public List<T> find(String query, Object obj, Type type)
     {
         return find(query, new Object[]{obj }, new Type[]{type });
@@ -309,6 +340,14 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
+    public T findFilteredFirst(final T filter, List<Criterion> criteria)
+    {
+        return getFirstInCollection(findFiltered(filter, null,  getDefaultFilterMetadata(), 1, 0, criteria));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public List<T> findFiltered(final T filter)
     {
         return findFiltered(filter, getDefaultFilterMetadata());
@@ -396,7 +435,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     {
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
-
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
