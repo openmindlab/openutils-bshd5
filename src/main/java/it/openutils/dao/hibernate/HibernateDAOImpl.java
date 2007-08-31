@@ -435,7 +435,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     {
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
-
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
