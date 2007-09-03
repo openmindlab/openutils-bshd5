@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.aopalliance.aop.AspectException;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -19,6 +20,7 @@ import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.type.Type;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -145,24 +147,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     @SuppressWarnings("unchecked")
     public List<T> findAll(final Order[] orderProperties)
     {
-
-        return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
-        {
-
-            public Object doInHibernate(Session ses) throws HibernateException
-            {
-                Criteria crit = ses.createCriteria(getReferenceClass());
-                if (null != orderProperties)
-                {
-                    for (int j = 0; j < orderProperties.length; j++)
-                    {
-                        crit.addOrder(orderProperties[j]);
-                    }
-
-                }
-                return crit.list();
-            }
-        });
+        return getThis().findAll(orderProperties, null);
     }
 
     /**
@@ -196,6 +181,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             }
         });
     }
+
     /**
      * {@inheritDoc}
      */
@@ -342,7 +328,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      */
     public T findFilteredFirst(final T filter, List<Criterion> criteria)
     {
-        return getFirstInCollection(findFiltered(filter, null,  getDefaultFilterMetadata(), 1, 0, criteria));
+        return getFirstInCollection(findFiltered(filter, null, getDefaultFilterMetadata(), 1, 0, criteria));
     }
 
     /**
@@ -351,6 +337,24 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     public List<T> findFiltered(final T filter)
     {
         return findFiltered(filter, getDefaultFilterMetadata());
+    }
+
+    /**
+     * @return
+     * This is needed as for http://opensource.atlassian.com/projects/spring/browse/SPR-2226
+     */
+    @SuppressWarnings("unchecked")
+    private HibernateDAO<T, K> getThis()
+    {
+        try
+        {
+            return (HibernateDAO<T, K>) AopContext.currentProxy();
+        }
+        catch (AspectException exc)
+        {
+            logger.debug("Not running inside an AOP proxy, so no proxy can be returned: " + exc.getMessage());
+            return this;
+        }
     }
 
     /**
@@ -393,7 +397,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     public List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page)
     {
-        return findFiltered(filter, customOrder, metadata, maxResults, page, null);
+        return getThis().findFiltered(filter, customOrder, metadata, maxResults, page, null);
     }
 
     /**
@@ -435,6 +439,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     {
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
+
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
