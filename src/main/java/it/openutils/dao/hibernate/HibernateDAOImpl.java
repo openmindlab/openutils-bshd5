@@ -4,6 +4,7 @@ import it.openutils.hibernate.example.EnhancedExample;
 import it.openutils.hibernate.example.FilterMetadata;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -147,7 +148,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     @SuppressWarnings("unchecked")
     public List<T> findAll(final Order[] orderProperties)
     {
-        return getThis().findAll(orderProperties, null);
+        return getThis().findAll(orderProperties, new ArrayList<Criterion>());
     }
 
     /**
@@ -397,7 +398,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     public List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page)
     {
-        return getThis().findFiltered(filter, customOrder, metadata, maxResults, page, null);
+        return getThis().findFiltered(filter, customOrder, metadata, maxResults, page, new ArrayList<Criterion>());
     }
 
     /**
