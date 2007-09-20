@@ -80,6 +80,12 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     void refresh(T obj);
 
     /**
+     * Remove the given object from the Session cache.
+     * @param obj Object
+     */
+    void evict(T obj);
+    
+    /**
      * Copy the state of the given object onto the persistent object with the same identifier. If there is no persistent
      * instance currently associated with the session, it will be loaded. Return the persistent instance. If the given
      * instance is unsaved, save a copy of and return it as a newly persistent instance. The given instance does not
