@@ -10,19 +10,24 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * FilterMetadata can be used to alter how properties are handled.
  * @author Fabrizio Giustina
- * @version $Id$
+ * @version $Id: $
  */
 public interface FilterMetadata
 {
 
-    void createFilter(Criteria criteria, String propertyName, Object propertyValue);
-
+    /**
+     * A filter metadata that adds a LIKE condition.
+     */
     FilterMetadata LIKE = new FilterMetadata()
     {
 
         private Logger log = LoggerFactory.getLogger(FilterMetadata.class);
 
+        /**
+         * {@inheritDoc}
+         */
         public void createFilter(Criteria crit, String propertyName, Object propertyValue)
         {
             crit.add(Restrictions.ilike(propertyName, (String) propertyValue, MatchMode.ANYWHERE));
@@ -34,11 +39,17 @@ public interface FilterMetadata
         }
     };
 
+    /**
+     * A filter metadata that adds an EQUAL condition.
+     */
     FilterMetadata EQUAL = new FilterMetadata()
     {
 
         private Log log = LogFactory.getLog(FilterMetadata.class);
 
+        /**
+         * {@inheritDoc}
+         */
         public void createFilter(Criteria crit, String propertyName, Object propertyValue)
         {
             if (log.isDebugEnabled())
@@ -49,4 +60,12 @@ public interface FilterMetadata
             crit.add(Restrictions.eq(propertyName, propertyValue));
         }
     };
+
+    /**
+     * The createFilter method can alter an existing criteria adding restrictions.
+     * @param criteria the parent criteria
+     * @param propertyName current property name
+     * @param propertyValue property value
+     */
+    void createFilter(Criteria criteria, String propertyName, Object propertyValue);
 }
