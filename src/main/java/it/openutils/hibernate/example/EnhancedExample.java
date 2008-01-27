@@ -1,7 +1,5 @@
 package it.openutils.hibernate.example;
 
-import it.openutils.dao.hibernate.MutableDateRange;
-
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -19,7 +17,6 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -29,8 +26,13 @@ import org.springframework.dao.DataRetrievalFailureException;
  * @author Fabrizio Giustina
  * @version $Id: $
  */
-public class EnhancedExample
+public final class EnhancedExample
 {
+
+    /**
+     * Logger.
+     */
+    private static Logger log = LoggerFactory.getLogger(EnhancedExample.class);
 
     private Map<String, FilterMetadata> metadata;
 
@@ -41,14 +43,10 @@ public class EnhancedExample
     }
 
     /**
-     * Logger.
-     */
-    private static Logger log = LoggerFactory.getLogger(EnhancedExample.class);
-
-    /**
      * Fills a criteria object calling addCondition() for any non-null property or for any component in collections.
      * @param crit Criteria
      * @param filter javabean which will be analyzed for non-null properties
+     * @param metadata Map of property names - filter metadata
      * @throws HibernateException exception while building the criteria
      */
     public static void create(Criteria crit, Object filter, Map<String, FilterMetadata> metadata)
@@ -91,40 +89,17 @@ public class EnhancedExample
             fmd.createFilter(crit, simplePropertyName, value);
 
         }
-        else if (value instanceof MutableDateRange) // @todo MutableDateRange should be removed, use a FilterMetadata
-        // for this scope
-        {
-            Date from = ((MutableDateRange) value).getFrom();
-            Date to = ((MutableDateRange) value).getTo();
-            if (from != null && to != null)
-            {
-                log.debug("crit.add(Restrictions.between({},{}, {})", new Object[]{propertyName, from, to });
-                crit.add(Restrictions.between(propertyName, from, to));
-            }
-            else if (from != null)
-            {
-
-                log.debug("crit.add(Restrictions.ge({}, {})", propertyName, to);
-
-                crit.add(Restrictions.ge(propertyName, from));
-            }
-            else if (to != null)
-            {
-                log.debug("crit.add(Restrictions.le({}, {})", propertyName, to);
-                crit.add(Restrictions.le(propertyName, to));
-            }
-        }
         else
         {
             if (containsSomething(value))
             {
                 // @todo handle multiple associations in lists?
                 // see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-879
-                if ((value instanceof Set || value instanceof List) && !((Collection) value).isEmpty())
+                if ((value instanceof Set || value instanceof List) && !((Collection< ? >) value).isEmpty())
                 {
                     // collection: the new criteria has already been created, now we only nee to analize content
 
-                    for (Object element : ((Collection< ? extends Object>) value))
+                    for (Object element : ((Collection< ? >) value))
                     {
 
                         log.debug("crit.createCriteria({})", simplePropertyName);
@@ -132,7 +107,7 @@ public class EnhancedExample
                         fillCriteria(propertyName, childrenCriteria, element);
                     }
                 }
-                else if ((value instanceof Map) && !((Map) value).isEmpty())
+                else if ((value instanceof Map) && !((Map< ? , ? >) value).isEmpty())
                 {
                     FilterMetadata fmd = metadata.get(propertyName);
 
@@ -163,6 +138,7 @@ public class EnhancedExample
      * @param bean javabean
      * @return <code>true</code> if the bean contains at least a valid property
      */
+    @SuppressWarnings("unchecked")
     private boolean containsSomething(Object bean)
     {
 
@@ -174,15 +150,11 @@ public class EnhancedExample
         {
             return true;
         }
-        else if (bean instanceof MutableDateRange)
-        {
-            return ((MutableDateRange) bean).isSet();
-        }
 
         if (bean instanceof Collection)
         {
 
-            Collection coll = ((Collection) bean);
+            Collection< ? > coll = ((Collection< ? >) bean);
             if (coll.isEmpty())
             {
                 return false;
@@ -195,7 +167,7 @@ public class EnhancedExample
         }
         else if (bean instanceof Map)
         {
-            Map coll = ((Map) bean);
+            Map< ? , ? > coll = ((Map< ? , ? >) bean);
             if (coll.isEmpty())
             {
                 return false;
@@ -254,12 +226,13 @@ public class EnhancedExample
      * @param filter javabean which will be analyzed for non-null properties
      * @throws HibernateException exception while building the criteria
      */
+    @SuppressWarnings("unchecked")
     private void fillCriteria(String parentPropertyName, Criteria crit, Object filter) throws HibernateException
     {
-        if ((filter instanceof Set || filter instanceof List) && !((Collection) filter).isEmpty())
+        if ((filter instanceof Set || filter instanceof List) && !((Collection< ? >) filter).isEmpty())
         {
             // collection: the new criteria has already been created, now we only need to analize content
-            for (Object element : ((Collection) filter))
+            for (Object element : ((Collection< ? >) filter))
             {
                 fillCriteria(parentPropertyName, crit, element);
             }

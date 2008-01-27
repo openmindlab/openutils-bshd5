@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Openutils bshd5">
-  <publishDate position="left" format="yyyy-MM-dd" />
+  <publishDate position="navigation-bottom" format="yyyy-MM-dd" />
+  <version position="navigation-bottom" />
   <bannerRight>
     <name>Openutils</name>
     <src>http://openutils.sourceforge.net/images/openutils-logo.png</src>
@@ -12,14 +13,23 @@
     <href>http://www.sourceforge.net/projects/openutils</href>
   </bannerLeft>
   <body>
-    <menu ref="modules" inherit="bottom" />
-    <menu ref="reports" inherit="bottom" />
     <head>
       <link rel="icon" href="images/favicon.ico" />
     </head>
+    <breadcrumbs>
+      <item name="openutils" href="http://openutils.sourceforge.net/" />
+      <item name="openutils-bshd5" href="http://openutils.sourceforge.net/openutils-bshd5" />
+    </breadcrumbs>
+    <menu name="openutils-bshd5">
+      <item name="Usage" href="index.html"/>
+      <item name="Configuration" href="configuration.html"/>
+    </menu>
+    <menu ref="modules" inherit="bottom" />
+    <menu ref="reports" inherit="bottom" />
   </body>
   <skin>
     <groupId>net.sourceforge.openutils</groupId>
     <artifactId>openutils-maven-skin</artifactId>
+    <version>1.0</version>
   </skin>
 </project>

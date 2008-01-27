@@ -43,13 +43,17 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
 
     private boolean aopenabled;
 
+    /**
+     * Instantiates a new DAO instance
+     */
     public HibernateDAOImpl()
     {
         super();
     }
 
     /**
-     * @param referenceClass
+     * Sets the class of the persistent bean managed by this DAO
+     * @param referenceClass the class for the bean managed by this DAO
      */
     @SuppressWarnings({"unchecked" })
     public HibernateDAOImpl(Class referenceClass)
