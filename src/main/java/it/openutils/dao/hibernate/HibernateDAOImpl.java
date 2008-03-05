@@ -20,6 +20,9 @@ import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
 import org.hibernate.type.Type;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -331,7 +334,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")    
     public List<T> findFiltered(T filter, Order[] customOrder, Map<String, FilterMetadata> metadata, int maxResults,
         int page, List<Criterion> additionalCriteria)
     {
@@ -339,7 +342,37 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             .getDefaultOrder();
 
         return (List<T>) getHibernateTemplate().execute(
-            new HibernateCallbackForExecution(filter, page, maxResults, metadata, orderProperties, additionalCriteria));
+            new HibernateCallbackForExecution(
+                filter,
+                page,
+                maxResults,
+                metadata,
+                orderProperties,
+                additionalCriteria,
+                null));
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")  
+    public List<?> findFilteredProperties(final T filter, final Order[] customOrder,
+        final Map<String, FilterMetadata> metadata, final int maxResults, final int page,
+        List<Criterion> additionalCriteria, List<String> properties)
+    {
+        final Order[] orderProperties = customOrder != null && customOrder.length > 0 ? customOrder : this
+            .getDefaultOrder();
+
+        return (List< ? >) getHibernateTemplate().execute(
+            new HibernateCallbackForExecution(
+                filter,
+                page,
+                maxResults,
+                metadata,
+                orderProperties,
+                additionalCriteria,
+                properties));
     }
 
     /**
@@ -550,6 +583,11 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
         private final Map<String, FilterMetadata> metadata;
 
         /**
+         * 
+         */
+        private final List<String> properties;
+
+        /**
          *
          */
         private final Order[] orderProperties;
@@ -569,7 +607,8 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             int maxResults,
             Map<String, FilterMetadata> metadata,
             Order[] orderProperties,
-            List<Criterion> additionalCriteria)
+            List<Criterion> additionalCriteria,
+            List<String> properties)
         {
             this.filter = filter;
             this.page = page;
@@ -577,6 +616,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             this.metadata = metadata;
             this.orderProperties = orderProperties;
             this.additionalCriteria = additionalCriteria;
+            this.properties = properties;
         }
 
         public Object doInHibernate(Session ses) throws HibernateException
@@ -603,6 +643,17 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                 {
                     crit.add(criterion);
                 }
+            }
+            if (properties != null)
+            {
+                ProjectionList projectionList = Projections.projectionList();
+
+                for (String property : properties)
+                {
+                    projectionList.add(Property.forName(property));
+                }
+
+                crit.setProjection(projectionList);
             }
             return crit.list();
         }

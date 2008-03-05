@@ -141,6 +141,21 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      */
     List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page, List<Criterion> additionalCriteria);
+    
+    /**
+     * Return properties from all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param customOrder order criterias
+     * @param metadata filter metadata
+     * @param maxResults maximum number of results
+     * @param page result page (first result is maxResults * page)
+     * @param additionalCriteria additional criteria
+     * @param properties properties to be returned
+     * @return list of properties from all objects
+     */    
+    List<?> findFilteredProperties(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
+        final int maxResults,final int page, List<Criterion> additionalCriteria, List<String> properties);
+
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
