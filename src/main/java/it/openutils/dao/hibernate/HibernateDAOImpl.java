@@ -84,7 +84,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public List<T> findAll(final Order[] orderProperties)
     {
         return getThis().findAll(orderProperties, new ArrayList<Criterion>());
@@ -326,7 +325,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page)
     {
@@ -357,7 +355,6 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public List< ? > findFilteredProperties(final T filter, final Order[] customOrder,
         final Map<String, FilterMetadata> metadata, final int maxResults, final int page,
         List<Criterion> additionalCriteria, List<String> properties)
