@@ -26,7 +26,6 @@ import org.hibernate.criterion.Property;
 import org.hibernate.type.Type;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
@@ -168,24 +167,27 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
         T result;
         try
         {
-            result = (T) getHibernateTemplate().load(getReferenceClass(), key);
-            Hibernate.initialize(result);
+            result = (T) getHibernateTemplate().get(getReferenceClass(), key);
+            if (result != null)
+            {
+                Hibernate.initialize(result);
+            }
         }
         catch (ObjectNotFoundException e)
         {
             // during lazy initialization
             return null;
         }
-        catch (HibernateObjectRetrievalFailureException e)
-        {
-            // during load
-            if (e.getCause() instanceof ObjectNotFoundException)
-            {
-                return null;
-            }
-            throw e;
-        }
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public T get(K key)
+    {
+        return (T) getHibernateTemplate().get(getReferenceClass(), key);
     }
 
     /**
@@ -334,7 +336,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")    
+    @SuppressWarnings("unchecked")
     public List<T> findFiltered(T filter, Order[] customOrder, Map<String, FilterMetadata> metadata, int maxResults,
         int page, List<Criterion> additionalCriteria)
     {
@@ -353,11 +355,10 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * 
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")  
-    public List<?> findFilteredProperties(final T filter, final Order[] customOrder,
+    @SuppressWarnings("unchecked")
+    public List< ? > findFilteredProperties(final T filter, final Order[] customOrder,
         final Map<String, FilterMetadata> metadata, final int maxResults, final int page,
         List<Criterion> additionalCriteria, List<String> properties)
     {
@@ -399,43 +400,25 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     }
 
     /**
-     * Obtain an instance of Query for a named query string defined in the mapping file.
-     * @param name the name of a query defined externally
-     * @param maxResults max number of results
-     * @return Query
-     */
-    protected List< ? > getNamedQuery(final String name, final int maxResults)
-    {
-        return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
-        {
-
-            public Object doInHibernate(Session ses) throws HibernateException
-            {
-                Query q = ses.getNamedQuery(name);
-                q.setMaxResults(maxResults);
-                return q.list();
-            }
-        });
-    }
-
-    /**
      * Obtain an instance of Query for a named query string defined in the mapping file. Use the parameters given.
      * @param name the name of a query defined externally
      * @param params the parameter array
      * @param maxResults max number of results
      * @return Query
      */
-    protected List< ? > getNamedQuery(final String name, final Serializable[] params, final int maxResults)
+    protected List< ? > findByNamedQuery(final String name, final Serializable[] params, final Integer maxResults)
     {
-
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
 
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
-                q.setMaxResults(maxResults);
-                if (null != params)
+                if (maxResults != null)
+                {
+                    q.setMaxResults(maxResults);
+                }
+                if (params != null)
                 {
                     for (int i = 0; i < params.length; i++)
                     {
@@ -454,7 +437,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
      * @param maxResults max number of results
      * @return Query
      */
-    protected List< ? > getNamedQuery(final String name, final Map<String, Object> params, final int maxResults)
+    protected List< ? > findByNamedQuery(final String name, final Map<String, Object> params, final Integer maxResults)
     {
         return (List< ? >) getHibernateTemplate().execute(new HibernateCallback()
         {
@@ -462,7 +445,11 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
             public Object doInHibernate(Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
-                q.setMaxResults(maxResults);
+                if (maxResults != null)
+                {
+                    q.setMaxResults(maxResults);
+                }
+
                 if (params != null)
                 {
                     for (Map.Entry<String, Object> entry : params.entrySet())
@@ -473,6 +460,34 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
                 return q.list();
             }
         });
+    }
+
+    /**
+     * Obtain an instance of Query for a named query string defined in the mapping file. Use the parameters given.
+     * @param name the name of a query defined externally
+     * @param params the parameter array
+     * @param maxResults max number of results
+     * @return Query
+     * @deprecated use the better named <code>findByNamedQuery</code> method
+     */
+    @Deprecated
+    protected List< ? > getNamedQuery(final String name, final Serializable[] params, int maxResults)
+    {
+        return findByNamedQuery(name, params, maxResults > 0 ? maxResults : Integer.MAX_VALUE);
+    }
+
+    /**
+     * Obtain an instance of Query for a named query string defined in the mapping file. Use the parameters given.
+     * @param name the name of a query defined externally
+     * @param params the parameter Map
+     * @param maxResults max number of results
+     * @return Query
+     * @deprecated use the better named <code>findByNamedQuery</code> method
+     */
+    @Deprecated
+    protected List< ? > getNamedQuery(final String name, final Map<String, Object> params, int maxResults)
+    {
+        return findByNamedQuery(name, params, maxResults > 0 ? maxResults : Integer.MAX_VALUE);
     }
 
     /**
@@ -583,7 +598,7 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
         private final Map<String, FilterMetadata> metadata;
 
         /**
-         * 
+         *
          */
         private final List<String> properties;
 

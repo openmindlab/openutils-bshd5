@@ -84,7 +84,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param obj Object
      */
     void evict(T obj);
-    
+
     /**
      * Copy the state of the given object onto the persistent object with the same identifier. If there is no persistent
      * instance currently associated with the session, it will be loaded. Return the persistent instance. If the given
@@ -141,9 +141,10 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      */
     List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
         final int maxResults, final int page, List<Criterion> additionalCriteria);
-    
+
     /**
-     * Return properties from all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * Return properties from all objects related to the implementation of this DAO filtered using properties of the
+     * provided instance.
      * @param filter an instance of the object with the properties you whish to filter on.
      * @param customOrder order criterias
      * @param metadata filter metadata
@@ -152,10 +153,10 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param additionalCriteria additional criteria
      * @param properties properties to be returned
      * @return list of properties from all objects
-     */    
-    List<?> findFilteredProperties(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
-        final int maxResults,final int page, List<Criterion> additionalCriteria, List<String> properties);
-
+     */
+    List< ? > findFilteredProperties(final T filter, final Order[] customOrder,
+        final Map<String, FilterMetadata> metadata, final int maxResults, final int page,
+        List<Criterion> additionalCriteria, List<String> properties);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
@@ -207,7 +208,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     boolean delete(final K key);
 
     /**
-     * Load object matching the given key and return it. Lazy object will be initialized.
+     * Load object matching the given key and return it. Throw an exception if not found.
      * @param key serializable key
      * @return Object
      */
@@ -219,6 +220,13 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @return Object
      */
     T loadIfAvailable(K key);
+
+    /**
+     * Load object matching the given key and return it. Lazy object will be initialized.
+     * @param key serializable key
+     * @return Object
+     */
+    T get(K key);
 
     /**
      * Used by the base DAO classes but here for your modification Either save() or update() the given instance,

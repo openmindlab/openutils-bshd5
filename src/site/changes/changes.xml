@@ -10,6 +10,10 @@
   <body>
     <release version="2.0.3" date="in svn" description="2.0.3">
       <action type="update" dev="fgiust">Updated spring and slf4j versions</action>
+      <action type="update" dev="fgiust">getNamedQuery() methods deprecated and replaced by better named
+        findByNamedQuery()</action>
+      <action type="add" dev="fgiust">New get(id) public method that calls session.get(id) (same as loadIfAvailable,
+        without initialization of lazy objects)</action>
     </release>
   </body>
 </document>
