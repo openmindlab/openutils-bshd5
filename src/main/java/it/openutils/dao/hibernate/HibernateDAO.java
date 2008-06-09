@@ -193,6 +193,14 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * Return the first object related to the implementation of this DAO filtered using properties of the provided
      * instance.
      * @param filter an instance of the object with the properties you whish to filter on.
+     * @return first object in the collection
+     */
+    T findFilteredFirst(final T filter, final Order[] order);
+
+    /**
+     * Return the first object related to the implementation of this DAO filtered using properties of the provided
+     * instance.
+     * @param filter an instance of the object with the properties you whish to filter on.
      * @param criteria additional criterion
      * @return first object in the collection
      */
