@@ -276,6 +276,15 @@ public abstract class HibernateDAOImpl<T extends Object, K extends Serializable>
     /**
      * {@inheritDoc}
      */
+    public T findFilteredFirst(final T filter, final Order[] order)
+    {
+        return getFirstInCollection(findFiltered(filter, order, getDefaultFilterMetadata(), 1, 0));
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public T findFilteredFirst(final T filter, List<Criterion> criteria)
     {
         return getFirstInCollection(findFiltered(filter, null, getDefaultFilterMetadata(), 1, 0, criteria));
