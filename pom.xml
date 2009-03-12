@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>net.sourceforge.openutils</groupId>
     <artifactId>openutils</artifactId>
-    <version>10</version>
+    <version>11</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>openutils-bshd5</artifactId>
@@ -14,12 +15,12 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.0</version>
+      <version>1.5.6</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>jcl104-over-slf4j</artifactId>
-      <version>1.5.0</version>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>1.5.6</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -67,16 +68,20 @@
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.2.1.ga</version>
+      <artifactId>hibernate-core</artifactId>
+      <version>3.3.1.GA</version>
       <exclusions>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>commons-logging</groupId>
           <artifactId>commons-logging</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>cglib</groupId>
-          <artifactId>cglib</artifactId>
+          <groupId>xml-apis</groupId>
+          <artifactId>xml-apis</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -103,6 +108,6 @@
     </dependency>
   </dependencies>
   <properties>
-    <spring.version>2.5.3</spring.version>
+    <spring.version>2.5.6</spring.version>
   </properties>
 </project>
