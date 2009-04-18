@@ -8,7 +8,10 @@
     <author email="fgiust(at)users.sourceforge.net">Fabrizio Giustina</author>
   </properties>
   <body>
-    <release version="2.0.3" date="in svn" description="2.0.3">
+    <release version="2.0.5" date="2009-02-18">
+      <action type="update" dev="fgiust">Updated spring and slf4j dependency versions</action>
+    </release>
+    <release version="2.0.3" date="" description="2.0.3">
       <action type="update" dev="fgiust">Updated spring and slf4j versions</action>
       <action type="update" dev="fgiust">getNamedQuery() methods deprecated and replaced by better named
         findByNamedQuery()</action>
