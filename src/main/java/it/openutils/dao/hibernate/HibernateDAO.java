@@ -100,7 +100,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param maxResults maximum number of results
      * @param page result page (first result is maxResults * page)
      * @return list of objects
@@ -109,7 +109,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param metadata filter metadata
      * @param maxResults maximum number of results
      * @param page result page (first result is maxResults * page)
@@ -119,7 +119,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param customOrder order criterias
      * @param metadata filter metadata
      * @param maxResults maximum number of results
@@ -131,7 +131,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param customOrder order criterias
      * @param metadata filter metadata
      * @param maxResults maximum number of results
@@ -145,7 +145,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     /**
      * Return properties from all objects related to the implementation of this DAO filtered using properties of the
      * provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param customOrder order criterias
      * @param metadata filter metadata
      * @param maxResults maximum number of results
@@ -160,14 +160,14 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @return list of objects
      */
     List<T> findFiltered(final T filter);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param orderProperties the name of the property used for ordering
      * @return list of objects
      */
@@ -175,7 +175,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param metadata filter metadata
      * @return list of objects
      */
@@ -184,7 +184,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     /**
      * Return the first object related to the implementation of this DAO filtered using properties of the provided
      * instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @return first object in the collection
      */
     T findFilteredFirst(final T filter);
@@ -192,7 +192,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     /**
      * Return the first object related to the implementation of this DAO filtered using properties of the provided
      * instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @return first object in the collection
      */
     T findFilteredFirst(final T filter, final Order[] order);
@@ -200,14 +200,14 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
     /**
      * Return the first object related to the implementation of this DAO filtered using properties of the provided
      * instance.
-     * @param filter an instance of the object with the properties you whish to filter on.
+     * @param filter an instance of the object with the properties you wish to filter on.
      * @param criteria additional criterion
      * @return first object in the collection
      */
     T findFilteredFirst(final T filter, final List<Criterion> criteria);
 
     /**
-     * Used by the base DAO classes but here for your modification Remove a persistent instance from the datastore. The
+     * Used by the base DAO classes but here for your modification. Remove a persistent instance from the datastore. The
      * argument may be an instance associated with the receiving Session or a transient instance with an identifier
      * associated with existing persistent state.
      * @param key key
