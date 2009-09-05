@@ -16,10 +16,6 @@
     <head>
       <link rel="icon" href="images/favicon.ico" />
     </head>
-    <breadcrumbs>
-      <item name="openutils" href="http://openutils.sourceforge.net/" />
-      <item name="openutils-bshd5" href="http://openutils.sourceforge.net/openutils-bshd5" />
-    </breadcrumbs>
     <menu name="openutils-bshd5">
       <item name="Usage" href="index.html"/>
       <item name="Configuration" href="configuration.html"/>
