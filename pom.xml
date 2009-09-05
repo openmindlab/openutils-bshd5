@@ -9,7 +9,39 @@
   <artifactId>openutils-bshd5</artifactId>
   <name>openutils base Spring-Hibernate DAO for java 5.0</name>
   <version>2.0.6-SNAPSHOT</version>
-  <description>openutils base Spring-Hibernate DAO for java 5.0</description>
+  <description>Openutils base Spring-Hibernate DAO for java 5.0</description>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  <url>http://lab.openmindonline.it/lab/products/bshd5.html</url>
+  <issueManagement>
+    <system>jira</system>
+    <url>http://lab.openmindonline.it/jira/browse/BSHD</url>
+  </issueManagement>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>${basedir}/src/main/assembly/assembly-bundle.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
