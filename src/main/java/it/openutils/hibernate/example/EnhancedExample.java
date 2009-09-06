@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +34,14 @@ public final class EnhancedExample
      */
     private static Logger log = LoggerFactory.getLogger(EnhancedExample.class);
 
-    private Map<String, FilterMetadata> metadata;
+    private Map<String, ? extends FilterMetadata> metadata;
 
-    private EnhancedExample(Criteria crit, Object filter, Map<String, FilterMetadata> metadata)
+    private EnhancedExample(
+        final Criteria crit,
+        final Object filter,
+        final Map<String, ? extends FilterMetadata> metadata)
     {
-        this.metadata = metadata == null ? new HashMap<String, FilterMetadata>(0) : metadata;
+        this.metadata = metadata == null ? Collections.<String, FilterMetadata> emptyMap() : metadata;
         fillCriteria(null, crit, filter);
     }
 
@@ -49,8 +52,8 @@ public final class EnhancedExample
      * @param metadata Map of property names - filter metadata
      * @throws HibernateException exception while building the criteria
      */
-    public static void create(Criteria crit, Object filter, Map<String, FilterMetadata> metadata)
-        throws HibernateException
+    public static void create(final Criteria crit, final Object filter,
+        final Map<String, ? extends FilterMetadata> metadata) throws HibernateException
     {
         new EnhancedExample(crit, filter, metadata);
     }
@@ -62,8 +65,8 @@ public final class EnhancedExample
      * @param value property value
      * @throws HibernateException exception while building the criteria
      */
-    private void addCondition(Criteria crit, String propertyName, Object value, Object parentObject)
-        throws HibernateException
+    private void addCondition(final Criteria crit, final String propertyName, final Object value,
+        final Object parentObject) throws HibernateException
     {
 
         String simplePropertyName = StringUtils.contains(propertyName, ".") ? StringUtils.substringAfterLast(
@@ -95,9 +98,9 @@ public final class EnhancedExample
             {
                 // @todo handle multiple associations in lists?
                 // see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-879
-                if ((value instanceof Set || value instanceof List) && !((Collection< ? >) value).isEmpty())
+                if ((value instanceof Set< ? > || value instanceof List< ? >) && !((Collection< ? >) value).isEmpty())
                 {
-                    // collection: the new criteria has already been created, now we only nee to analize content
+                    // collection: the new criteria has already been created, now we only need to analize content
 
                     for (Object element : ((Collection< ? >) value))
                     {
@@ -107,7 +110,7 @@ public final class EnhancedExample
                         fillCriteria(propertyName, childrenCriteria, element);
                     }
                 }
-                else if ((value instanceof Map) && !((Map< ? , ? >) value).isEmpty())
+                else if ((value instanceof Map< ? , ? >) && !((Map< ? , ? >) value).isEmpty())
                 {
                     FilterMetadata fmd = metadata.get(propertyName);
 
@@ -139,7 +142,7 @@ public final class EnhancedExample
      * @return <code>true</code> if the bean contains at least a valid property
      */
     @SuppressWarnings("unchecked")
-    private boolean containsSomething(Object bean)
+    private boolean containsSomething(final Object bean)
     {
 
         if (bean == null)
@@ -151,7 +154,7 @@ public final class EnhancedExample
             return true;
         }
 
-        if (bean instanceof Collection)
+        if (bean instanceof Collection< ? >)
         {
 
             Collection< ? > coll = ((Collection< ? >) bean);
@@ -165,7 +168,7 @@ public final class EnhancedExample
                 return true;
             }
         }
-        else if (bean instanceof Map)
+        else if (bean instanceof Map< ? , ? >)
         {
             Map< ? , ? > coll = ((Map< ? , ? >) bean);
             if (coll.isEmpty())
@@ -227,9 +230,10 @@ public final class EnhancedExample
      * @throws HibernateException exception while building the criteria
      */
     @SuppressWarnings("unchecked")
-    private void fillCriteria(String parentPropertyName, Criteria crit, Object filter) throws HibernateException
+    private void fillCriteria(final String parentPropertyName, final Criteria crit, final Object filter)
+        throws HibernateException
     {
-        if ((filter instanceof Set || filter instanceof List) && !((Collection< ? >) filter).isEmpty())
+        if ((filter instanceof Set< ? > || filter instanceof List< ? >) && !((Collection< ? >) filter).isEmpty())
         {
             // collection: the new criteria has already been created, now we only need to analize content
             for (Object element : ((Collection< ? >) filter))
@@ -281,7 +285,7 @@ public final class EnhancedExample
      * @param object object to check
      * @return <code>true</code>if the given object is a simple type
      */
-    private boolean isSimpleType(Object object)
+    private boolean isSimpleType(final Object object)
     {
 
         Class< ? extends Object> objClass = object.getClass();

@@ -17,7 +17,7 @@ import org.hibernate.type.Type;
  * @param <T> Persistence class
  * @param <K> Object Key
  */
-public interface HibernateDAO<T extends Object, K extends Serializable>
+public interface HibernateDAO<T, K extends Serializable>
 {
 
     /**
@@ -46,7 +46,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param criteria Additional Criterion conditions
      * @return a list of all instances
      */
-    List<T> findAll(final Order[] orderProperties, List<Criterion> criteria);
+    List<T> findAll(final Order[] orderProperties, List< ? extends Criterion> criteria);
 
     /**
      * Execute a query.
@@ -115,7 +115,8 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param page result page (first result is maxResults * page)
      * @return list of objects
      */
-    List<T> findFiltered(final T filter, Map<String, FilterMetadata> metadata, final int maxResults, final int page);
+    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata, final int maxResults,
+        final int page);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
@@ -126,8 +127,8 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param page result page (first result is maxResults * page)
      * @return list of objects
      */
-    List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
-        final int maxResults, final int page);
+    List<T> findFiltered(final T filter, final Order[] customOrder,
+        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
@@ -139,8 +140,9 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param additionalCriteria additional criteria
      * @return list of objects
      */
-    List<T> findFiltered(final T filter, final Order[] customOrder, final Map<String, FilterMetadata> metadata,
-        final int maxResults, final int page, List<Criterion> additionalCriteria);
+    List<T> findFiltered(final T filter, final Order[] customOrder,
+        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
+        List< ? extends Criterion> additionalCriteria);
 
     /**
      * Return properties from all objects related to the implementation of this DAO filtered using properties of the
@@ -155,8 +157,8 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @return list of properties from all objects
      */
     List< ? > findFilteredProperties(final T filter, final Order[] customOrder,
-        final Map<String, FilterMetadata> metadata, final int maxResults, final int page,
-        List<Criterion> additionalCriteria, List<String> properties);
+        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
+        List< ? extends Criterion> additionalCriteria, List<String> properties);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
@@ -179,7 +181,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param metadata filter metadata
      * @return list of objects
      */
-    List<T> findFiltered(final T filter, Map<String, FilterMetadata> metadata);
+    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata);
 
     /**
      * Return the first object related to the implementation of this DAO filtered using properties of the provided
@@ -204,7 +206,7 @@ public interface HibernateDAO<T extends Object, K extends Serializable>
      * @param criteria additional criterion
      * @return first object in the collection
      */
-    T findFilteredFirst(final T filter, final List<Criterion> criteria);
+    T findFilteredFirst(final T filter, final List< ? extends Criterion> criteria);
 
     /**
      * Used by the base DAO classes but here for your modification. Remove a persistent instance from the datastore. The
