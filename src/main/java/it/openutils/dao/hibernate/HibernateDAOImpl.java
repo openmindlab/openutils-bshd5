@@ -122,7 +122,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> find(String query, Object obj, Type type)
     {
-        return find(query, new Object[]{obj }, new Type[]{type });
+        return getThis().find(query, new Object[]{obj }, new Type[]{type });
     }
 
     /**
