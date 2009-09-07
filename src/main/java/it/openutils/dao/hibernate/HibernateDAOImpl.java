@@ -49,17 +49,14 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public HibernateDAOImpl()
     {
-        super();
     }
 
     /**
      * Sets the class of the persistent bean managed by this DAO
      * @param referenceClass the class for the bean managed by this DAO
      */
-    @SuppressWarnings({"unchecked" })
-    public HibernateDAOImpl(final Class referenceClass)
+    public HibernateDAOImpl(Class<T> referenceClass)
     {
-        super();
         this.referenceClass = referenceClass;
     }
 
@@ -67,7 +64,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public List<T> find(final String query)
+    public List<T> find(String query)
     {
         return getHibernateTemplate().find(query);
     }
@@ -83,7 +80,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> findAll(final Order[] orderProperties)
+    public List<T> findAll(Order[] orderProperties)
     {
         return getThis().findAll(orderProperties, Collections.<Criterion> emptyList());
     }
@@ -123,7 +120,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> find(final String query, final Object obj, final Type type)
+    public List<T> find(String query, Object obj, Type type)
     {
         return find(query, new Object[]{obj }, new Type[]{type });
     }
@@ -148,9 +145,9 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public T load(final K key)
+    public T load(K key)
     {
+        @SuppressWarnings("unchecked")
         T result = (T) getHibernateTemplate().load(getReferenceClass(), key);
         Hibernate.initialize(result);
         return result;
@@ -159,31 +156,30 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public T loadIfAvailable(final K key)
+    public T loadIfAvailable(K key)
     {
-        T result;
         try
         {
-            result = (T) getHibernateTemplate().get(getReferenceClass(), key);
+            @SuppressWarnings("unchecked")
+            T result = (T) getHibernateTemplate().get(getReferenceClass(), key);
             if (result != null)
             {
                 Hibernate.initialize(result);
+                return result;
             }
         }
         catch (ObjectNotFoundException e)
         {
-            // during lazy initialization
-            return null;
+            // thrown by HibernateTemplate#get() if the object does not exist
         }
-        return result;
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public T get(final K key)
+    public T get(K key)
     {
         return (T) getHibernateTemplate().get(getReferenceClass(), key);
     }
@@ -191,7 +187,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public void saveOrUpdate(final T obj)
+    public void saveOrUpdate(T obj)
     {
         getHibernateTemplate().saveOrUpdate(obj);
     }
@@ -199,7 +195,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public void update(final T obj)
+    public void update(T obj)
     {
         getHibernateTemplate().update(obj);
     }
@@ -225,7 +221,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public void refresh(final T obj)
+    public void refresh(T obj)
     {
         getHibernateTemplate().refresh(obj);
     }
@@ -233,7 +229,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public void evict(final T obj)
+    public void evict(T obj)
     {
         getHibernateTemplate().evict(obj);
     }
@@ -259,7 +255,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public K save(final T obj)
+    public K save(T obj)
     {
         return (K) getHibernateTemplate().save(obj);
     }
@@ -267,7 +263,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public T findFilteredFirst(final T filter)
+    public T findFilteredFirst(T filter)
     {
         return getFirstInCollection(findFiltered(filter, 1, 0));
     }
@@ -275,7 +271,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public T findFilteredFirst(final T filter, final Order[] order)
+    public T findFilteredFirst(T filter, final Order[] order)
     {
         return getFirstInCollection(findFiltered(filter, order, getDefaultFilterMetadata(), 1, 0));
     }
@@ -283,15 +279,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public T findFilteredFirst(final T filter, final List< ? extends Criterion> criteria)
+    public T findFilteredFirst(T filter, List< ? extends Criterion> criteria)
     {
-        return getFirstInCollection(findFiltered(filter, null, getDefaultFilterMetadata(), 1, 0, criteria));
+        return getFirstInCollection(findFiltered(filter, getDefaultOrder(), getDefaultFilterMetadata(), 1, 0, criteria));
     }
 
     /**
      * {@inheritDoc}
      */
-    public List<T> findFiltered(final T filter)
+    public List<T> findFiltered(T filter)
     {
         return findFiltered(filter, getDefaultFilterMetadata());
     }
@@ -299,7 +295,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> findFiltered(final T filter, final Order[] orderProperties)
+    public List<T> findFiltered(T filter, Order[] orderProperties)
     {
         return findFiltered(filter, orderProperties, getDefaultFilterMetadata(), Integer.MAX_VALUE, 0);
     }
@@ -307,7 +303,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> findFiltered(final T filter, final Map<String, ? extends FilterMetadata> metadata)
+    public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata)
     {
         return findFiltered(filter, metadata, Integer.MAX_VALUE, 0);
     }
@@ -315,7 +311,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> findFiltered(final T filter, final int maxResults, final int page)
+    public List<T> findFiltered(T filter, int maxResults, int page)
     {
         return findFiltered(filter, getDefaultFilterMetadata(), maxResults, page);
     }
@@ -323,17 +319,16 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> findFiltered(final T filter, final Map<String, ? extends FilterMetadata> metadata,
-        final int maxResults, final int page)
+    public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page)
     {
-        return findFiltered(filter, null, metadata, maxResults, page);
+        return findFiltered(filter, getDefaultOrder(), metadata, maxResults, page);
     }
 
     /**
      * {@inheritDoc}
      */
-    public List<T> findFiltered(final T filter, final Order[] customOrder,
-        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page)
+    public List<T> findFiltered(T filter, Order[] customOrder, Map<String, ? extends FilterMetadata> metadata,
+        int maxResults, int page)
     {
         return getThis().findFiltered(
             filter,
@@ -348,41 +343,34 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public List<T> findFiltered(final T filter, final Order[] customOrder,
-        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
-        final List< ? extends Criterion> additionalCriteria)
+    public List<T> findFiltered(T filter, Order[] customOrder, Map<String, ? extends FilterMetadata> metadata,
+        int maxResults, int page, List< ? extends Criterion> additionalCriteria)
     {
-        final Order[] orderProperties = customOrder != null && customOrder.length > 0 ? customOrder : this
-            .getDefaultOrder();
-
         return (List<T>) getHibernateTemplate().execute(
             new HibernateCallbackForExecution(
                 filter,
                 page,
                 maxResults,
                 metadata,
-                orderProperties,
+                customOrder,
                 additionalCriteria,
-                null));
+                Collections.<String> emptyList()));
     }
 
     /**
      * {@inheritDoc}
      */
-    public List< ? > findFilteredProperties(final T filter, final Order[] customOrder,
-        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
-        final List< ? extends Criterion> additionalCriteria, final List<String> properties)
+    public List< ? > findFilteredProperties(T filter, Order[] customOrder,
+        Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
+        List< ? extends Criterion> additionalCriteria, List<String> properties)
     {
-        final Order[] orderProperties = customOrder != null && customOrder.length > 0 ? customOrder : this
-            .getDefaultOrder();
-
         return (List< ? >) getHibernateTemplate().execute(
             new HibernateCallbackForExecution(
                 filter,
                 page,
                 maxResults,
                 metadata,
-                orderProperties,
+                customOrder,
                 additionalCriteria,
                 properties));
     }
@@ -396,7 +384,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         return referenceClass;
     }
 
-    public void setReferenceClass(final Class<T> referenceClass)
+    public void setReferenceClass(Class<T> referenceClass)
     {
         this.referenceClass = referenceClass;
     }
@@ -482,7 +470,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @deprecated use the better named <code>findByNamedQuery</code> method
      */
     @Deprecated
-    protected List< ? > getNamedQuery(final String name, final Serializable[] params, final int maxResults)
+    protected List< ? > getNamedQuery(String name, Serializable[] params, int maxResults)
     {
         return findByNamedQuery(name, params, maxResults > 0 ? maxResults : Integer.MAX_VALUE);
     }
@@ -496,7 +484,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @deprecated use the better named <code>findByNamedQuery</code> method
      */
     @Deprecated
-    protected List< ? > getNamedQuery(final String name, final Map<String, ? > params, final int maxResults)
+    protected List< ? > getNamedQuery(String name, Map<String, ? > params, int maxResults)
     {
         return findByNamedQuery(name, params, maxResults > 0 ? maxResults : Integer.MAX_VALUE);
     }
@@ -508,7 +496,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @param key the key name
      * @param value the object to set as the parameter
      */
-    protected void setParameterValue(final Query query, final String key, final Object value)
+    protected void setParameterValue(Query query, String key, Object value)
     {
         if (null == key || null == value)
         {
@@ -532,7 +520,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @param list collection
      * @return first element in the list
      */
-    private T getFirstInCollection(final Collection< ? extends T> list)
+    private T getFirstInCollection(Collection< ? extends T> list)
     {
         if (list != null && !list.isEmpty())
         {
@@ -547,7 +535,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * Sets the aopenabled.
      * @param aopenabled the aopenabled to set
      */
-    public void setAopenabled(final boolean aopenabled)
+    public void setAopenabled(boolean aopenabled)
     {
         this.aopenabled = aopenabled;
     }
@@ -584,56 +572,31 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @author carone
      * @version $Id$
      */
-    private final class HibernateCallbackForExecution implements HibernateCallback
+    private class HibernateCallbackForExecution implements HibernateCallback
     {
 
-        /**
-         *
-         */
-        private final T filter;
+        private T filter;
 
-        /**
-         *
-         */
-        private final int page;
+        private int page;
 
-        /**
-         *
-         */
-        private final int maxResults;
+        private int maxResults;
 
-        /**
-         *
-         */
-        private final Map<String, ? extends FilterMetadata> metadata;
+        private Map<String, ? extends FilterMetadata> metadata;
 
-        /**
-         *
-         */
-        private final List<String> properties;
+        private List<String> properties;
 
-        /**
-         *
-         */
-        private final Order[] orderProperties;
+        private Order[] orderProperties;
 
         private List< ? extends Criterion> additionalCriteria;
 
-        /**
-         * @param filter
-         * @param page
-         * @param maxResults
-         * @param metadata
-         * @param orderProperties
-         */
         private HibernateCallbackForExecution(
-            final T filter,
-            final int page,
-            final int maxResults,
-            final Map<String, ? extends FilterMetadata> metadata,
-            final Order[] orderProperties,
-            final List< ? extends Criterion> additionalCriteria,
-            final List<String> properties)
+            T filter,
+            int page,
+            int maxResults,
+            Map<String, ? extends FilterMetadata> metadata,
+            Order[] orderProperties,
+            List< ? extends Criterion> additionalCriteria,
+            List<String> properties)
         {
             this.filter = filter;
             this.page = page;
@@ -644,14 +607,14 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
             this.properties = properties;
         }
 
-        public Object doInHibernate(final Session ses) throws HibernateException
+        public Object doInHibernate(Session ses) throws HibernateException
         {
             Criteria crit = ses.createCriteria(filter.getClass());
             crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
             crit.setMaxResults(maxResults);
             crit.setFirstResult(maxResults * page);
 
-            if (orderProperties != null && orderProperties.length > 0)
+            if (orderProperties != null)
             {
                 for (Order order : orderProperties)
                 {
@@ -662,7 +625,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
                 }
             }
             EnhancedExample.create(crit, filter, metadata);
-            if (additionalCriteria != null && !additionalCriteria.isEmpty())
+            if (additionalCriteria != null)
             {
                 for (Criterion criterion : additionalCriteria)
                 {
