@@ -30,11 +30,11 @@ public interface SampleDAO extends HibernateDAO<Sample, Integer>
 
  Simple, isn't it? With those few lines you are:
 
- * Creating youd DAO interface, which allow you to manage <<<Sample>>> objects with a key of type <<<Integer>>>
+ * Creating youd DAO interface, which allows you to manage <<<Sample>>> objects with a key of type <<<Integer>>>
 
- * Implementing your interface and setup your DAO
+ * Implementing your interface and setting up your DAO
 
- * Registing you DAO in the Spring context using the <<<@Repository>>> annotation
+ * Registering you DAO in the Spring context using the <<<@Repository>>> annotation
 
  []
 

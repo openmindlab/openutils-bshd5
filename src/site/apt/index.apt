@@ -8,10 +8,10 @@ openutils-bshd5
 
  bshd5 means "base spring-hibernate DAO for java 5".
 
- It provides a base generic DAO class that can be reused and that offer most of the needed methods (load, find, save, etc)
+ It provides a base generic, reusable DAO class that offers most of the commonly used methods (load, find, save, etc)
  already implemented.
 
- The base class also provides an enhanced version of hibernate "find by example" feature allowing associations in examples.
+ The base class also provides an enhanced version of Hibernate's "find by example" feature, allowing associations in examples.
 
  See {{{configuration.html}configuration}} for how to setup your DAOs and look at {{{apidocs/index.html}javadocs}} for
  more details.
