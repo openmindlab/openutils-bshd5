@@ -31,7 +31,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param orders the orders to apply with respect to entity class properties
      * @return the list of all entity instances (never null), ordered accordingly
      */
-    List<T> findAll(final Order[] orders);
+    List<T> findAll(Order[] orders);
 
     /**
      * Retrieve all entities handled by this DAO that match the input query string.
@@ -58,7 +58,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param paramTypes the Hibernate types of <code>paramValues</code>
      * @return a list of distinct entity instances (never null)
      */
-    List<T> find(final String query, final Object[] paramValues, final Type[] paramTypes);
+    List<T> find(String query, Object[] paramValues, Type[] paramTypes);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
@@ -66,7 +66,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param filter an instance of this DAO's entity class to be used as filter
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter);
+    List<T> findFiltered(T filter);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
@@ -76,7 +76,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param orders the orders to apply with respect to entity class properties
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, final Order[] orders);
+    List<T> findFiltered(T filter, Order[] orders);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
@@ -88,7 +88,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * pagination
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, final int maxResults, final int page);
+    List<T> findFiltered(T filter, int maxResults, int page);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
@@ -98,7 +98,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * that will be used for comparing values of the corresponding property
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata);
+    List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
@@ -112,8 +112,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * pagination
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata, final int maxResults,
-        final int page);
+    List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page);
 
     /**
      * Retrieve the first entity instance that matches the input <code>filter</code>, if existing.
@@ -121,7 +120,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @return the first matching instance of the entity class managed by this DAO, or <code>null</code> if none found
      * @see #findFiltered(T)
      */
-    T findFilteredFirst(final T filter);
+    T findFilteredFirst(T filter);
 
     /**
      * Retrieve the first entity instance that matches the input <code>filter</code>, if existing.
@@ -130,7 +129,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @return the first matching instance of the entity class managed by this DAO, or <code>null</code> if none found
      * @see #findFiltered(T, Order...)
      */
-    T findFilteredFirst(final T filter, final Order[] orders);
+    T findFilteredFirst(T filter, Order[] orders);
 
     /**
      * Retrieve the first entity instance that matches the input <code>filter</code> and the additional input
@@ -140,7 +139,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @return the first matching instance of the entity class managed by this DAO, or <code>null</code> if none found
      * @see #findFiltered(T, List)
      */
-    T findFilteredFirst(final T filter, final List< ? extends Criterion> criteria);
+    T findFilteredFirst(T filter, List< ? extends Criterion> criteria);
 
     /**
      * Load object matching the given key and return it. Throw an exception if not found.
@@ -184,7 +183,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * depending upon the value of its identifier property.
      * @param obj Object
      */
-    void saveOrUpdate(final T obj);
+    void saveOrUpdate(T obj);
 
     /**
      * Used by the base DAO classes but here for your modification. Remove a persistent instance from the datastore. The
@@ -193,7 +192,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param key key
      * @return true if the object was successfully deleted, false otherwise
      */
-    boolean delete(final K key);
+    boolean delete(K key);
 
     /**
      * Re-reads the state of the given instance from the underlying database. This method is useful in certain special
@@ -234,7 +233,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param criteria Additional Criterion conditions
      * @return a list of all instances
      */
-    List<T> findAll(final Order[] orderProperties, List< ? extends Criterion> criteria);
+    List<T> findAll(Order[] orderProperties, List< ? extends Criterion> criteria);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
@@ -250,8 +249,8 @@ public interface HibernateDAO<T, K extends Serializable>
      * pagination
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, final Order[] orders, final Map<String, ? extends FilterMetadata> metadata,
-        final int maxResults, final int page);
+    List<T> findFiltered(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata, int maxResults,
+        int page);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
@@ -268,8 +267,8 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param criteria a list of additional Hibernate criteria
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, final Order[] orders, final Map<String, ? extends FilterMetadata> metadata,
-        final int maxResults, final int page, List< ? extends Criterion> criteria);
+    List<T> findFiltered(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata, int maxResults,
+        int page, List< ? extends Criterion> criteria);
 
     /**
      * Retrieve a set of properties from the entities returned by
@@ -286,8 +285,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param properties the names of the properties to return
      * @return a list of distinct entity instances (never null)
      */
-    List< ? > findFilteredProperties(final T filter, final Order[] orders,
-        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
-        List< ? extends Criterion> criteria, List<String> properties);
+    List< ? > findFilteredProperties(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata,
+        int maxResults, int page, List< ? extends Criterion> criteria, List<String> properties);
 
 }
