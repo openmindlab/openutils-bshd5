@@ -21,13 +21,6 @@ public interface HibernateDAO<T, K extends Serializable>
 {
 
     /**
-     * Execute a query.
-     * @param query a query expressed in Hibernate's query language
-     * @return a distinct list of instances (or arrays of instances)
-     */
-    List<T> find(String query);
-
-    /**
      * Return all objects related to the implementation of this DAO with no filter.
      * @return a list of all instances
      */
@@ -41,12 +34,11 @@ public interface HibernateDAO<T, K extends Serializable>
     List<T> findAll(final Order[] orderProperties);
 
     /**
-     * Return all objects related to the implementation of this DAO with no filter.
-     * @param orderProperties <code>desc</code> or <code>asc</code>
-     * @param criteria Additional Criterion conditions
-     * @return a list of all instances
+     * Execute a query.
+     * @param query a query expressed in Hibernate's query language
+     * @return a distinct list of instances (or arrays of instances)
      */
-    List<T> findAll(final Order[] orderProperties, List< ? extends Criterion> criteria);
+    List<T> find(String query);
 
     /**
      * Execute a query.
@@ -65,6 +57,127 @@ public interface HibernateDAO<T, K extends Serializable>
      * @return a distinct list of instances (or arrays of instances)
      */
     List<T> find(final String query, final Object[] obj, final Type[] type);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @param orderProperties the name of the property used for ordering
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, final Order[] orderProperties);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @param maxResults maximum number of results
+     * @param page result page (first result is maxResults * page)
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, final int maxResults, final int page);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @param metadata filter metadata
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata);
+
+    /**
+     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @param metadata filter metadata
+     * @param maxResults maximum number of results
+     * @param page result page (first result is maxResults * page)
+     * @return list of objects
+     */
+    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata, final int maxResults,
+        final int page);
+
+    /**
+     * Return the first object related to the implementation of this DAO filtered using properties of the provided
+     * instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @return first object in the collection
+     */
+    T findFilteredFirst(final T filter);
+
+    /**
+     * Return the first object related to the implementation of this DAO filtered using properties of the provided
+     * instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @return first object in the collection
+     */
+    T findFilteredFirst(final T filter, final Order[] order);
+
+    /**
+     * Return the first object related to the implementation of this DAO filtered using properties of the provided
+     * instance.
+     * @param filter an instance of the object with the properties you wish to filter on.
+     * @param criteria additional criterion
+     * @return first object in the collection
+     */
+    T findFilteredFirst(final T filter, final List< ? extends Criterion> criteria);
+
+    /**
+     * Load object matching the given key and return it. Throw an exception if not found.
+     * @param key serializable key
+     * @return Object
+     */
+    T load(K key);
+
+    /**
+     * Load object matching the given key and return it. Lazy object will be initialized.
+     * @param key serializable key
+     * @return Object
+     */
+    T loadIfAvailable(K key);
+
+    /**
+     * Load object matching the given key and return it. Lazy object will be initialized.
+     * @param key serializable key
+     * @return Object
+     */
+    T get(K key);
+
+    /**
+     * Persist the given transient instance, first assigning a generated identifier. (Or using the current value of the
+     * identifier property if the assigned generator is used.)
+     * @param obj Object
+     * @return generated id
+     */
+    K save(T obj);
+
+    /**
+     * Used by the base DAO classes but here for your modification Update the persistent state associated with the given
+     * identifier. An exception is thrown if there is a persistent instance with the same identifier in the current
+     * session.
+     * @param obj a transient instance containing updated state
+     */
+    void update(T obj);
+
+    /**
+     * Used by the base DAO classes but here for your modification Either save() or update() the given instance,
+     * depending upon the value of its identifier property.
+     * @param obj Object
+     */
+    void saveOrUpdate(final T obj);
+
+    /**
+     * Used by the base DAO classes but here for your modification. Remove a persistent instance from the datastore. The
+     * argument may be an instance associated with the receiving Session or a transient instance with an identifier
+     * associated with existing persistent state.
+     * @param key key
+     * @return true if the object was successfully deleted, false otherwise
+     */
+    boolean delete(final K key);
 
     /**
      * Re-read the state of the given instance from the underlying database. It is inadvisable to use this to implement
@@ -99,24 +212,12 @@ public interface HibernateDAO<T, K extends Serializable>
     T merge(T obj);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param maxResults maximum number of results
-     * @param page result page (first result is maxResults * page)
-     * @return list of objects
+     * Return all objects related to the implementation of this DAO with no filter.
+     * @param orderProperties <code>desc</code> or <code>asc</code>
+     * @param criteria Additional Criterion conditions
+     * @return a list of all instances
      */
-    List<T> findFiltered(final T filter, final int maxResults, final int page);
-
-    /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param metadata filter metadata
-     * @param maxResults maximum number of results
-     * @param page result page (first result is maxResults * page)
-     * @return list of objects
-     */
-    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata, final int maxResults,
-        final int page);
+    List<T> findAll(final Order[] orderProperties, List< ? extends Criterion> criteria);
 
     /**
      * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
@@ -159,106 +260,5 @@ public interface HibernateDAO<T, K extends Serializable>
     List< ? > findFilteredProperties(final T filter, final Order[] customOrder,
         final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
         List< ? extends Criterion> additionalCriteria, List<String> properties);
-
-    /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @return list of objects
-     */
-    List<T> findFiltered(final T filter);
-
-    /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param orderProperties the name of the property used for ordering
-     * @return list of objects
-     */
-    List<T> findFiltered(final T filter, final Order[] orderProperties);
-
-    /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param metadata filter metadata
-     * @return list of objects
-     */
-    List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata);
-
-    /**
-     * Return the first object related to the implementation of this DAO filtered using properties of the provided
-     * instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @return first object in the collection
-     */
-    T findFilteredFirst(final T filter);
-
-    /**
-     * Return the first object related to the implementation of this DAO filtered using properties of the provided
-     * instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @return first object in the collection
-     */
-    T findFilteredFirst(final T filter, final Order[] order);
-
-    /**
-     * Return the first object related to the implementation of this DAO filtered using properties of the provided
-     * instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param criteria additional criterion
-     * @return first object in the collection
-     */
-    T findFilteredFirst(final T filter, final List< ? extends Criterion> criteria);
-
-    /**
-     * Used by the base DAO classes but here for your modification. Remove a persistent instance from the datastore. The
-     * argument may be an instance associated with the receiving Session or a transient instance with an identifier
-     * associated with existing persistent state.
-     * @param key key
-     * @return true if the object was successfully deleted, false otherwise
-     */
-    boolean delete(final K key);
-
-    /**
-     * Load object matching the given key and return it. Throw an exception if not found.
-     * @param key serializable key
-     * @return Object
-     */
-    T load(K key);
-
-    /**
-     * Load object matching the given key and return it. Lazy object will be initialized.
-     * @param key serializable key
-     * @return Object
-     */
-    T loadIfAvailable(K key);
-
-    /**
-     * Load object matching the given key and return it. Lazy object will be initialized.
-     * @param key serializable key
-     * @return Object
-     */
-    T get(K key);
-
-    /**
-     * Used by the base DAO classes but here for your modification Either save() or update() the given instance,
-     * depending upon the value of its identifier property.
-     * @param obj Object
-     */
-    void saveOrUpdate(final T obj);
-
-    /**
-     * Used by the base DAO classes but here for your modification Update the persistent state associated with the given
-     * identifier. An exception is thrown if there is a persistent instance with the same identifier in the current
-     * session.
-     * @param obj a transient instance containing updated state
-     */
-    void update(T obj);
-
-    /**
-     * Persist the given transient instance, first assigning a generated identifier. (Or using the current value of the
-     * identifier property if the assigned generator is used.)
-     * @param obj Object
-     * @return generated id
-     */
-    K save(T obj);
 
 }

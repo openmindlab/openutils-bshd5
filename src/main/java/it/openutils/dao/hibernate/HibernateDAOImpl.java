@@ -63,15 +63,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public List<T> find(String query)
-    {
-        return getHibernateTemplate().find(query);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public List<T> findAll()
     {
         return findAll(getDefaultOrder());
@@ -89,32 +80,9 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public List<T> findAll(final Order[] orderProperties, final List< ? extends Criterion> criteria)
+    public List<T> find(String query)
     {
-        return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
-        {
-
-            public Object doInHibernate(final Session ses) throws HibernateException
-            {
-                Criteria crit = ses.createCriteria(getReferenceClass());
-                if (null != orderProperties)
-                {
-                    for (int j = 0; j < orderProperties.length; j++)
-                    {
-                        crit.addOrder(orderProperties[j]);
-                    }
-
-                }
-                if (criteria != null)
-                {
-                    for (Criterion criterion : criteria)
-                    {
-                        crit.add(criterion);
-                    }
-                }
-                return crit.list();
-            }
-        });
+        return getHibernateTemplate().find(query);
     }
 
     /**
@@ -140,6 +108,70 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
                 return ses.createQuery(query).setParameters(obj, type).list();
             }
         });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<T> findFiltered(T filter)
+    {
+        return findFiltered(filter, getDefaultFilterMetadata());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<T> findFiltered(T filter, Order[] orderProperties)
+    {
+        return findFiltered(filter, orderProperties, getDefaultFilterMetadata(), Integer.MAX_VALUE, 0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<T> findFiltered(T filter, int maxResults, int page)
+    {
+        return findFiltered(filter, getDefaultFilterMetadata(), maxResults, page);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata)
+    {
+        return findFiltered(filter, metadata, Integer.MAX_VALUE, 0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page)
+    {
+        return findFiltered(filter, getDefaultOrder(), metadata, maxResults, page);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T findFilteredFirst(T filter)
+    {
+        return getFirstInCollection(findFiltered(filter, 1, 0));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T findFilteredFirst(T filter, final Order[] order)
+    {
+        return getFirstInCollection(findFiltered(filter, order, getDefaultFilterMetadata(), 1, 0));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T findFilteredFirst(T filter, List< ? extends Criterion> criteria)
+    {
+        return getFirstInCollection(findFiltered(filter, getDefaultOrder(), getDefaultFilterMetadata(), 1, 0, criteria));
     }
 
     /**
@@ -187,9 +219,10 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public void saveOrUpdate(T obj)
+    @SuppressWarnings("unchecked")
+    public K save(T obj)
     {
-        getHibernateTemplate().saveOrUpdate(obj);
+        return (K) getHibernateTemplate().save(obj);
     }
 
     /**
@@ -198,6 +231,14 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     public void update(T obj)
     {
         getHibernateTemplate().update(obj);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void saveOrUpdate(T obj)
+    {
+        getHibernateTemplate().saveOrUpdate(obj);
     }
 
     /**
@@ -255,73 +296,32 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public K save(T obj)
+    public List<T> findAll(final Order[] orderProperties, final List< ? extends Criterion> criteria)
     {
-        return (K) getHibernateTemplate().save(obj);
-    }
+        return (List<T>) getHibernateTemplate().execute(new HibernateCallback()
+        {
 
-    /**
-     * {@inheritDoc}
-     */
-    public T findFilteredFirst(T filter)
-    {
-        return getFirstInCollection(findFiltered(filter, 1, 0));
-    }
+            public Object doInHibernate(final Session ses) throws HibernateException
+            {
+                Criteria crit = ses.createCriteria(getReferenceClass());
+                if (null != orderProperties)
+                {
+                    for (int j = 0; j < orderProperties.length; j++)
+                    {
+                        crit.addOrder(orderProperties[j]);
+                    }
 
-    /**
-     * {@inheritDoc}
-     */
-    public T findFilteredFirst(T filter, final Order[] order)
-    {
-        return getFirstInCollection(findFiltered(filter, order, getDefaultFilterMetadata(), 1, 0));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public T findFilteredFirst(T filter, List< ? extends Criterion> criteria)
-    {
-        return getFirstInCollection(findFiltered(filter, getDefaultOrder(), getDefaultFilterMetadata(), 1, 0, criteria));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<T> findFiltered(T filter)
-    {
-        return findFiltered(filter, getDefaultFilterMetadata());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<T> findFiltered(T filter, Order[] orderProperties)
-    {
-        return findFiltered(filter, orderProperties, getDefaultFilterMetadata(), Integer.MAX_VALUE, 0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata)
-    {
-        return findFiltered(filter, metadata, Integer.MAX_VALUE, 0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<T> findFiltered(T filter, int maxResults, int page)
-    {
-        return findFiltered(filter, getDefaultFilterMetadata(), maxResults, page);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page)
-    {
-        return findFiltered(filter, getDefaultOrder(), metadata, maxResults, page);
+                }
+                if (criteria != null)
+                {
+                    for (Criterion criterion : criteria)
+                    {
+                        crit.add(criterion);
+                    }
+                }
+                return crit.list();
+            }
+        });
     }
 
     /**
@@ -376,17 +376,26 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
+     * Sets the aopenabled.
+     * @param aopenabled the aopenabled to set
+     */
+    public void setAopenabled(boolean aopenabled)
+    {
+        this.aopenabled = aopenabled;
+    }
+
+    public void setReferenceClass(Class<T> referenceClass)
+    {
+        this.referenceClass = referenceClass;
+    }
+
+    /**
      * Return the specific Object class that will be used for class-specific implementation of this DAO.
      * @return the reference Class
      */
     protected Class<T> getReferenceClass()
     {
         return referenceClass;
-    }
-
-    public void setReferenceClass(Class<T> referenceClass)
-    {
-        this.referenceClass = referenceClass;
     }
 
     /**
@@ -532,15 +541,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
-     * Sets the aopenabled.
-     * @param aopenabled the aopenabled to set
-     */
-    public void setAopenabled(boolean aopenabled)
-    {
-        this.aopenabled = aopenabled;
-    }
-
-    /**
      * @return This is needed as for http://opensource.atlassian.com/projects/spring/browse/SPR-2226
      */
     @SuppressWarnings("unchecked")
@@ -572,7 +572,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @author carone
      * @version $Id$
      */
-    private class HibernateCallbackForExecution implements HibernateCallback
+    private final class HibernateCallbackForExecution implements HibernateCallback
     {
 
         private T filter;
