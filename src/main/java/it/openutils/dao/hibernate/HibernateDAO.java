@@ -14,144 +14,160 @@ import org.hibernate.type.Type;
 /**
  * @author Fabrizio Giustina
  * @version $Id$
- * @param <T> Persistence class
- * @param <K> Object Key
+ * @param <T> the persistence entity class that this DAO will handle
+ * @param <K> the class of <code>T</code>'s id property
  */
 public interface HibernateDAO<T, K extends Serializable>
 {
 
     /**
-     * Return all objects related to the implementation of this DAO with no filter.
-     * @return a list of all instances
+     * Retrieve all entities handled by this DAO, in no particular order.
+     * @return the list of all entity instances (never null)
      */
     List<T> findAll();
 
     /**
-     * Return all objects related to the implementation of this DAO with no filter.
-     * @param orderProperties <code>desc</code> or <code>asc</code>
-     * @return a list of all instances
+     * Retrieve all entities handled by this DAO, ordered according to the input <code>orders</code>.
+     * @param orders the orders to apply with respect to entity class properties
+     * @return the list of all entity instances (never null), ordered accordingly
      */
-    List<T> findAll(final Order[] orderProperties);
+    List<T> findAll(final Order[] orders);
 
     /**
-     * Execute a query.
-     * @param query a query expressed in Hibernate's query language
-     * @return a distinct list of instances (or arrays of instances)
+     * Retrieve all entities handled by this DAO that match the input query string.
+     * @param query an HQL query
+     * @return a list of distinct entity instances (never null)
      */
     List<T> find(String query);
 
     /**
-     * Execute a query.
-     * @param query a query expressed in Hibernate's query language
-     * @param obj filter value
-     * @param type filter type
-     * @return a distinct list of instances (or arrays of instances)
+     * Retrieve all entities handled by this DAO that match the input query string, accepting one query parameter and
+     * the corresponding type.
+     * @param query an HQL query
+     * @param paramValue the value of a parameter to be set in the query
+     * @param paramType the Hibernate type of <code>paramValue</code>
+     * @return a list of distinct entity instances (never null)
      */
-    List<T> find(String query, Object obj, Type type);
+    List<T> find(String query, Object paramValue, Type paramType);
 
     /**
-     * Execute a query.
-     * @param query a query expressed in Hibernate's query language
-     * @param obj filter values
-     * @param type filter types
-     * @return a distinct list of instances (or arrays of instances)
+     * Retrieve all entities handled by this DAO that match the input query string, accepting one query parameter and
+     * the corresponding type.
+     * @param query an HQL query
+     * @param paramValues the parameter values to be set in the query
+     * @param paramTypes the Hibernate types of <code>paramValues</code>
+     * @return a list of distinct entity instances (never null)
      */
-    List<T> find(final String query, final Object[] obj, final Type[] type);
+    List<T> find(final String query, final Object[] paramValues, final Type[] paramTypes);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @return list of objects
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
+     * <code>filter</code>'s non-null property values.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @return a list of distinct entity instances (never null)
      */
     List<T> findFiltered(final T filter);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param orderProperties the name of the property used for ordering
-     * @return list of objects
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
+     * <code>filter</code>'s non-null property values. The result list is ordered according to the input
+     * <code>orders</code> parameter.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param orders the orders to apply with respect to entity class properties
+     * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, final Order[] orderProperties);
+    List<T> findFiltered(final T filter, final Order[] orders);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param maxResults maximum number of results
-     * @param page result page (first result is maxResults * page)
-     * @return list of objects
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
+     * <code>filter</code>'s non-null property values.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @return a list of distinct entity instances (never null)
      */
     List<T> findFiltered(final T filter, final int maxResults, final int page);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param metadata filter metadata
-     * @return list of objects
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
+     * specified <code>FilterMetadata</code> object, <code>filter</code>'s non-null property values.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @return a list of distinct entity instances (never null)
      */
     List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param metadata filter metadata
-     * @param maxResults maximum number of results
-     * @param page result page (first result is maxResults * page)
-     * @return list of objects
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
+     * specified <code>FilterMetadata</code> object, <code>filter</code>'s non-null property values.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @return a list of distinct entity instances (never null)
      */
     List<T> findFiltered(final T filter, Map<String, ? extends FilterMetadata> metadata, final int maxResults,
         final int page);
 
     /**
-     * Return the first object related to the implementation of this DAO filtered using properties of the provided
-     * instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @return first object in the collection
+     * Retrieve the first entity instance that matches the input <code>filter</code>, if existing.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @return the first matching instance of the entity class managed by this DAO, or <code>null</code> if none found
+     * @see #findFiltered(T)
      */
     T findFilteredFirst(final T filter);
 
     /**
-     * Return the first object related to the implementation of this DAO filtered using properties of the provided
-     * instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @return first object in the collection
+     * Retrieve the first entity instance that matches the input <code>filter</code>, if existing.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param orders the orders to apply with respect to entity class properties
+     * @return the first matching instance of the entity class managed by this DAO, or <code>null</code> if none found
+     * @see #findFiltered(T, Order...)
      */
-    T findFilteredFirst(final T filter, final Order[] order);
+    T findFilteredFirst(final T filter, final Order[] orders);
 
     /**
-     * Return the first object related to the implementation of this DAO filtered using properties of the provided
-     * instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param criteria additional criterion
-     * @return first object in the collection
+     * Retrieve the first entity instance that matches the input <code>filter</code> and the additional input
+     * <code>criteria</code>, if existing.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param criteria a list of additional Hibernate criteria
+     * @return the first matching instance of the entity class managed by this DAO, or <code>null</code> if none found
+     * @see #findFiltered(T, List)
      */
     T findFilteredFirst(final T filter, final List< ? extends Criterion> criteria);
 
     /**
      * Load object matching the given key and return it. Throw an exception if not found.
-     * @param key serializable key
-     * @return Object
+     * @param key the id of the entity instance to load
+     * @return the found entity instance (never null)
      */
     T load(K key);
 
     /**
      * Load object matching the given key and return it. Lazy object will be initialized.
-     * @param key serializable key
-     * @return Object
+     * @param key the id of the entity instance to load
+     * @return the found entity instance, or null if none found
      */
     T loadIfAvailable(K key);
 
     /**
      * Load object matching the given key and return it. Lazy object will be initialized.
-     * @param key serializable key
-     * @return Object
+     * @param key the id of the entity instance to load
+     * @return the found entity instance (never null)
      */
     T get(K key);
 
     /**
      * Persist the given transient instance, first assigning a generated identifier. (Or using the current value of the
      * identifier property if the assigned generator is used.)
-     * @param obj Object
-     * @return generated id
+     * @param obj the entity instance to save
+     * @return the id generated for the persisted instance
      */
     K save(T obj);
 
@@ -180,30 +196,31 @@ public interface HibernateDAO<T, K extends Serializable>
     boolean delete(final K key);
 
     /**
-     * Re-read the state of the given instance from the underlying database. It is inadvisable to use this to implement
-     * long-running sessions that span many business tasks. This method is, however, useful in certain special
-     * circumstances. For example
+     * Re-reads the state of the given instance from the underlying database. This method is useful in certain special
+     * circumstances, for example:
      * <ul>
-     * <li>where a database trigger alters the object state upon insert or update
-     * <li>after executing direct SQL (eg. a mass update) in the same session
-     * <li>after inserting a <tt>Blob</tt> or <tt>Clob</tt>
+     * <li>when a database trigger is known to alter the object state right after <code>INSERT</code> or
+     * <code>UPDATE</code> statements
+     * <li>after some operation (e.g. a mass update) has been executed via direct SQL in the same session
+     * <li>after modifying a database field of type <tt>Blob</tt> or <tt>Clob</tt>
      * </ul>
-     * @param obj Object
+     * However, use of this method in long-running sessions that span many business tasks is discouraged.
+     * @param obj the entity instance to refresh
      */
     void refresh(T obj);
 
     /**
      * Remove the given object from the Session cache.
-     * @param obj Object
+     * @param obj the entity instance to remove
      */
     void evict(T obj);
 
     /**
-     * Copy the state of the given object onto the persistent object with the same identifier. If there is no persistent
-     * instance currently associated with the session, it will be loaded. Return the persistent instance. If the given
-     * instance is unsaved, save a copy of and return it as a newly persistent instance. The given instance does not
-     * become associated with the session. This operation cascades to associated instances if the association is mapped
-     * with <tt>cascade="merge"</tt>.<br>
+     * Copies the state of the given object onto the persistent object with the same identifier, and returns the updated
+     * persistent instance. If there is no persistent instance currently associated with the session, a new one will be
+     * loaded. If the given instance is unsaved, saves a copy of and return it as a newly persisted instance. The given
+     * instance does not become associated with the session. This operation cascades to associated instances if the
+     * association is mapped with <code>cascade="merge"</code>.<br>
      * <br>
      * The semantics of this method are defined by JSR-220.
      * @param obj a detached instance with state to be copied
@@ -220,45 +237,57 @@ public interface HibernateDAO<T, K extends Serializable>
     List<T> findAll(final Order[] orderProperties, List< ? extends Criterion> criteria);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param customOrder order criterias
-     * @param metadata filter metadata
-     * @param maxResults maximum number of results
-     * @param page result page (first result is maxResults * page)
-     * @return list of objects
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
+     * specified <code>FilterMetadata</code> object, <code>filter</code>'s non-null property values. The result list is
+     * ordered according to the <code>orders</code> parameter.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param orders the orders to apply with respect to entity class properties
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, final Order[] customOrder,
-        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page);
+    List<T> findFiltered(final T filter, final Order[] orders, final Map<String, ? extends FilterMetadata> metadata,
+        final int maxResults, final int page);
 
     /**
-     * Return all objects related to the implementation of this DAO filtered using properties of the provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param customOrder order criterias
-     * @param metadata filter metadata
-     * @param maxResults maximum number of results
-     * @param page result page (first result is maxResults * page)
-     * @param additionalCriteria additional criteria
-     * @return list of objects
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
+     * specified <code>FilterMetadata</code> object, <code>filter</code>'s non-null property values, and the input
+     * <code>criteria</code>.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param orders the orders to apply with respect to entity class properties
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @param criteria a list of additional Hibernate criteria
+     * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(final T filter, final Order[] customOrder,
-        final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
-        List< ? extends Criterion> additionalCriteria);
+    List<T> findFiltered(final T filter, final Order[] orders, final Map<String, ? extends FilterMetadata> metadata,
+        final int maxResults, final int page, List< ? extends Criterion> criteria);
 
     /**
-     * Return properties from all objects related to the implementation of this DAO filtered using properties of the
-     * provided instance.
-     * @param filter an instance of the object with the properties you wish to filter on.
-     * @param customOrder order criterias
-     * @param metadata filter metadata
-     * @param maxResults maximum number of results
-     * @param page result page (first result is maxResults * page)
-     * @param additionalCriteria additional criteria
-     * @param properties properties to be returned
-     * @return list of properties from all objects
+     * Retrieve a set of properties from the entities returned by
+     * {@link #findFiltered(Object, Order[], Map, int, int, List)}
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param orders the orders to apply with respect to entity class properties
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @param criteria a list of additional Hibernate criteria
+     * @param properties the names of the properties to return
+     * @return a list of distinct entity instances (never null)
      */
-    List< ? > findFilteredProperties(final T filter, final Order[] customOrder,
+    List< ? > findFilteredProperties(final T filter, final Order[] orders,
         final Map<String, ? extends FilterMetadata> metadata, final int maxResults, final int page,
-        List< ? extends Criterion> additionalCriteria, List<String> properties);
+        List< ? extends Criterion> criteria, List<String> properties);
 
 }
