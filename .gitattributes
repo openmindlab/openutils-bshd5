@@ -2,6 +2,7 @@
 src/main/assembly/assembly-bundle.xml svneol=native#text/plain
 src/main/bundle/LICENSE.txt svneol=native#text/plain
 src/main/bundle/README.txt svneol=native#text/plain
+src/main/etc/header.txt svneol=native#text/plain
 src/site/apt/configuration.apt svneol=native#text/plain
 src/site/apt/index.apt svneol=native#text/plain
 src/site/changes/changes.xml svneol=native#text/plain
