@@ -86,6 +86,15 @@ public interface HibernateDAO<T, K extends Serializable>
     List<T> find(String query, Object[] paramValues, Type[] paramTypes);
 
     /**
+     * Retrieve the entities handled by this DAO that match the input <code>criteria</code>, ordered according to the
+     * input <code>orders</code>.
+     * @param criteria a list of additional Hibernate criteria
+     * @param orders the orders to apply with respect to entity class properties
+     * @return a list of distinct entity instances (never null), matching the criteria and ordered accordingly
+     */
+    List<T> find(List< ? extends Criterion> criteria, Order... orders);
+
+    /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
      * <code>filter</code>'s non-null property values.
      * @param filter an instance of this DAO's entity class to be used as filter
@@ -138,6 +147,59 @@ public interface HibernateDAO<T, K extends Serializable>
      * @return a list of distinct entity instances (never null)
      */
     List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page);
+
+    /**
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
+     * specified <code>FilterMetadata</code> object, <code>filter</code>'s non-null property values. The result list is
+     * ordered according to the <code>orders</code> parameter.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @param orders the orders to apply with respect to entity class properties
+     * @return a list of distinct entity instances (never null)
+     */
+    List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
+        Order... orders);
+
+    /**
+     * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code> or via a
+     * specified <code>FilterMetadata</code> object, <code>filter</code>'s non-null property values, and the input
+     * <code>criteria</code>.
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @param criteria a list of additional Hibernate criteria
+     * @param orders the orders to apply with respect to entity class properties
+     * @return a list of distinct entity instances (never null)
+     */
+    List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
+        List< ? extends Criterion> criteria, Order... orders);
+
+    /**
+     * Retrieve a set of properties from the entities returned by
+     * {@link #findFiltered(Object, Order[], Map, int, int, List)}
+     * @param filter an instance of this DAO's entity class to be used as filter
+     * @param metadata a map that matches names of entity class properties to <code>FilterMetadata</code> modifiers,
+     * that will be used for comparing values of the corresponding property
+     * @param maxResults the maximum number of results to be fetched
+     * @param page the zero-based page number to use when displaying paginated results (the first entity returned is the
+     * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
+     * pagination
+     * @param criteria a list of additional Hibernate criteria
+     * @param properties the names of the properties to return
+     * @param orders the orders to apply with respect to entity class properties
+     * @return a list of distinct entity instances (never null)
+     */
+    List< ? > findFilteredProperties(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults,
+        int page, List< ? extends Criterion> criteria, List<String> properties, Order... orders);
 
     /**
      * Retrieve the first entity instance that matches the input <code>filter</code>, if existing.
@@ -257,7 +319,9 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param orderProperties <code>desc</code> or <code>asc</code>
      * @param criteria Additional Criterion conditions
      * @return a list of all instances
+     * @deprecated use the correctly named {@link #find(Order[], List)} instead
      */
+    @Deprecated
     List<T> findAll(Order[] orderProperties, List< ? extends Criterion> criteria);
 
     /**
@@ -273,7 +337,9 @@ public interface HibernateDAO<T, K extends Serializable>
      * one at position <code>maxResults * page</code> in the complete list of results), or <code>0</code> for no
      * pagination
      * @return a list of distinct entity instances (never null)
+     * @deprecated superseded by {@link #findFiltered(Object, Map, int, int, Order...)}
      */
+    @Deprecated
     List<T> findFiltered(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata, int maxResults,
         int page);
 
@@ -291,7 +357,9 @@ public interface HibernateDAO<T, K extends Serializable>
      * pagination
      * @param criteria a list of additional Hibernate criteria
      * @return a list of distinct entity instances (never null)
+     * @deprecated superseded by {@link #findFiltered(Object, Map, int, int, List, Order...)}
      */
+    @Deprecated
     List<T> findFiltered(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata, int maxResults,
         int page, List< ? extends Criterion> criteria);
 
@@ -309,7 +377,9 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param criteria a list of additional Hibernate criteria
      * @param properties the names of the properties to return
      * @return a list of distinct entity instances (never null)
+     * @deprecated superseded by {@link #findFilteredProperties(Object, Map, int, int, List, List, Order...)}
      */
+    @Deprecated
     List< ? > findFilteredProperties(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata,
         int maxResults, int page, List< ? extends Criterion> criteria, List<String> properties);
 
