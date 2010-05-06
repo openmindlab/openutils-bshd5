@@ -96,7 +96,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> findAll(Order[] orders)
+    public List<T> findAll(Order... orders)
     {
         return getThis().findAll(orders, Collections.<Criterion> emptyList());
     }
@@ -146,7 +146,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<T> findFiltered(T filter, Order[] orders)
+    public List<T> findFiltered(T filter, Order... orders)
     {
         return findFiltered(filter, orders, getDefaultFilterMetadata(), Integer.MAX_VALUE, 0);
     }
@@ -186,7 +186,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public T findFilteredFirst(T filter, final Order[] orders)
+    public T findFilteredFirst(T filter, final Order... orders)
     {
         return getFirstInCollection(findFiltered(filter, orders, getDefaultFilterMetadata(), 1, 0));
     }

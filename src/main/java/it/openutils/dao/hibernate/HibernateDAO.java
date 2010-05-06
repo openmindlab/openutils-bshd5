@@ -56,7 +56,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param orders the orders to apply with respect to entity class properties
      * @return the list of all entity instances (never null), ordered accordingly
      */
-    List<T> findAll(Order[] orders);
+    List<T> findAll(Order... orders);
 
     /**
      * Retrieve all entities handled by this DAO that match the input query string.
@@ -101,7 +101,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param orders the orders to apply with respect to entity class properties
      * @return a list of distinct entity instances (never null)
      */
-    List<T> findFiltered(T filter, Order[] orders);
+    List<T> findFiltered(T filter, Order... orders);
 
     /**
      * Retrieve the entities handled by this DAO whose property values match, via <code>equals()</code>,
@@ -154,7 +154,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @return the first matching instance of the entity class managed by this DAO, or <code>null</code> if none found
      * @see #findFiltered(T, Order...)
      */
-    T findFilteredFirst(T filter, Order[] orders);
+    T findFilteredFirst(T filter, Order... orders);
 
     /**
      * Retrieve the first entity instance that matches the input <code>filter</code> and the additional input
