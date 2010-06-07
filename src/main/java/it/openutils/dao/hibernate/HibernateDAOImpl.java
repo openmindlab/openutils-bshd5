@@ -25,7 +25,7 @@
 
 package it.openutils.dao.hibernate;
 
-import it.openutils.hibernate.example.EnhancedExample;
+import it.openutils.hibernate.example.ExampleTree;
 import it.openutils.hibernate.example.FilterMetadata;
 
 import java.io.Serializable;
@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.aop.AspectException;
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -714,7 +715,8 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         @SuppressWarnings("unchecked")
         public List<T> doInHibernate(Session ses) throws HibernateException
         {
-            Criteria crit = ses.createCriteria(filter.getClass());
+            // Criteria crit = ses.createCriteria(filter.getClass());
+            Criteria crit = new ExampleTree(filter).create(ses);
             crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
             crit.setMaxResults(maxResults);
             crit.setFirstResult(maxResults * page);
@@ -729,15 +731,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
                     }
                 }
             }
-            EnhancedExample.create(crit, filter, metadata);
-            if (additionalCriteria != null)
+            // EnhancedExample.create(crit, filter, metadata);
+            if (CollectionUtils.isNotEmpty(additionalCriteria))
             {
                 for (Criterion criterion : additionalCriteria)
                 {
                     crit.add(criterion);
                 }
             }
-            if (properties != null)
+            if (CollectionUtils.isNotEmpty(properties))
             {
                 ProjectionList projectionList = Projections.projectionList();
 

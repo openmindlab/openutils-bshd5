@@ -29,12 +29,16 @@ import it.openutils.hibernate.test.dao.PersonDAO;
 import it.openutils.hibernate.test.model.Address;
 import it.openutils.hibernate.test.model.FullName;
 import it.openutils.hibernate.test.model.Person;
+import it.openutils.hibernate.test.model.Wish;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.Hibernate;
+import org.hibernate.criterion.Example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,7 +47,7 @@ import org.testng.annotations.Test;
  * @author gcatania
  */
 @ContextConfiguration(locations = "/spring-tests.xml")
-public class HibernateDAOTest extends AbstractTestNGSpringContextTests
+public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTests
 {
 
     @Autowired
@@ -74,23 +78,55 @@ public class HibernateDAOTest extends AbstractTestNGSpringContextTests
         Assert.assertEquals(person, savedPerson);
     }
 
-    /**
-     * fails because of BSHD-5
-     */
-    @Test(enabled = false)
+    @Test
     public void testFindFilteredFirst()
     {
         personDAO.save(fifteenYearsOld());
         List<Person> found = personDAO.findFiltered(new Person(new FullName(null, "Jones"), null, null, null));
+        Assert.assertTrue(found.size() > 0, "No persons found.");
+    }
+
+    @Test
+    public void testExampleBasic()
+    {
+        personDAO.save(fifteenYearsOld());
+        Person outsideFilter = fifteenYearsOld();
+        outsideFilter.getName().setFamilyName("Mahoney");
+        personDAO.save(outsideFilter);
+        Person filter = new Person(new FullName(null, "Jones"), null, null, null);
+        List<Person> foundByExample = personDAO.find(Collections.singletonList(Example.create(filter)));
+        Assert.assertNotNull(foundByExample);
+        Assert.assertEquals(foundByExample.size(), 1);
+        Assert.assertEquals(foundByExample.get(0).getName().getFamilyName(), "Jones");
+
+        List<Person> found = personDAO.findFiltered(filter);
         Assert.assertNotNull(found);
-        if (found.size() == 0)
-        {
-            Assert.fail("No persons found");
-        }
-        for (Person p : found)
-        {
-            System.out.println(p.toString());
-        }
+        Assert.assertEquals(found.size(), 1);
+        Assert.assertEquals(found.get(0).getName().getFamilyName(), "Jones");
+    }
+
+    @Test
+    public void testExampleAssociations()
+    {
+        Person fifteenYearsOld = fifteenYearsOld();
+        fifteenYearsOld.setWish(new Wish(fifteenYearsOld, "because he's young"));
+        personDAO.save(fifteenYearsOld);
+        Person another = fifteenYearsOld();
+        another.setWish(new Wish(another, "because he's a nerd"));
+        personDAO.save(another);
+
+        Person filter = new Person();
+        filter.setWish(new Wish(null, "because he's young"));
+        List<Person> foundByExample = personDAO.find(Collections.singletonList(Example.create(filter)));
+        Hibernate.initialize(foundByExample);
+        Assert.assertNotNull(foundByExample);
+        Assert.assertEquals(foundByExample.size(), 2);
+
+        List<Person> found = personDAO.findFiltered(filter);
+        Hibernate.initialize(found);
+        Assert.assertNotNull(found);
+        Assert.assertEquals(found.size(), 1);
+        Assert.assertEquals(found.get(0).getWish().getReason(), "because he's young");
     }
 
 }

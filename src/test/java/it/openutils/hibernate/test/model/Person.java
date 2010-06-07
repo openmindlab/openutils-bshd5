@@ -60,7 +60,7 @@ public class Person
     @ManyToOne(cascade = CascadeType.ALL)
     private Address fiscalAddress;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Wish wish;
 
     public Person()
