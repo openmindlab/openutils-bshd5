@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.aop.AspectException;
-import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -53,6 +52,7 @@ import org.hibernate.type.Type;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.util.CollectionUtils;
 
 
 /**
@@ -732,14 +732,14 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
                 }
             }
             // EnhancedExample.create(crit, filter, metadata);
-            if (CollectionUtils.isNotEmpty(additionalCriteria))
+            if (!CollectionUtils.isEmpty(additionalCriteria))
             {
                 for (Criterion criterion : additionalCriteria)
                 {
                     crit.add(criterion);
                 }
             }
-            if (CollectionUtils.isNotEmpty(properties))
+            if (!CollectionUtils.isEmpty(properties))
             {
                 ProjectionList projectionList = Projections.projectionList();
 
