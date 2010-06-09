@@ -27,8 +27,10 @@ package it.openutils.dao.hibernate;
 
 import it.openutils.hibernate.example.ExampleTree;
 import it.openutils.hibernate.example.FilterMetadata;
+import it.openutils.hibernate.example.FilterMetadataSupport;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -447,6 +449,10 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
         List< ? extends Criterion> criteria, Order... orders)
     {
+        if (metadata == null || metadata.isEmpty())
+        {
+            return getHibernateTemplate().execute(new ExampleTreeCallback(orders, criteria, maxResults, page, filter));
+        }
         return getHibernateTemplate().execute(
             new HibernateCallbackForExecution(filter, page, maxResults, metadata, orders, criteria, Collections
                 .<String> emptyList()));
@@ -674,6 +680,60 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
+     * @author gcatania
+     */
+    private final class ExampleTreeCallback implements HibernateCallback<List<T>>
+    {
+
+        private final Order[] orders;
+
+        private final List< ? extends Criterion> criteria;
+
+        private final int page;
+
+        private final int maxResults;
+
+        private final T filter;
+
+        private ExampleTreeCallback(
+            Order[] orders,
+            List< ? extends Criterion> criteria,
+            int maxResults,
+            int page,
+            T filter)
+        {
+            this.orders = orders;
+            this.criteria = criteria;
+            this.page = page;
+            this.maxResults = maxResults;
+            this.filter = filter;
+        }
+
+        @SuppressWarnings("unchecked")
+        public List<T> doInHibernate(Session session) throws HibernateException, SQLException
+        {
+            Criteria crit = new ExampleTree(filter).create(session);
+            crit.setMaxResults(maxResults);
+            crit.setFirstResult(maxResults * page);
+            if (criteria != null)
+            {
+                for (Criterion c : criteria)
+                {
+                    crit.add(c);
+                }
+            }
+            if (orders != null)
+            {
+                for (Order o : orders)
+                {
+                    crit.addOrder(o);
+                }
+            }
+            return crit.list();
+        }
+    }
+
+    /**
      * @author carone
      * @version $Id$
      */
@@ -716,7 +776,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         public List<T> doInHibernate(Session ses) throws HibernateException
         {
             // Criteria crit = ses.createCriteria(filter.getClass());
-            Criteria crit = new ExampleTree(filter).create(ses);
+            Criteria crit = new FilterMetadataSupport(filter, metadata).create(ses);
             crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
             crit.setMaxResults(maxResults);
             crit.setFirstResult(maxResults * page);
@@ -731,7 +791,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
                     }
                 }
             }
-            // EnhancedExample.create(crit, filter, metadata);
             if (!CollectionUtils.isEmpty(additionalCriteria))
             {
                 for (Criterion criterion : additionalCriteria)

@@ -50,6 +50,11 @@ import org.testng.annotations.Test;
 public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTests
 {
 
+    /*
+     * TODO tests to perform: 1) find filtered with collection with zero, one or more elements 2) find filtered with
+     * additional criteria 3) filter metadata support
+     */
+
     @Autowired
     private PersonDAO personDAO;
 
