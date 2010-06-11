@@ -25,14 +25,17 @@
 
 package it.openutils.hibernate.example;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
@@ -52,10 +55,12 @@ import org.hibernate.type.Type;
  * facility to create subcriteria and examples for associations of an input entity
  * @author gcatania
  */
-public class ExampleTree
+public class ExampleTree implements Serializable
 {
 
-    private final Object entity;
+    private static final long serialVersionUID = 4331039089117321853L;
+
+    private final Object rootEntity;
 
     private Character escapeCharacter;
 
@@ -66,6 +71,8 @@ public class ExampleTree
     private MatchMode matchMode;
 
     private boolean isIgnoreCaseEnabled;
+
+    private Map<String, Set<String>> excludedProperties = new HashMap<String, Set<String>>();
 
     private Map<String, List<Criterion>> additionalConditions = new HashMap<String, List<Criterion>>();
 
@@ -79,7 +86,7 @@ public class ExampleTree
         {
             throw new NullPointerException("Null entity.");
         }
-        this.entity = entity;
+        rootEntity = entity;
     }
 
     /**
@@ -90,7 +97,7 @@ public class ExampleTree
      */
     public Criteria create(Session ses)
     {
-        return appendTo(ses.createCriteria(Hibernate.getClass(entity)), ses);
+        return appendTo(ses.createCriteria(Hibernate.getClass(rootEntity)), ses);
     }
 
     /**
@@ -102,7 +109,7 @@ public class ExampleTree
      */
     public Criteria appendTo(Criteria crit, Session ses)
     {
-        return new ExampleTreeWalker(ses).walk(crit, entity);
+        return new ExampleTreeWalker(ses).walk(crit);
     }
 
     /**
@@ -177,21 +184,53 @@ public class ExampleTree
     }
 
     /**
-     * add an additional criterion for the subentity at the given path
-     * @param path the subentity path
+     * add an additional criterion for properties of the subentity at the given path
+     * @param associationPath the association path with respect to the filter entity
      * @param criterion the criterion to add
      * @return this, for method concatenation
      */
-    public ExampleTree add(String path, Criterion criterion)
+    public ExampleTree add(String associationPath, Criterion criterion)
     {
-        List<Criterion> criteriaForPath = additionalConditions.get(path);
+        List<Criterion> criteriaForPath = additionalConditions.get(associationPath);
         if (criteriaForPath == null)
         {
             criteriaForPath = new ArrayList<Criterion>();
-            additionalConditions.put(path, criteriaForPath);
+            additionalConditions.put(associationPath, criteriaForPath);
         }
         criteriaForPath.add(criterion);
         return this;
+    }
+
+    /**
+     * exclude a property from the default filter (note that additional conditions may still be applied for this
+     * property)
+     * @param associationPath the association path of the property with respect to the filter entity
+     * @param propertyName the property name
+     * @return this, for method concatenation
+     */
+    public ExampleTree excludeProperty(String associationPath, String propertyName)
+    {
+        Set<String> excludedPropertiesForPath = excludedProperties.get(associationPath);
+        if (excludedPropertiesForPath == null)
+        {
+            excludedPropertiesForPath = new HashSet<String>();
+            excludedProperties.put(associationPath, excludedPropertiesForPath);
+        }
+        excludedPropertiesForPath.add(propertyName);
+        return this;
+    }
+
+    /**
+     * override filter behavior for a given property with the input criterion.
+     * @param associationPath the association path of the property
+     * @param propertyName the property name
+     * @param override the new filter behavior for the property
+     * @return this, for method concatenation
+     */
+    public ExampleTree overridePropertyFilter(String associationPath, String propertyName, Criterion override)
+    {
+        excludeProperty(associationPath, propertyName);
+        return add(associationPath, override);
     }
 
     private static enum DefaultPropertySelector {
@@ -205,8 +244,10 @@ public class ExampleTree
         return this;
     }
 
-    private class ExampleTreeWalker
+    private class ExampleTreeWalker implements Serializable
     {
+
+        private static final long serialVersionUID = -5606122272375864522L;
 
         private final SessionFactory sessionFactory;
 
@@ -218,7 +259,7 @@ public class ExampleTree
             entityMode = session.getEntityMode();
         }
 
-        public Criteria walk(Criteria rootCriteria, Object rootEntity)
+        public Criteria walk(Criteria rootCriteria)
         {
             createSubExamples(rootCriteria, rootEntity, new String[0]);
             return rootCriteria;
@@ -226,9 +267,9 @@ public class ExampleTree
 
         private void createSubExamples(Criteria crit, Object entity, String[] walkedProperties)
         {
-            String path = getPath(walkedProperties);
-            crit.add(example(entity, path));
-            for (Criterion c : getAdditionalConditions(path))
+            String associationPath = getAssociationPath(walkedProperties);
+            crit.add(example(entity, associationPath));
+            for (Criterion c : getAdditionalConditions(associationPath))
             {
                 crit.add(c);
             }
@@ -266,12 +307,12 @@ public class ExampleTree
             }
         }
 
-        private String getPath(String[] walkedProperties)
+        private String getAssociationPath(String[] walkedProperties)
         {
             return walkedProperties.length > 0 ? StringUtils.join(walkedProperties, '.') : StringUtils.EMPTY;
         }
 
-        private Example example(Object entity, String path)
+        private Example example(Object entity, String associationPath)
         {
             Example ex = Example.create(entity);
             if (escapeCharacter != null)
@@ -302,6 +343,14 @@ public class ExampleTree
                         break;
                     default :
                         break;
+                }
+            }
+            Set<String> excludedPropertiesForPath = excludedProperties.get(associationPath);
+            if (excludedPropertiesForPath != null)
+            {
+                for (String propertyName : excludedPropertiesForPath)
+                {
+                    ex.excludeProperty(propertyName);
                 }
             }
             return ex;
