@@ -8,9 +8,9 @@
     <version>1.9</version>
   </parent>
   <artifactId>openutils-bshd5</artifactId>
-  <name>openutils base Spring-Hibernate DAO for java 5.0</name>
+  <name>openutils base Spring-Hibernate DAO</name>
   <version>2.0.7-SNAPSHOT</version>
-  <description>Openutils base Spring-Hibernate DAO for java 5.0</description>
+  <description>Openutils base Spring-Hibernate DAO (for java 5 and more)</description>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -22,6 +22,7 @@
     <system>jira</system>
     <url>http://jira.openmindlab.com/browse/BSHD</url>
   </issueManagement>
+  <inceptionYear>2005</inceptionYear>
   <build>
     <plugins>
       <plugin>
@@ -157,14 +158,6 @@
       <version>${spring.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aspects</artifactId>
-      <version>${spring.version}</version>
-      <scope>test</scope>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
