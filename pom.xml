@@ -48,12 +48,12 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.6</version>
+      <version>1.6.1</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.5.6</version>
+      <version>1.6.1</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -102,7 +102,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>3.3.1.GA</version>
+      <version>3.5.6-Final</version>
       <exclusions>
         <exclusion>
           <groupId>cglib</groupId>
@@ -115,6 +115,26 @@
         <exclusion>
           <groupId>xml-apis</groupId>
           <artifactId>xml-apis</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+      <version>3.5.6-Final</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>avalon-framework</groupId>
+          <artifactId>avalon-framework</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>logkit</groupId>
+          <artifactId>logkit</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -164,26 +184,6 @@
       <version>5.7</version>
       <classifier>jdk15</classifier>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
-      <version>3.4.0.GA</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>cglib</groupId>
-          <artifactId>cglib</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>avalon-framework</groupId>
-          <artifactId>avalon-framework</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>logkit</groupId>
-          <artifactId>logkit</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
