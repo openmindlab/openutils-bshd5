@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
@@ -106,7 +107,10 @@ public class FilterMetadataSupport
 
         public Criteria walk(Criteria rootCriteria, Object rootEntity)
         {
-            createSubExamples(rootCriteria, rootEntity, new String[0]);
+            if (MapUtils.isNotEmpty(filterMetadata))
+            {
+                createSubExamples(rootCriteria, rootEntity, new String[0]);
+            }
             return rootCriteria;
         }
 

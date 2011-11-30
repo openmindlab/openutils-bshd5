@@ -48,9 +48,12 @@ import org.springframework.dao.DataRetrievalFailureException;
 
 
 /**
+ * @deprecated this example implementation does not take into account hibernate metadata, see BSHD-5. Use ExampleTree
+ * instead
  * @author Fabrizio Giustina
  * @version $Id: $
  */
+@Deprecated
 public final class EnhancedExample
 {
 

@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.aop.AspectException;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -188,13 +190,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> findFiltered(T filter)
     {
-        return getThis().findFiltered(
-            filter,
-            getDefaultFilterMetadata(),
-            Integer.MAX_VALUE,
-            0,
-            Collections.<Criterion> emptyList(),
-            getDefaultOrder());
+        return getThis().findFiltered(new ExampleTree(filter), Integer.MAX_VALUE, 0, getDefaultOrder());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<T> findFiltered(ExampleTree exampleTree)
+    {
+        return getThis().findFiltered(exampleTree, Integer.MAX_VALUE, 0, getDefaultOrder());
     }
 
     /**
@@ -202,13 +206,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> findFiltered(T filter, Order... orders)
     {
-        return getThis().findFiltered(
-            filter,
-            getDefaultFilterMetadata(),
-            Integer.MAX_VALUE,
-            0,
-            Collections.<Criterion> emptyList(),
-            orders);
+        return getThis().findFiltered(new ExampleTree(filter), Integer.MAX_VALUE, 0, orders);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<T> findFiltered(ExampleTree exampleTree, Order... orders)
+    {
+        return getThis().findFiltered(exampleTree, Integer.MAX_VALUE, 0, orders);
     }
 
     /**
@@ -216,18 +222,21 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> findFiltered(T filter, int maxResults, int page)
     {
-        return getThis().findFiltered(
-            filter,
-            getDefaultFilterMetadata(),
-            maxResults,
-            page,
-            Collections.<Criterion> emptyList(),
-            getDefaultOrder());
+        return getThis().findFiltered(new ExampleTree(filter), maxResults, page, getDefaultOrder());
     }
 
     /**
      * {@inheritDoc}
      */
+    public List<T> findFiltered(ExampleTree exampleTree, int maxResults, int page)
+    {
+        return getThis().findFiltered(exampleTree, maxResults, page, getDefaultOrder());
+    }
+
+    /**
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
+     */
+    @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata)
     {
         return getThis().findFiltered(
@@ -240,8 +249,9 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
      */
+    @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page)
     {
         return getThis().findFiltered(
@@ -258,13 +268,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public T findFilteredFirst(T filter)
     {
-        return getFirstInCollection(getThis().findFiltered(
-            filter,
-            getDefaultFilterMetadata(),
-            1,
-            0,
-            Collections.<Criterion> emptyList(),
-            getDefaultOrder()));
+        return getFirstInCollection(findFiltered(filter));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T findFilteredFirst(ExampleTree exampleTree)
+    {
+        return getFirstInCollection(findFiltered(exampleTree));
     }
 
     /**
@@ -272,13 +284,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public T findFilteredFirst(T filter, final Order... orders)
     {
-        return getFirstInCollection(getThis().findFiltered(
-            filter,
-            getDefaultFilterMetadata(),
-            1,
-            0,
-            Collections.<Criterion> emptyList(),
-            orders));
+        return getFirstInCollection(findFiltered(filter, orders));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T findFilteredFirst(ExampleTree exampleTree, final Order... orders)
+    {
+        return getFirstInCollection(findFiltered(exampleTree, orders));
     }
 
     /**
@@ -286,13 +300,9 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public T findFilteredFirst(T filter, List< ? extends Criterion> criteria)
     {
-        return getFirstInCollection(getThis().findFiltered(
-            filter,
-            getDefaultFilterMetadata(),
-            1,
-            0,
-            criteria,
-            getDefaultOrder()));
+        ExampleTree exampleTree = new ExampleTree(filter);
+        appendToRoot(exampleTree, criteria);
+        return getFirstInCollection(getThis().findFiltered(exampleTree, Integer.MAX_VALUE, 0, getDefaultOrder()));
     }
 
     /**
@@ -364,7 +374,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public boolean delete(final K key)
     {
-
         return getHibernateTemplate().execute(new HibernateCallback<Boolean>()
         {
 
@@ -374,7 +383,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
                 return true;
             }
         });
-
     }
 
     /**
@@ -396,15 +404,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public T merge(final T obj)
     {
-        return (T) getHibernateTemplate().execute(new HibernateCallback()
+        return getHibernateTemplate().execute(new HibernateCallback<T>()
         {
 
-            public Object doInHibernate(final Session ses) throws HibernateException
+            @SuppressWarnings("unchecked")
+            public T doInHibernate(final Session ses) throws HibernateException
             {
-                return ses.merge(obj);
+                return (T) ses.merge(obj);
             }
         });
 
@@ -422,6 +430,15 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
+    public List<T> findFiltered(ExampleTree exampleTree, int maxResults, int page, Order... orders)
+    {
+        return getHibernateTemplate().execute(new ExampleTreeCallback(exampleTree, orders, maxResults, page));
+    }
+
+    /**
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
+     */
+    @Deprecated
     public List<T> findFiltered(T filter, Order[] customOrder, Map<String, ? extends FilterMetadata> metadata,
         int maxResults, int page)
     {
@@ -435,8 +452,9 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
      */
+    @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
         Order... orders)
     {
@@ -444,23 +462,38 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
      */
+    @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
         List< ? extends Criterion> criteria, Order... orders)
     {
-        if (metadata == null || metadata.isEmpty())
+        HibernateCallback<List<T>> callback;
+        if (MapUtils.isNotEmpty(metadata))
         {
-            return getHibernateTemplate().execute(new ExampleTreeCallback(orders, criteria, maxResults, page, filter));
+            // backwards compatibility
+            callback = new HibernateCallbackForExecution(
+                filter,
+                page,
+                maxResults,
+                metadata,
+                orders,
+                criteria,
+                Collections.<String> emptyList());
         }
-        return getHibernateTemplate().execute(
-            new HibernateCallbackForExecution(filter, page, maxResults, metadata, orders, criteria, Collections
-                .<String> emptyList()));
+        else
+        {
+            ExampleTree exampleTree = new ExampleTree(filter);
+            appendToRoot(exampleTree, criteria);
+            callback = new ExampleTreeCallback(exampleTree, orders, maxResults, page);
+        }
+        return getHibernateTemplate().execute(callback);
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
      */
+    @Deprecated
     public List< ? > findFilteredProperties(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults,
         int page, List< ? extends Criterion> criteria, List<String> properties, Order... orders)
     {
@@ -469,7 +502,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
      */
     @Deprecated
     public List<T> findFiltered(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata,
@@ -479,7 +512,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated use of {@link FilterMetadata} has been deprecated {@inheritDoc}
      */
     @Deprecated
     public List< ? > findFilteredProperties(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata,
@@ -619,7 +652,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @param key the key name
      * @param value the object to set as the parameter
      */
-    protected void setParameterValue(Query query, String key, Object value)
+    protected static void setParameterValue(Query query, String key, Object value)
     {
         if (null == key || null == value)
         {
@@ -655,6 +688,22 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
+     * appends the input criterions to the input example tree as root entity criterions
+     * @param exampleTree the example tree
+     * @param criterions the criterions to append
+     */
+    protected static void appendToRoot(ExampleTree exampleTree, List< ? extends Criterion> criterions)
+    {
+        if (criterions != null)
+        {
+            for (Criterion crit : criterions)
+            {
+                exampleTree.add(StringUtils.EMPTY, crit);
+            }
+        }
+    }
+
+    /**
      * @return This is needed as for http://opensource.atlassian.com/projects/spring/browse/SPR-2226
      */
     @SuppressWarnings("unchecked")
@@ -687,41 +736,34 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
 
         private final Order[] orders;
 
-        private final List< ? extends Criterion> criteria;
-
         private final int page;
 
         private final int maxResults;
 
-        private final T filter;
+        private final ExampleTree exampleTree;
 
-        private ExampleTreeCallback(
-            Order[] orders,
-            List< ? extends Criterion> criteria,
-            int maxResults,
-            int page,
-            T filter)
+        private ExampleTreeCallback(ExampleTree exampleTree, Order[] orders, int maxResults, int page)
         {
+            this.exampleTree = exampleTree;
             this.orders = orders;
-            this.criteria = criteria;
             this.page = page;
             this.maxResults = maxResults;
-            this.filter = filter;
         }
 
         @SuppressWarnings("unchecked")
         public List<T> doInHibernate(Session session) throws HibernateException, SQLException
         {
-            Criteria crit = new ExampleTree(filter).create(session);
+            Criteria crit = exampleTree.create(session);
+
+            // backwards compatibility
+            Map<String, ? extends FilterMetadata> filterMetadata = getDefaultFilterMetadata();
+            if (MapUtils.isNotEmpty(filterMetadata))
+            {
+                new FilterMetadataSupport(exampleTree.getRootEntity(), filterMetadata).appendTo(crit, session);
+            }
+
             crit.setMaxResults(maxResults);
             crit.setFirstResult(maxResults * page);
-            if (criteria != null)
-            {
-                for (Criterion c : criteria)
-                {
-                    crit.add(c);
-                }
-            }
             if (orders != null)
             {
                 for (Order o : orders)
@@ -734,9 +776,11 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
+     * @deprecated callback implementation that uses EnhancedExample, deprecated in favor of ExampleTreeCallback
      * @author carone
      * @version $Id$
      */
+    @Deprecated
     private final class HibernateCallbackForExecution implements HibernateCallback<List<T>>
     {
 

@@ -45,8 +45,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Example.PropertySelector;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.Type;
 
@@ -242,6 +242,14 @@ public class ExampleTree implements Serializable
         this.defaultSelector = defaultSelector;
         selector = null;
         return this;
+    }
+
+    /**
+     * @return the rootEntity
+     */
+    public Object getRootEntity()
+    {
+        return rootEntity;
     }
 
     private class ExampleTreeWalker implements Serializable
