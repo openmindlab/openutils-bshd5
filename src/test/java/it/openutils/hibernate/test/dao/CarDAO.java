@@ -23,13 +23,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package it.openutils.hibernate.test.model;
+package it.openutils.hibernate.test.dao;
+
+import it.openutils.dao.hibernate.HibernateDAO;
+import it.openutils.dao.hibernate.HibernateDAOImpl;
+import it.openutils.hibernate.test.model.Person;
+
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 
 /**
  * @author gcatania
  */
-public enum Chance {
+public interface CarDAO extends HibernateDAO<Person, Long>
+{
 
-    /** chance. */
-    TOTALLY_REMOTE, VAGUELY_POSSIBLE, QUITE_POSSIBLE, CAKEWALK_EASY
+    @Repository("carDAO")
+    class PersonDAOImpl extends HibernateDAOImpl<Person, Long> implements CarDAO
+    {
+
+        @Autowired
+        public PersonDAOImpl(SessionFactory factory)
+        {
+            super(Person.class);
+            setSessionFactory(factory);
+        }
+    }
+
 }

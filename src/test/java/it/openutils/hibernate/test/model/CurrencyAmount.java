@@ -23,33 +23,43 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package it.openutils.hibernate.test.dao;
+package it.openutils.hibernate.test.model;
 
-import it.openutils.dao.hibernate.HibernateDAO;
-import it.openutils.dao.hibernate.HibernateDAOImpl;
-import it.openutils.hibernate.test.model.Person;
-
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import javax.persistence.Embeddable;
 
 
 /**
  * @author gcatania
  */
-public interface PersonDAO extends HibernateDAO<Person, Long>
+@Embeddable
+public class CurrencyAmount
 {
 
-    @Repository("personDAO")
-    class PersonDAOImpl extends HibernateDAOImpl<Person, Long> implements PersonDAO
-    {
+    private final double amount;
 
-        @Autowired
-        public PersonDAOImpl(SessionFactory factory)
-        {
-            super(Person.class);
-            setSessionFactory(factory);
-        }
+    private final String currency;
+
+    public CurrencyAmount(double amount, String currency)
+    {
+        super();
+        this.amount = amount;
+        this.currency = currency;
+    }
+
+    /**
+     * @return the amount
+     */
+    public double getAmount()
+    {
+        return amount;
+    }
+
+    /**
+     * @return the currency
+     */
+    public String getCurrency()
+    {
+        return currency;
     }
 
 }

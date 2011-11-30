@@ -25,22 +25,28 @@
 
 package it.openutils.hibernate.test.model;
 
+import java.util.Calendar;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 
 /**
  * @author gcatania
  */
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "personType")
 public class Person
 {
 
@@ -51,29 +57,14 @@ public class Person
     @Embedded
     private FullName name;
 
-    @Column(nullable = false, scale = 3)
-    private Integer age;
+    @Column(nullable = false)
+    private Calendar birthDate;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.ALL)
     private Address currentAddress;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private Address fiscalAddress;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    private Wish wish;
-
-    public Person()
-    {
-    }
-
-    public Person(FullName name, Integer age, Address currentAddress, Address fiscalAddress)
-    {
-        this.name = name;
-        this.age = age;
-        this.currentAddress = currentAddress;
-        this.fiscalAddress = fiscalAddress;
-    }
 
     /**
      * @return the id
@@ -105,6 +96,22 @@ public class Person
     public void setName(FullName name)
     {
         this.name = name;
+    }
+
+    /**
+     * @return the birthDate
+     */
+    public Calendar getBirthDate()
+    {
+        return birthDate;
+    }
+
+    /**
+     * @param birthDate the birthDate to set
+     */
+    public void setBirthDate(Calendar birthDate)
+    {
+        this.birthDate = birthDate;
     }
 
     /**
@@ -140,22 +147,6 @@ public class Person
     }
 
     /**
-     * @return the wish
-     */
-    public Wish getWish()
-    {
-        return wish;
-    }
-
-    /**
-     * @param wish the wish to set
-     */
-    public void setWish(Wish wish)
-    {
-        this.wish = wish;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -163,12 +154,11 @@ public class Person
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((age == null) ? 0 : age);
+        result = prime * result + ((birthDate == null) ? 0 : birthDate.hashCode());
         result = prime * result + ((currentAddress == null) ? 0 : currentAddress.hashCode());
         result = prime * result + ((fiscalAddress == null) ? 0 : fiscalAddress.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((wish == null) ? 0 : wish.hashCode());
         return result;
     }
 
@@ -191,14 +181,14 @@ public class Person
             return false;
         }
         Person other = (Person) obj;
-        if (age == null)
+        if (birthDate == null)
         {
-            if (other.age != null)
+            if (other.birthDate != null)
             {
                 return false;
             }
         }
-        else if (!age.equals(other.age))
+        else if (!birthDate.equals(other.birthDate))
         {
             return false;
         }
@@ -246,17 +236,6 @@ public class Person
         {
             return false;
         }
-        if (wish == null)
-        {
-            if (other.wish != null)
-            {
-                return false;
-            }
-        }
-        else if (!wish.equals(other.wish))
-        {
-            return false;
-        }
         return true;
     }
 
@@ -266,9 +245,7 @@ public class Person
     @Override
     public String toString()
     {
-        return "Person [age="
-            + age
-            + ", currentAddress="
+        return "Person [currentAddress="
             + currentAddress
             + ", fiscalAddress="
             + fiscalAddress
@@ -276,8 +253,6 @@ public class Person
             + id
             + ", name="
             + name
-            + ", wish="
-            + wish
             + "]";
     }
 

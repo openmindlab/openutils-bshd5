@@ -4,9 +4,11 @@
 <hibernate-configuration>
   <session-factory>
     <mapping class="it.openutils.hibernate.test.model.Address" />
-    <mapping class="it.openutils.hibernate.test.model.FantasticThing" />
+    <mapping class="it.openutils.hibernate.test.model.Car" />
+    <mapping class="it.openutils.hibernate.test.model.CarMaker" />
+    <mapping class="it.openutils.hibernate.test.model.CarModel" />
     <mapping class="it.openutils.hibernate.test.model.FullName" />
+    <mapping class="it.openutils.hibernate.test.model.Owner" />
     <mapping class="it.openutils.hibernate.test.model.Person" />
-    <mapping class="it.openutils.hibernate.test.model.Wish" />
   </session-factory>
 </hibernate-configuration>

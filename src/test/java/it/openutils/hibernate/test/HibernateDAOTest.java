@@ -25,16 +25,22 @@
 
 package it.openutils.hibernate.test;
 
+import it.openutils.hibernate.test.dao.CarDAO;
 import it.openutils.hibernate.test.dao.PersonDAO;
 import it.openutils.hibernate.test.model.Address;
+import it.openutils.hibernate.test.model.Car;
+import it.openutils.hibernate.test.model.CarMaker;
+import it.openutils.hibernate.test.model.CarModel;
+import it.openutils.hibernate.test.model.CurrencyAmount;
 import it.openutils.hibernate.test.model.FullName;
+import it.openutils.hibernate.test.model.Owner;
 import it.openutils.hibernate.test.model.Person;
-import it.openutils.hibernate.test.model.Wish;
 
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.hibernate.criterion.Example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,19 +58,52 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
 
     /*
      * TODO tests to perform: 1) find filtered with collection with zero, one or more elements 2) find filtered with
-     * additional criteria 3) filter metadata support
+     * additional criteria 3) filter metadata support 4) find filtered with id 5) find filtered with backref
      */
 
     @Autowired
     private PersonDAO personDAO;
 
-    private Person fifteenYearsOld()
+    @Autowired
+    private CarDAO carDAO;
+
+    private Person alice()
     {
-        return new Person(
-            new FullName("Troy", "Jones"),
-            15,
-            new Address("Long road", 15, "Smalltown", "MI", 14352),
-            null);
+        FullName fullName = new FullName("Alice", "McBeal");
+        Calendar birthDate = new GregorianCalendar(1970, Calendar.MARCH, 7);
+        Address address = new Address("Long road", 15, "Smalltown", "MI", 14352);
+        Person p = new Person();
+        p.setName(fullName);
+        p.setBirthDate(birthDate);
+        p.setFiscalAddress(address);
+        p.setCurrentAddress(address);
+        return p;
+    }
+
+    private Owner bob()
+    {
+        FullName fullName = new FullName("Bob", "Kelso");
+        Calendar birthDate = new GregorianCalendar(1950, Calendar.MARCH, 7);
+        Address address = new Address("Sacred Heart Lane", 3, "Smalltown", "CA", 11243);
+        Owner o = new Owner();
+        o.setName(fullName);
+        o.setBirthDate(birthDate);
+        o.setFiscalAddress(address);
+        o.setCurrentAddress(address);
+        return o;
+    }
+
+    private Owner chuck()
+    {
+        FullName fullName = new FullName("Chuck", "Palahniuk");
+        Calendar birthDate = new GregorianCalendar(1962, Calendar.FEBRUARY, 21);
+        Address address = new Address("Awesome Street", 2, "Pasco", "WA", 13121);
+        Owner p = new Owner();
+        p.setName(fullName);
+        p.setBirthDate(birthDate);
+        p.setFiscalAddress(address);
+        p.setCurrentAddress(address);
+        return p;
     }
 
     /**
@@ -73,7 +112,7 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
     @Test
     public void testSaveAndRetrievePerson()
     {
-        Person person = fifteenYearsOld();
+        Person person = alice();
         Long savedId = personDAO.save(person);
         Assert.assertNotNull(savedId);
         Long personId = person.getId();
@@ -86,52 +125,100 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
     @Test
     public void testFindFilteredFirst()
     {
-        personDAO.save(fifteenYearsOld());
-        List<Person> found = personDAO.findFiltered(new Person(new FullName(null, "Jones"), null, null, null));
-        Assert.assertTrue(found.size() > 0, "No persons found.");
+        Person alice = alice();
+        personDAO.save(alice);
+        Person filter = new Person();
+        filter.setName(new FullName(null, "McBeal"));
+        List<Person> found = personDAO.findFiltered(filter);
+
+        Assert.assertEquals(found.size(), 1, "No persons found.");
+        Assert.assertEquals(found.get(0), alice);
+    }
+
+    @Test
+    public void testFindFilteredById()
+    {
+        Person alice = alice();
+        Long savedId = personDAO.save(alice);
+        Person filter = new Person();
+        filter.setId(savedId);
+        List<Person> found = personDAO.findFiltered(filter);
+
+        Assert.assertEquals(found.size(), 1, "No persons found.");
+        Assert.assertEquals(found.get(0), alice);
+    }
+
+    /*
+     * disabled: filter by id on child objects isn't working yet (see
+     * http://docs.jboss.org/hibernate/core/3.6/reference/en-US/html/querycriteria.html#querycriteria-examples and
+     * https://forum.hibernate.org/viewtopic.php?f=9&t=1004833&view=next )
+     */
+    @Test(enabled = false)
+    public void testFindFilteredByChildId()
+    {
+        Owner bob = bob();
+        CarMaker toyota = new CarMaker();
+        toyota.setName("Toyota");
+        toyota.setCapitalization(new CurrencyAmount(12000, "YEN"));
+        CarModel prius = new CarModel();
+        prius.setName("Prius");
+        prius.setYear(Integer.valueOf(2008));
+        toyota.setModels(Collections.singletonList(prius));
+
+        Car bobsPrius = new Car(new GregorianCalendar(2010, Calendar.OCTOBER, 12), prius, toyota);
+        bob.setCars(Collections.singleton(bobsPrius));
+        personDAO.save(bob);
+
+        Owner filter = new Owner();
+        Car carFilter = new Car(null, null, null);
+        carFilter.setId(bobsPrius.getId());
+        filter.setCars(Collections.singleton(carFilter));
+        Person found = personDAO.findFilteredFirst(filter);
+        Assert.assertEquals(found.getName(), bob.getName());
     }
 
     @Test
     public void testExampleBasic()
     {
-        personDAO.save(fifteenYearsOld());
-        Person outsideFilter = fifteenYearsOld();
+        personDAO.save(alice());
+        Person outsideFilter = alice();
         outsideFilter.getName().setFamilyName("Mahoney");
         personDAO.save(outsideFilter);
-        Person filter = new Person(new FullName(null, "Jones"), null, null, null);
+        Person filter = new Person();
+        filter.setName(new FullName(null, "McBeal"));
         List<Person> foundByExample = personDAO.find(Collections.singletonList(Example.create(filter)));
         Assert.assertNotNull(foundByExample);
         Assert.assertEquals(foundByExample.size(), 1);
-        Assert.assertEquals(foundByExample.get(0).getName().getFamilyName(), "Jones");
+        Assert.assertEquals(foundByExample.get(0).getName().getFamilyName(), "McBeal");
 
         List<Person> found = personDAO.findFiltered(filter);
         Assert.assertNotNull(found);
         Assert.assertEquals(found.size(), 1);
-        Assert.assertEquals(found.get(0).getName().getFamilyName(), "Jones");
+        Assert.assertEquals(found.get(0).getName().getFamilyName(), "McBeal");
     }
 
-    @Test
-    public void testExampleAssociations()
-    {
-        Person fifteenYearsOld = fifteenYearsOld();
-        fifteenYearsOld.setWish(new Wish(fifteenYearsOld, "because he's young"));
-        personDAO.save(fifteenYearsOld);
-        Person another = fifteenYearsOld();
-        another.setWish(new Wish(another, "because he's a nerd"));
-        personDAO.save(another);
-
-        Person filter = new Person();
-        filter.setWish(new Wish(null, "because he's young"));
-        List<Person> foundByExample = personDAO.find(Collections.singletonList(Example.create(filter)));
-        Hibernate.initialize(foundByExample);
-        Assert.assertNotNull(foundByExample);
-        Assert.assertEquals(foundByExample.size(), 2);
-
-        List<Person> found = personDAO.findFiltered(filter);
-        Hibernate.initialize(found);
-        Assert.assertNotNull(found);
-        Assert.assertEquals(found.size(), 1);
-        Assert.assertEquals(found.get(0).getWish().getReason(), "because he's young");
-    }
+    // @Test
+    // public void testExampleAssociations()
+    // {
+    // Person fifteenYearsOld = fifteenYearsOld();
+    // fifteenYearsOld.setWish(new Wish(fifteenYearsOld, "because he's young"));
+    // personDAO.save(fifteenYearsOld);
+    // Person another = fifteenYearsOld();
+    // another.setWish(new Wish(another, "because he's a nerd"));
+    // personDAO.save(another);
+    //
+    // Person filter = new Person();
+    // filter.setWish(new Wish(null, "because he's young"));
+    // List<Person> foundByExample = personDAO.find(Collections.singletonList(Example.create(filter)));
+    // Hibernate.initialize(foundByExample);
+    // Assert.assertNotNull(foundByExample);
+    // Assert.assertEquals(foundByExample.size(), 2);
+    //
+    // List<Person> found = personDAO.findFiltered(filter);
+    // Hibernate.initialize(found);
+    // Assert.assertNotNull(found);
+    // Assert.assertEquals(found.size(), 1);
+    // Assert.assertEquals(found.get(0).getWish().getReason(), "because he's young");
+    // }
 
 }

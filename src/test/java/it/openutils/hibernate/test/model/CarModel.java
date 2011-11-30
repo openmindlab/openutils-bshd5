@@ -23,33 +23,75 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package it.openutils.hibernate.test.dao;
+package it.openutils.hibernate.test.model;
 
-import it.openutils.dao.hibernate.HibernateDAO;
-import it.openutils.dao.hibernate.HibernateDAOImpl;
-import it.openutils.hibernate.test.model.Person;
-
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 
 /**
  * @author gcatania
  */
-public interface PersonDAO extends HibernateDAO<Person, Long>
+@Entity
+public class CarModel
 {
 
-    @Repository("personDAO")
-    class PersonDAOImpl extends HibernateDAOImpl<Person, Long> implements PersonDAO
-    {
+    @Id
+    private Long id;
 
-        @Autowired
-        public PersonDAOImpl(SessionFactory factory)
-        {
-            super(Person.class);
-            setSessionFactory(factory);
-        }
+    @Column
+    private String name;
+
+    @Column
+    private Integer year;
+
+    /**
+     * @return the id
+     */
+    public Long getId()
+    {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * @return the year
+     */
+    public Integer getYear()
+    {
+        return year;
+    }
+
+    /**
+     * @param year the year to set
+     */
+    public void setYear(Integer year)
+    {
+        this.year = year;
     }
 
 }
