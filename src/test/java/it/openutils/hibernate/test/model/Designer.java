@@ -27,56 +27,56 @@ package it.openutils.hibernate.test.model;
 
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
+import javax.persistence.ManyToMany;
 
 
 /**
  * @author gcatania
  */
 @Entity
-@DiscriminatorValue("owner")
-public class Owner extends Person
+@DiscriminatorValue("designer")
+public class Designer extends Employee
 {
 
-    @OneToMany
-    private Set<Car> cars;
+    @Column
+    private int hipsterFactor;
 
-    @Transient
-    private CurrencyAmount totalValueOfCars;
+    @ManyToMany
+    Set<CarModel> designedModels;
 
     /**
-     * @return the cars
+     * @return the hipsterFactor
      */
-    public Set<Car> getCars()
+    public int getHipsterFactor()
     {
-        return cars;
+        return hipsterFactor;
     }
 
     /**
-     * @param cars the cars to set
+     * @param hipsterFactor the hipsterFactor to set
      */
-    public void setCars(Set<Car> cars)
+    public void setHipsterFactor(int hipsterFactor)
     {
-        this.cars = cars;
+        this.hipsterFactor = hipsterFactor;
     }
 
     /**
-     * @param totalValueOfCars the totalValueOfCars to set
+     * @return the designedModels
      */
-    public void setTotalValueOfCars(CurrencyAmount totalValueOfCars)
+    public Set<CarModel> getDesignedModels()
     {
-        this.totalValueOfCars = totalValueOfCars;
+        return designedModels;
     }
 
     /**
-     * @return the totalValueOfCars
+     * @param designedModels the designedModels to set
      */
-    public CurrencyAmount getTotalValueOfCars()
+    public void setDesignedModels(Set<CarModel> designedModels)
     {
-        return totalValueOfCars;
+        this.designedModels = designedModels;
     }
 
 }
