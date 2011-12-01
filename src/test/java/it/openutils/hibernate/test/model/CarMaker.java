@@ -126,7 +126,6 @@ public class CarMaker
         int result = 1;
         result = prime * result + ((capitalization == null) ? 0 : capitalization.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((models == null) ? 0 : models.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         return result;
     }
@@ -169,17 +168,6 @@ public class CarMaker
             }
         }
         else if (!id.equals(other.id))
-        {
-            return false;
-        }
-        if (models == null)
-        {
-            if (other.models != null)
-            {
-                return false;
-            }
-        }
-        else if (!models.equals(other.models))
         {
             return false;
         }

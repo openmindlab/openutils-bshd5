@@ -87,7 +87,6 @@ public class Owner extends Person
     {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((cars == null) ? 0 : cars.hashCode());
         result = prime * result + ((totalValueOfCars == null) ? 0 : totalValueOfCars.hashCode());
         return result;
     }
@@ -111,17 +110,6 @@ public class Owner extends Person
             return false;
         }
         Owner other = (Owner) obj;
-        if (cars == null)
-        {
-            if (other.cars != null)
-            {
-                return false;
-            }
-        }
-        else if (!cars.equals(other.cars))
-        {
-            return false;
-        }
         if (totalValueOfCars == null)
         {
             if (other.totalValueOfCars != null)

@@ -28,6 +28,7 @@ package it.openutils.hibernate.test.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 
 /**
@@ -39,6 +40,9 @@ public class CarModel
 
     @Id
     private Long id;
+
+    @ManyToOne
+    private CarMaker make;
 
     @Column
     private String name;
@@ -60,6 +64,22 @@ public class CarModel
     public void setId(Long id)
     {
         this.id = id;
+    }
+
+    /**
+     * @return the make
+     */
+    public CarMaker getMake()
+    {
+        return make;
+    }
+
+    /**
+     * @param make the make to set
+     */
+    public void setMake(CarMaker make)
+    {
+        this.make = make;
     }
 
     /**
@@ -103,6 +123,7 @@ public class CarModel
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((make == null) ? 0 : make.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((year == null) ? 0 : year.hashCode());
         return result;
@@ -135,6 +156,17 @@ public class CarModel
             }
         }
         else if (!id.equals(other.id))
+        {
+            return false;
+        }
+        if (make == null)
+        {
+            if (other.make != null)
+            {
+                return false;
+            }
+        }
+        else if (!make.equals(other.make))
         {
             return false;
         }

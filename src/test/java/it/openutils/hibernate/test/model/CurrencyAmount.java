@@ -35,9 +35,13 @@ import javax.persistence.Embeddable;
 public class CurrencyAmount
 {
 
-    private final double amount;
+    private double amount;
 
-    private final String currency;
+    private String currency;
+
+    public CurrencyAmount()
+    {
+    }
 
     public CurrencyAmount(double amount, String currency)
     {
@@ -112,6 +116,22 @@ public class CurrencyAmount
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param amount the amount to set
+     */
+    public void setAmount(double amount)
+    {
+        this.amount = amount;
+    }
+
+    /**
+     * @param currency the currency to set
+     */
+    public void setCurrency(String currency)
+    {
+        this.currency = currency;
     }
 
 }
