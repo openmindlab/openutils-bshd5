@@ -136,4 +136,97 @@ public class Employee extends Person
         this.employedSince = employedSince;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((department == null) ? 0 : department.hashCode());
+        result = prime * result + ((employedSince == null) ? 0 : employedSince.hashCode());
+        result = prime * result + ((employer == null) ? 0 : employer.hashCode());
+        result = prime * result + ((grossAnnualSalary == null) ? 0 : grossAnnualSalary.hashCode());
+        result = prime * result + ((qualification == null) ? 0 : qualification.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (!super.equals(obj))
+        {
+            return false;
+        }
+        if (!(obj instanceof Employee))
+        {
+            return false;
+        }
+        Employee other = (Employee) obj;
+        if (department == null)
+        {
+            if (other.department != null)
+            {
+                return false;
+            }
+        }
+        else if (!department.equals(other.department))
+        {
+            return false;
+        }
+        if (employedSince == null)
+        {
+            if (other.employedSince != null)
+            {
+                return false;
+            }
+        }
+        else if (!employedSince.equals(other.employedSince))
+        {
+            return false;
+        }
+        if (employer == null)
+        {
+            if (other.employer != null)
+            {
+                return false;
+            }
+        }
+        else if (!employer.equals(other.employer))
+        {
+            return false;
+        }
+        if (grossAnnualSalary == null)
+        {
+            if (other.grossAnnualSalary != null)
+            {
+                return false;
+            }
+        }
+        else if (!grossAnnualSalary.equals(other.grossAnnualSalary))
+        {
+            return false;
+        }
+        if (qualification == null)
+        {
+            if (other.qualification != null)
+            {
+                return false;
+            }
+        }
+        else if (!qualification.equals(other.qualification))
+        {
+            return false;
+        }
+        return true;
+    }
+
 }

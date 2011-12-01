@@ -198,7 +198,7 @@ public class Address
         {
             return false;
         }
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof Address))
         {
             return false;
         }

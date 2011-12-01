@@ -147,4 +147,109 @@ public class Car
         return maker;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((maker == null) ? 0 : maker.hashCode());
+        result = prime * result + ((marketValue == null) ? 0 : marketValue.hashCode());
+        result = prime * result + ((model == null) ? 0 : model.hashCode());
+        result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+        result = prime * result + ((registrationDate == null) ? 0 : registrationDate.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (!(obj instanceof Car))
+        {
+            return false;
+        }
+        Car other = (Car) obj;
+        if (id == null)
+        {
+            if (other.id != null)
+            {
+                return false;
+            }
+        }
+        else if (!id.equals(other.id))
+        {
+            return false;
+        }
+        if (maker == null)
+        {
+            if (other.maker != null)
+            {
+                return false;
+            }
+        }
+        else if (!maker.equals(other.maker))
+        {
+            return false;
+        }
+        if (marketValue == null)
+        {
+            if (other.marketValue != null)
+            {
+                return false;
+            }
+        }
+        else if (!marketValue.equals(other.marketValue))
+        {
+            return false;
+        }
+        if (model == null)
+        {
+            if (other.model != null)
+            {
+                return false;
+            }
+        }
+        else if (!model.equals(other.model))
+        {
+            return false;
+        }
+        if (owner == null)
+        {
+            if (other.owner != null)
+            {
+                return false;
+            }
+        }
+        else if (!owner.equals(other.owner))
+        {
+            return false;
+        }
+        if (registrationDate == null)
+        {
+            if (other.registrationDate != null)
+            {
+                return false;
+            }
+        }
+        else if (!registrationDate.equals(other.registrationDate))
+        {
+            return false;
+        }
+        return true;
+    }
+
 }

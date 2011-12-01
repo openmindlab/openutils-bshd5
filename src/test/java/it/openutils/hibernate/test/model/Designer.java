@@ -79,4 +79,54 @@ public class Designer extends Employee
         this.designedModels = designedModels;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((designedModels == null) ? 0 : designedModels.hashCode());
+        result = prime * result + hipsterFactor;
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (!super.equals(obj))
+        {
+            return false;
+        }
+        if (!(obj instanceof Designer))
+        {
+            return false;
+        }
+        Designer other = (Designer) obj;
+        if (designedModels == null)
+        {
+            if (other.designedModels != null)
+            {
+                return false;
+            }
+        }
+        else if (!designedModels.equals(other.designedModels))
+        {
+            return false;
+        }
+        if (hipsterFactor != other.hipsterFactor)
+        {
+            return false;
+        }
+        return true;
+    }
+
 }

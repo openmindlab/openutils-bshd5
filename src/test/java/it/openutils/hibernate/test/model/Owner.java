@@ -79,4 +79,61 @@ public class Owner extends Person
         return totalValueOfCars;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((cars == null) ? 0 : cars.hashCode());
+        result = prime * result + ((totalValueOfCars == null) ? 0 : totalValueOfCars.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (!super.equals(obj))
+        {
+            return false;
+        }
+        if (!(obj instanceof Owner))
+        {
+            return false;
+        }
+        Owner other = (Owner) obj;
+        if (cars == null)
+        {
+            if (other.cars != null)
+            {
+                return false;
+            }
+        }
+        else if (!cars.equals(other.cars))
+        {
+            return false;
+        }
+        if (totalValueOfCars == null)
+        {
+            if (other.totalValueOfCars != null)
+            {
+                return false;
+            }
+        }
+        else if (!totalValueOfCars.equals(other.totalValueOfCars))
+        {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -62,4 +62,56 @@ public class CurrencyAmount
         return currency;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(amount);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((currency == null) ? 0 : currency.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (!(obj instanceof CurrencyAmount))
+        {
+            return false;
+        }
+        CurrencyAmount other = (CurrencyAmount) obj;
+        if (Double.doubleToLongBits(amount) != Double.doubleToLongBits(other.amount))
+        {
+            return false;
+        }
+        if (currency == null)
+        {
+            if (other.currency != null)
+            {
+                return false;
+            }
+        }
+        else if (!currency.equals(other.currency))
+        {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -130,7 +130,7 @@ public class FullName
         {
             return false;
         }
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof FullName))
         {
             return false;
         }
@@ -157,14 +157,7 @@ public class FullName
         {
             return false;
         }
-        if (title == null)
-        {
-            if (other.title != null)
-            {
-                return false;
-            }
-        }
-        else if (!title.equals(other.title))
+        if (title != other.title)
         {
             return false;
         }
