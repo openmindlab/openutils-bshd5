@@ -165,6 +165,28 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
         return p;
     }
 
+    private Car bobsPrius(Owner bob, CarModel prius)
+    {
+        Car bobsPrius = new Car();
+        bobsPrius.setModel(prius);
+        bobsPrius.setRegistrationDate(new GregorianCalendar(2010, Calendar.OCTOBER, 28));
+        bobsPrius.setMarketValue(new CurrencyAmount(1700, "USD"));
+        bobsPrius.setOwner(bob);
+        bob.setCars(Collections.singleton(bobsPrius));
+        return bobsPrius;
+    }
+
+    private Car chucksPrius(Owner chuck, CarModel prius)
+    {
+        Car chucksPrius = new Car();
+        chucksPrius.setModel(prius);
+        chucksPrius.setRegistrationDate(new GregorianCalendar(2011, Calendar.DECEMBER, 13));
+        chucksPrius.setMarketValue(new CurrencyAmount(5400, "USD"));
+        chucksPrius.setOwner(chuck);
+        chuck.setCars(Collections.singleton(chucksPrius));
+        return chucksPrius;
+    }
+
     /**
      * basic save/evict/get test.
      */
@@ -280,27 +302,17 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
     @Test
     public void testFindFilteredChild()
     {
-        Owner bob = bob();
         CarMaker toyota = toyota();
         CarModel prius = prius(toyota);
 
-        Car bobsPrius = new Car();
-        bobsPrius.setModel(prius);
-        bobsPrius.setRegistrationDate(new GregorianCalendar(2010, Calendar.OCTOBER, 28));
-        bobsPrius.setMarketValue(new CurrencyAmount(1700, "USD"));
-        bobsPrius.setOwner(bob);
-        bob.setCars(Collections.singleton(bobsPrius));
+        Owner bob = bob();
+        bobsPrius(bob, prius);
+        personDAO.save(bob);
 
         Owner chuck = chuck();
-        Car chucksPrius = new Car();
-        chucksPrius.setModel(prius);
-        chucksPrius.setRegistrationDate(new GregorianCalendar(2011, Calendar.DECEMBER, 13));
-        chucksPrius.setMarketValue(new CurrencyAmount(5400, "USD"));
-        chucksPrius.setOwner(bob);
-        chuck.setCars(Collections.singleton(chucksPrius));
-
-        personDAO.save(bob);
+        chucksPrius(chuck, prius);
         personDAO.save(chuck);
+
         personDAO.save(priusDesigner(prius));
 
         Car carFilter = new Car();
@@ -359,12 +371,7 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
         CarMaker toyota = toyota();
         CarModel prius = prius(toyota);
 
-        Car bobsPrius = new Car();
-        bobsPrius.setModel(prius);
-        bobsPrius.setRegistrationDate(new GregorianCalendar(2010, Calendar.OCTOBER, 28));
-        bobsPrius.setMarketValue(new CurrencyAmount(1700, "USD"));
-        bobsPrius.setOwner(bob);
-        bob.setCars(Collections.singleton(bobsPrius));
+        Car bobsPrius = bobsPrius(bob, prius);
         personDAO.save(bob);
         personDAO.save(alice());
         personDAO.save(chuck());
