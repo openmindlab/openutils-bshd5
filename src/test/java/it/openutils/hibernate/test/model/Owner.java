@@ -27,6 +27,7 @@ package it.openutils.hibernate.test.model;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -41,7 +42,7 @@ import javax.persistence.Transient;
 public class Owner extends Person
 {
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private Set<Car> cars;
 
     @Transient

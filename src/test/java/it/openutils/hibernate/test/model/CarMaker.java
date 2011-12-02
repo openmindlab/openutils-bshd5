@@ -27,10 +27,9 @@ package it.openutils.hibernate.test.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
@@ -43,8 +42,7 @@ public class CarMaker
 {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String code;
 
     @Column
     private String name;
@@ -52,23 +50,23 @@ public class CarMaker
     @Column
     private CurrencyAmount capitalization;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "make")
     private List<CarModel> models;
 
     /**
-     * @return the id
+     * @return the code
      */
-    public Long getId()
+    public String getCode()
     {
-        return id;
+        return code;
     }
 
     /**
-     * @param id the id to set
+     * @param code the code to set
      */
-    public void setId(Long id)
+    public void setCode(String code)
     {
-        this.id = id;
+        this.code = code;
     }
 
     /**
@@ -128,7 +126,7 @@ public class CarMaker
         final int prime = 31;
         int result = 1;
         result = prime * result + ((capitalization == null) ? 0 : capitalization.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((code == null) ? 0 : code.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         return result;
     }
@@ -163,14 +161,14 @@ public class CarMaker
         {
             return false;
         }
-        if (id == null)
+        if (code == null)
         {
-            if (other.id != null)
+            if (other.code != null)
             {
                 return false;
             }
         }
-        else if (!id.equals(other.id))
+        else if (!code.equals(other.code))
         {
             return false;
         }
@@ -186,6 +184,26 @@ public class CarMaker
             return false;
         }
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder
+            .append("CarMaker [id=")
+            .append(code)
+            .append(", name=")
+            .append(name)
+            .append(", capitalization=")
+            .append(capitalization)
+            .append(", models=")
+            .append(models)
+            .append("]");
+        return builder.toString();
     }
 
 }

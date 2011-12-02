@@ -27,6 +27,7 @@ package it.openutils.hibernate.test.model;
 
 import java.util.Calendar;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -46,13 +47,10 @@ public class Car
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
-    private final CarModel model;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private CarModel model;
 
-    @ManyToOne
-    private final CarMaker maker;
-
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Owner owner;
 
     @Column
@@ -60,12 +58,6 @@ public class Car
 
     @Column
     private CurrencyAmount marketValue;
-
-    public Car(Calendar registrationDate, CarModel model, CarMaker maker)
-    {
-        this.model = model;
-        this.maker = maker;
-    }
 
     /**
      * @return the id
@@ -140,11 +132,11 @@ public class Car
     }
 
     /**
-     * @return the maker
+     * @param model the model to set
      */
-    public CarMaker getMaker()
+    public void setModel(CarModel model)
     {
-        return maker;
+        this.model = model;
     }
 
     /**
@@ -156,7 +148,6 @@ public class Car
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((maker == null) ? 0 : maker.hashCode());
         result = prime * result + ((marketValue == null) ? 0 : marketValue.hashCode());
         result = prime * result + ((model == null) ? 0 : model.hashCode());
         result = prime * result + ((owner == null) ? 0 : owner.hashCode());
@@ -191,17 +182,6 @@ public class Car
             }
         }
         else if (!id.equals(other.id))
-        {
-            return false;
-        }
-        if (maker == null)
-        {
-            if (other.maker != null)
-            {
-                return false;
-            }
-        }
-        else if (!maker.equals(other.maker))
         {
             return false;
         }
@@ -250,6 +230,28 @@ public class Car
             return false;
         }
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder
+            .append("Car [id=")
+            .append(id)
+            .append(", model=")
+            .append(model)
+            .append(", owner=")
+            .append(owner)
+            .append(", registrationDate=")
+            .append(registrationDate)
+            .append(", marketValue=")
+            .append(marketValue)
+            .append("]");
+        return builder.toString();
     }
 
 }

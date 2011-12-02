@@ -245,15 +245,16 @@ public class Person
     @Override
     public String toString()
     {
-        return "Person [currentAddress="
-            + currentAddress
-            + ", fiscalAddress="
-            + fiscalAddress
-            + ", id="
-            + id
-            + ", name="
-            + name
-            + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("Person [id=").append(id).append(", name=").append(name)
+        // .append(", birthDate=")
+        // .append(birthDate)
+            .append(", currentAddress=")
+            .append(currentAddress)
+            .append(", fiscalAddress=")
+            .append(fiscalAddress)
+            .append("]");
+        return builder.toString();
     }
 
 }

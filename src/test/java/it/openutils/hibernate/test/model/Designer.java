@@ -27,6 +27,7 @@ package it.openutils.hibernate.test.model;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -44,8 +45,8 @@ public class Designer extends Employee
     @Column
     private int hipsterFactor;
 
-    @ManyToMany
-    Set<CarModel> designedModels;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private Set<CarModel> designedModels;
 
     /**
      * @return the hipsterFactor

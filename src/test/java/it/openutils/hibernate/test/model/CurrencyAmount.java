@@ -134,4 +134,13 @@ public class CurrencyAmount
         this.currency = currency;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        return new StringBuilder().append(currency).append(' ').append(amount).toString();
+    }
+
 }

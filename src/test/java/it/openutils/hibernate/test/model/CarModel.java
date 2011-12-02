@@ -25,6 +25,7 @@
 
 package it.openutils.hibernate.test.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -44,7 +45,7 @@ public class CarModel
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private CarMaker make;
 
     @Column
@@ -196,6 +197,24 @@ public class CarModel
             return false;
         }
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder
+            .append("CarModel [id=")
+            .append(id)
+            .append(", name=")
+            .append(name)
+            .append(", year=")
+            .append(year)
+            .append("]");
+        return builder.toString();
     }
 
 }
