@@ -13,6 +13,7 @@ src/site/apt/index.apt svneol=native#text/plain
 src/site/changes/changes.xml svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/HibernateDAOTest.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/dao/CarDAO.java svneol=native#text/plain
+src/test/java/it/openutils/hibernate/test/dao/CarMakerDAO.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/dao/PersonDAO.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/model/Address.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/model/Car.java svneol=native#text/plain

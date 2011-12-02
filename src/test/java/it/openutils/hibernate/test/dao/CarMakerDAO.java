@@ -27,7 +27,7 @@ package it.openutils.hibernate.test.dao;
 
 import it.openutils.dao.hibernate.HibernateDAO;
 import it.openutils.dao.hibernate.HibernateDAOImpl;
-import it.openutils.hibernate.test.model.Car;
+import it.openutils.hibernate.test.model.CarMaker;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,17 +37,17 @@ import org.springframework.stereotype.Repository;
 /**
  * @author gcatania
  */
-public interface CarDAO extends HibernateDAO<Car, Long>
+public interface CarMakerDAO extends HibernateDAO<CarMaker, Long>
 {
 
-    @Repository("carDAO")
-    class CarDAOImpl extends HibernateDAOImpl<Car, Long> implements CarDAO
+    @Repository("carMakerDAO")
+    class CarMakerDAOImpl extends HibernateDAOImpl<CarMaker, Long> implements CarMakerDAO
     {
 
         @Autowired
-        public CarDAOImpl(SessionFactory factory)
+        public CarMakerDAOImpl(SessionFactory factory)
         {
-            super(Car.class);
+            super(CarMaker.class);
             setSessionFactory(factory);
         }
     }
