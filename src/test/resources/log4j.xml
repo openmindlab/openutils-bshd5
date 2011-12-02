@@ -6,6 +6,9 @@
       <param name="ConversionPattern" value="%p - %C{1}.%M(%L) | %m%n" />
     </layout>
   </appender>
+  <logger name="org.hibernate.type">
+    <level value="TRACE" />
+  </logger>
   <logger name="org.apache">
     <level value="WARN" />
   </logger>
