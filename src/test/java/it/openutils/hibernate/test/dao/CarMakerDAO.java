@@ -37,11 +37,11 @@ import org.springframework.stereotype.Repository;
 /**
  * @author gcatania
  */
-public interface CarMakerDAO extends HibernateDAO<CarMaker, Long>
+public interface CarMakerDAO extends HibernateDAO<CarMaker, String>
 {
 
     @Repository("carMakerDAO")
-    class CarMakerDAOImpl extends HibernateDAOImpl<CarMaker, Long> implements CarMakerDAO
+    class CarMakerDAOImpl extends HibernateDAOImpl<CarMaker, String> implements CarMakerDAO
     {
 
         @Autowired
