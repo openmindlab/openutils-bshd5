@@ -313,6 +313,73 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
         Assert.assertEquals(shouldBeBob.getName(), bob.getName());
     }
 
+    /**
+     * @see BSHD-11
+     */
+    @Test
+    public void testFindFilteredById()
+    {
+        Person alice = alice();
+        Long alicesId = personDAO.save(alice);
+        personDAO.save(bob());
+        Person filter = new Person();
+        filter.setId(alicesId);
+        List<Person> found = personDAO.findFiltered(filter);
+
+        Assert.assertEquals(found.size(), 1, "Invalid number of persons found.");
+        Assert.assertEquals(found.get(0), alice);
+    }
+
+    /**
+     * @see BSHD-11
+     */
+    @Test
+    public void testFindFilteredByNonDefaultId()
+    {
+        CarMaker toyota = toyota();
+        carMakerDAO.save(toyota);
+        carMakerDAO.save(fiat());
+
+        CarMaker filter = new CarMaker();
+        filter.setCode("TYT");
+        List<CarMaker> found = carMakerDAO.findFiltered(filter);
+
+        Assert.assertEquals(found.size(), 1, "Wrong number of car makers found");
+        CarMaker foundCarMaker = found.get(0);
+        Assert.assertEquals(foundCarMaker.getName(), "Toyota");
+    }
+
+    /**
+     * @see BSHD-11
+     */
+    @Test
+    public void testFindFilteredByChildId()
+    {
+        Owner bob = bob();
+        CarMaker toyota = toyota();
+        CarModel prius = prius(toyota);
+
+        Car bobsPrius = new Car();
+        bobsPrius.setModel(prius);
+        bobsPrius.setRegistrationDate(new GregorianCalendar(2010, Calendar.OCTOBER, 28));
+        bobsPrius.setMarketValue(new CurrencyAmount(1700, "USD"));
+        bobsPrius.setOwner(bob);
+        bob.setCars(Collections.singleton(bobsPrius));
+        personDAO.save(bob);
+        personDAO.save(alice());
+        personDAO.save(chuck());
+        personDAO.save(priusDesigner(prius));
+
+        Car carFilter = new Car();
+        carFilter.setId(bobsPrius.getId());
+        Owner filter = new Owner();
+        filter.setCars(Collections.singleton(carFilter));
+        List<Person> found = personDAO.findFiltered(filter);
+        Assert.assertEquals(found.size(), 1);
+        Person shouldBeBob = found.get(0);
+        Assert.assertEquals(shouldBeBob.getName(), bob.getName());
+    }
+
     // @Test
     // public void testExampleAssociations()
     // {
