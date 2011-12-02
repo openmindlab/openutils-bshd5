@@ -25,44 +25,31 @@
 
 package it.openutils.hibernate.test.model;
 
-import java.util.Calendar;
-import java.util.List;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 
 /**
  * @author gcatania
  */
 @Entity
-public class Car
+public class Sticker
 {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    private CarModel model;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    private Owner owner;
+    @Column
+    private String name;
 
     @Column
-    private Calendar registrationDate;
+    private Double height;
 
     @Column
-    private CurrencyAmount marketValue;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Sticker> stickers;
+    private Double width;
 
     /**
      * @return the id
@@ -81,83 +68,51 @@ public class Car
     }
 
     /**
-     * @return the owner
+     * @return the name
      */
-    public Owner getOwner()
+    public String getName()
     {
-        return owner;
+        return name;
     }
 
     /**
-     * @param owner the owner to set
+     * @param name the name to set
      */
-    public void setOwner(Owner owner)
+    public void setName(String name)
     {
-        this.owner = owner;
+        this.name = name;
     }
 
     /**
-     * @return the registrationDate
+     * @return the height
      */
-    public Calendar getRegistrationDate()
+    public Double getHeight()
     {
-        return registrationDate;
+        return height;
     }
 
     /**
-     * @param registrationDate the registrationDate to set
+     * @param height the height to set
      */
-    public void setRegistrationDate(Calendar registrationDate)
+    public void setHeight(Double height)
     {
-        this.registrationDate = registrationDate;
+        this.height = height;
     }
 
     /**
-     * @return the marketValue
+     * @return the width
      */
-    public CurrencyAmount getMarketValue()
+    public Double getWidth()
     {
-        return marketValue;
+        return width;
     }
 
     /**
-     * @param marketValue the marketValue to set
+     * @param width the width to set
      */
-    public void setMarketValue(CurrencyAmount marketValue)
+    public void setWidth(Double width)
     {
-        this.marketValue = marketValue;
-    }
-
-    /**
-     * @return the model
-     */
-    public CarModel getModel()
-    {
-        return model;
-    }
-
-    /**
-     * @param model the model to set
-     */
-    public void setModel(CarModel model)
-    {
-        this.model = model;
-    }
-
-    /**
-     * @return the stickers
-     */
-    public List<Sticker> getStickers()
-    {
-        return stickers;
-    }
-
-    /**
-     * @param stickers the stickers to set
-     */
-    public void setStickers(List<Sticker> stickers)
-    {
-        this.stickers = stickers;
+        this.width = width;
     }
 
     /**
@@ -168,10 +123,10 @@ public class Car
     {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((height == null) ? 0 : height.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((marketValue == null) ? 0 : marketValue.hashCode());
-        result = prime * result + ((registrationDate == null) ? 0 : registrationDate.hashCode());
-        result = prime * result + ((stickers == null) ? 0 : stickers.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((width == null) ? 0 : width.hashCode());
         return result;
     }
 
@@ -189,11 +144,22 @@ public class Car
         {
             return false;
         }
-        if (!(obj instanceof Car))
+        if (!(obj instanceof Sticker))
         {
             return false;
         }
-        Car other = (Car) obj;
+        Sticker other = (Sticker) obj;
+        if (height == null)
+        {
+            if (other.height != null)
+            {
+                return false;
+            }
+        }
+        else if (!height.equals(other.height))
+        {
+            return false;
+        }
         if (id == null)
         {
             if (other.id != null)
@@ -205,36 +171,25 @@ public class Car
         {
             return false;
         }
-        if (marketValue == null)
+        if (name == null)
         {
-            if (other.marketValue != null)
+            if (other.name != null)
             {
                 return false;
             }
         }
-        else if (!marketValue.equals(other.marketValue))
+        else if (!name.equals(other.name))
         {
             return false;
         }
-        if (registrationDate == null)
+        if (width == null)
         {
-            if (other.registrationDate != null)
+            if (other.width != null)
             {
                 return false;
             }
         }
-        else if (!registrationDate.equals(other.registrationDate))
-        {
-            return false;
-        }
-        if (stickers == null)
-        {
-            if (other.stickers != null)
-            {
-                return false;
-            }
-        }
-        else if (!stickers.equals(other.stickers))
+        else if (!width.equals(other.width))
         {
             return false;
         }
@@ -249,14 +204,14 @@ public class Car
     {
         StringBuilder builder = new StringBuilder();
         builder
-            .append("Car [id=")
+            .append("Sticker [id=")
             .append(id)
-            .append(", registrationDate=")
-            .append(registrationDate)
-            .append(", marketValue=")
-            .append(marketValue)
-            .append(", stickers=")
-            .append(stickers)
+            .append(", name=")
+            .append(name)
+            .append(", height=")
+            .append(height)
+            .append(", width=")
+            .append(width)
             .append("]");
         return builder.toString();
     }

@@ -28,6 +28,7 @@ package it.openutils.hibernate.test;
 import it.openutils.hibernate.test.dao.CarDAO;
 import it.openutils.hibernate.test.dao.CarMakerDAO;
 import it.openutils.hibernate.test.dao.PersonDAO;
+import it.openutils.hibernate.test.dao.StickerDAO;
 import it.openutils.hibernate.test.model.Address;
 import it.openutils.hibernate.test.model.Car;
 import it.openutils.hibernate.test.model.CarMaker;
@@ -37,8 +38,10 @@ import it.openutils.hibernate.test.model.Designer;
 import it.openutils.hibernate.test.model.FullName;
 import it.openutils.hibernate.test.model.Owner;
 import it.openutils.hibernate.test.model.Person;
+import it.openutils.hibernate.test.model.Sticker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -72,6 +75,9 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
 
     @Autowired
     private CarDAO carDAO;
+
+    @Autowired
+    private StickerDAO stickerDAO;
 
     private static Person alice()
     {
@@ -165,7 +171,7 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
         return p;
     }
 
-    private Car bobsPrius(Owner bob, CarModel prius)
+    private static Car bobsPrius(Owner bob, CarModel prius)
     {
         Car bobsPrius = new Car();
         bobsPrius.setModel(prius);
@@ -176,7 +182,7 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
         return bobsPrius;
     }
 
-    private Car chucksPrius(Owner chuck, CarModel prius)
+    private static Car chucksPrius(Owner chuck, CarModel prius)
     {
         Car chucksPrius = new Car();
         chucksPrius.setModel(prius);
@@ -385,6 +391,32 @@ public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTe
         Assert.assertEquals(found.size(), 1);
         Person shouldBeBob = found.get(0);
         Assert.assertEquals(shouldBeBob.getName(), bob.getName());
+    }
+
+    @Test
+    public void testFindFilteredChildEntity()
+    {
+        Sticker st1 = new Sticker();
+        st1.setName("Warning! Baby on board!");
+        st1.setHeight(20d);
+        st1.setWidth(10d);
+        Sticker st2 = new Sticker();
+        st2.setName("Object in the mirror are losing");
+        st2.setHeight(5d);
+        st2.setWidth(10d);
+        Sticker st3 = new Sticker();
+        st3.setName("(tribal tattoo sticker)");
+        st3.setHeight(35d);
+        st3.setWidth(18d);
+
+        Car chucksPrius = chucksPrius(chuck(), prius(toyota()));
+        chucksPrius.setStickers(Arrays.asList(st1, st2, st3));
+        carDAO.save(chucksPrius);
+        carDAO.evict(chucksPrius);
+        Sticker filter = new Sticker();
+        filter.setWidth(10d);
+        List<Sticker> found = stickerDAO.findFiltered(filter);
+        Assert.assertEquals(found.size(), 2);
     }
 
     // @Test
