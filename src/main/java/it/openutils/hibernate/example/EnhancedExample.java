@@ -2,7 +2,7 @@
  *
  * openutils base Spring-Hibernate DAO (http://www.openmindlab.com/lab/products/bshd5.html)
  *
- * Copyright(C) 2005-2011, Openmind S.r.l. http://www.openmindonline.it
+ * Copyright(C) 2005-2012, Openmind S.r.l. http://www.openmindonline.it
  *
  *
  * This library is free software; you can redistribute it and/or
