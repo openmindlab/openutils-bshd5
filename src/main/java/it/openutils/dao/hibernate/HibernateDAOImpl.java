@@ -76,10 +76,27 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     private boolean aopenabled;
 
     /**
-     * Instantiates a new DAO instance
+     * Instantiates a new DAO instance, will try to infer reference class from parameterized types from the class
+     * hierarchy
      */
     public HibernateDAOImpl()
     {
+        // tries to iterate on class or subclasses until a parameterized type is found, otherwise leaves the superclass
+        // to be specified by the implementor calling setReferenceClass()
+        java.lang.reflect.Type genericSuperclass = getClass().getGenericSuperclass();
+        while (genericSuperclass != null && !(genericSuperclass instanceof java.lang.reflect.ParameterizedType))
+        {
+            genericSuperclass = ((Class< ? >) genericSuperclass).getGenericSuperclass();
+        }
+        if (genericSuperclass != null)
+        {
+            java.lang.reflect.Type[] typeArguments = ((java.lang.reflect.ParameterizedType) genericSuperclass)
+                .getActualTypeArguments();
+            // type arguments is guaranteed to be non-empty since the class is a ParameterizedType
+            @SuppressWarnings("unchecked")
+            Class<T> referenceClass = (Class<T>) typeArguments[0];
+            setReferenceClass(referenceClass);
+        }
     }
 
     /**

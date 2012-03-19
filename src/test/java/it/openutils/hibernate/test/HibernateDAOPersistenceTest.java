@@ -59,7 +59,7 @@ import org.testng.annotations.Test;
  * @author gcatania
  */
 @ContextConfiguration(locations = "/spring-tests.xml")
-public class HibernateDAOTest extends AbstractTransactionalTestNGSpringContextTests
+public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpringContextTests
 {
 
     /*
