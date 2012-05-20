@@ -25,9 +25,8 @@
 
 package it.openutils.hibernate.example;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -36,9 +35,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * FilterMetadata can be used to alter how properties are handled.
+ * @deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
+ * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)}
  * @author Fabrizio Giustina
  * @version $Id: $
  */
+@Deprecated
 public interface FilterMetadata
 {
 
@@ -48,7 +50,7 @@ public interface FilterMetadata
     FilterMetadata LIKE = new FilterMetadata()
     {
 
-        private Logger log = LoggerFactory.getLogger(FilterMetadata.class);
+        private final Logger log = LoggerFactory.getLogger(FilterMetadata.class);
 
         /**
          * {@inheritDoc}
@@ -70,7 +72,7 @@ public interface FilterMetadata
     FilterMetadata EQUAL = new FilterMetadata()
     {
 
-        private Log log = LogFactory.getLog(FilterMetadata.class);
+        private final Logger log = LoggerFactory.getLogger(FilterMetadata.class);
 
         /**
          * {@inheritDoc}

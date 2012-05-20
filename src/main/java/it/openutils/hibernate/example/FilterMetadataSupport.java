@@ -45,15 +45,16 @@ import org.hibernate.type.Type;
 
 
 /**
- * legacy support for filter metadata.
+ * legacy support for {@link FilterMetadata}.
  * @author gcatania
  */
+@SuppressWarnings("deprecation")
 public class FilterMetadataSupport
 {
 
     private final Object entity;
 
-    private Map<String, ? extends FilterMetadata> filterMetadata;
+    private final Map<String, ? extends FilterMetadata> filterMetadata;
 
     /**
      * builds an instance of {@code ExampleTree} associated with the input entity
@@ -97,7 +98,7 @@ public class FilterMetadataSupport
 
         private final SessionFactory sessionFactory;
 
-        private EntityMode entityMode;
+        private final EntityMode entityMode;
 
         public ExampleTreeWalker(Session session)
         {

@@ -48,6 +48,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.hibernate.criterion.Example;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
@@ -419,6 +420,35 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
         Assert.assertEquals(found.size(), 2);
     }
 
+    @Test
+    public void testFindFilteredProperties()
+    {
+        personDAO.save(alice());
+        personDAO.save(bob());
+        personDAO.save(chuck());
+
+        Address addressFilter = new Address();
+        addressFilter.setCity("Smalltown");
+        Person filter = new Person();
+        filter.setCurrentAddress(addressFilter);
+
+        List<Object[]> foundProperties = personDAO.findFilteredProperties(
+            filter,
+            Integer.MAX_VALUE,
+            0,
+            Arrays.asList("name", "birthDate"),
+            Order.desc("name.givenName"));
+
+        Assert.assertEquals(foundProperties.size(), 2);
+
+        Object[] bobsProperties = foundProperties.get(0);
+        Assert.assertEquals(bobsProperties[0], bob().getName());
+        Assert.assertEquals(bobsProperties[1], bob().getBirthDate());
+        Object[] alicesProperties = foundProperties.get(1);
+        Assert.assertEquals(alicesProperties[0], alice().getName());
+        Assert.assertEquals(alicesProperties[1], alice().getBirthDate());
+
+    }
     // @Test
     // public void testExampleAssociations()
     // {

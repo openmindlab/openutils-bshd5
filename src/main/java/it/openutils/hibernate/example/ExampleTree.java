@@ -74,9 +74,9 @@ public class ExampleTree implements Serializable
 
     private boolean isIgnoreCaseEnabled;
 
-    private Map<String, Set<String>> excludedProperties = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> excludedProperties = new HashMap<String, Set<String>>();
 
-    private Map<String, List<Criterion>> additionalConditions = new HashMap<String, List<Criterion>>();
+    private final Map<String, List<Criterion>> additionalConditions = new HashMap<String, List<Criterion>>();
 
     /**
      * builds an instance of {@code ExampleTree} associated with the input entity
@@ -246,14 +246,6 @@ public class ExampleTree implements Serializable
         return this;
     }
 
-    /**
-     * @return the rootEntity
-     */
-    public Object getRootEntity()
-    {
-        return rootEntity;
-    }
-
     private class ExampleTreeWalker implements Serializable
     {
 
@@ -261,7 +253,7 @@ public class ExampleTree implements Serializable
 
         private final SessionFactory sessionFactory;
 
-        private EntityMode entityMode;
+        private final EntityMode entityMode;
 
         public ExampleTreeWalker(Session session)
         {
