@@ -402,7 +402,7 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
         st1.setHeight(20d);
         st1.setWidth(10d);
         Sticker st2 = new Sticker();
-        st2.setName("Object in the mirror are losing");
+        st2.setName("Objects in the mirror are losing");
         st2.setHeight(5d);
         st2.setWidth(10d);
         Sticker st3 = new Sticker();
@@ -423,8 +423,10 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
     @Test
     public void testFindFilteredProperties()
     {
-        personDAO.save(alice());
-        personDAO.save(bob());
+        Person alice = alice();
+        Person bob = bob();
+        personDAO.save(alice);
+        personDAO.save(bob);
         personDAO.save(chuck());
 
         Address addressFilter = new Address();
@@ -432,7 +434,18 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
         Person filter = new Person();
         filter.setCurrentAddress(addressFilter);
 
-        List<Object[]> foundProperties = personDAO.findFilteredProperties(
+        List<Object> foundProperties = personDAO.findFilteredProperties(
+            filter,
+            Integer.MAX_VALUE,
+            0,
+            Collections.singletonList("fiscalAddress"));
+
+        Assert.assertEquals(foundProperties.size(), 2);
+
+        Assert.assertEquals(foundProperties.get(0), alice.getFiscalAddress());
+        Assert.assertEquals(foundProperties.get(1), bob.getFiscalAddress());
+
+        foundProperties = personDAO.findFilteredProperties(
             filter,
             Integer.MAX_VALUE,
             0,
@@ -441,12 +454,12 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
 
         Assert.assertEquals(foundProperties.size(), 2);
 
-        Object[] bobsProperties = foundProperties.get(0);
-        Assert.assertEquals(bobsProperties[0], bob().getName());
-        Assert.assertEquals(bobsProperties[1], bob().getBirthDate());
-        Object[] alicesProperties = foundProperties.get(1);
-        Assert.assertEquals(alicesProperties[0], alice().getName());
-        Assert.assertEquals(alicesProperties[1], alice().getBirthDate());
+        Object[] bobsProperties = (Object[]) foundProperties.get(0);
+        Assert.assertEquals(bobsProperties[0], bob.getName());
+        Assert.assertEquals(bobsProperties[1], bob.getBirthDate());
+        Object[] alicesProperties = (Object[]) foundProperties.get(1);
+        Assert.assertEquals(alicesProperties[0], alice.getName());
+        Assert.assertEquals(alicesProperties[1], alice.getBirthDate());
 
     }
     // @Test

@@ -436,7 +436,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<Object[]> findFilteredProperties(T filter, int maxResults, int page, List<String> properties,
+    public List<Object> findFilteredProperties(T filter, int maxResults, int page, List<String> properties,
         Order... orders)
     {
         return getThis().findFilteredProperties(new ExampleTree(filter), maxResults, page, properties, orders);
@@ -445,7 +445,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    public List<Object[]> findFilteredProperties(ExampleTree exampleTree, int maxResults, int page,
+    public List<Object> findFilteredProperties(ExampleTree exampleTree, int maxResults, int page,
         List<String> properties, Order... orders)
     {
         return getHibernateTemplate().execute(
@@ -508,7 +508,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
     @Deprecated
-    public List<Object[]> findFilteredProperties(T filter, Order[] orders,
+    public List<Object> findFilteredProperties(T filter, Order[] orders,
         Map<String, ? extends FilterMetadata> metadata, int maxResults, int page, List< ? extends Criterion> criteria,
         List<String> properties)
     {
@@ -778,7 +778,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @author gcatania
      */
     @SuppressWarnings("deprecation")
-    private final class LegacySupportPropertiesCallback extends LegacySupportCallback<Object[]>
+    private final class LegacySupportPropertiesCallback extends LegacySupportCallback<Object>
     {
 
         private final List<String> properties;
@@ -871,7 +871,7 @@ class ExampleTreeCallback<R> implements HibernateCallback<List<R>>
 }
 
 
-class ExampleTreePropertiesCallback extends ExampleTreeCallback<Object[]>
+class ExampleTreePropertiesCallback extends ExampleTreeCallback<Object>
 {
 
     private final List<String> properties;

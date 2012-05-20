@@ -175,7 +175,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param orders the orders to apply with respect to entity class properties
      * @return a list of distinct entity instances (never null)
      */
-    List<Object[]> findFilteredProperties(T filter, int maxResults, int page, List<String> properties, Order... orders);
+    List<Object> findFilteredProperties(T filter, int maxResults, int page, List<String> properties, Order... orders);
 
     /**
      * Retrieve a set of properties from the entities returned by
@@ -189,7 +189,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * @param orders the orders to apply with respect to entity class properties
      * @return a list of distinct entity instances (never null)
      */
-    List<Object[]> findFilteredProperties(ExampleTree exampleTree, int maxResults, int page, List<String> properties,
+    List<Object> findFilteredProperties(ExampleTree exampleTree, int maxResults, int page, List<String> properties,
         Order... orders);
 
     /**
@@ -462,7 +462,7 @@ public interface HibernateDAO<T, K extends Serializable>
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)}
      */
     @Deprecated
-    List<Object[]> findFilteredProperties(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata,
+    List<Object> findFilteredProperties(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata,
         int maxResults, int page, List< ? extends Criterion> criteria, List<String> properties);
 
 }
