@@ -8,7 +8,7 @@
   </parent>
   <artifactId>openutils-bshd5</artifactId>
   <name>openutils base Spring-Hibernate DAO</name>
-  <version>2.1.1-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <description>Openutils base Spring-Hibernate DAO (for java 5 and more)</description>
   <licenses>
     <license>
