@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.aop.AspectException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
@@ -54,7 +55,6 @@ import org.hibernate.type.Type;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.util.CollectionUtils;
 
 
 /**
@@ -131,7 +131,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         return getHibernateTemplate().execute(new HibernateCallback<List<T>>()
         {
 
-            @SuppressWarnings("unchecked")
             public List<T> doInHibernate(final Session ses) throws HibernateException
             {
                 Criteria crit = ses.createCriteria(getReferenceClass());
@@ -157,7 +156,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public List<T> find(String query)
     {
         return getHibernateTemplate().find(query);
@@ -168,7 +166,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> find(String query, Object paramValue, Type paramType)
     {
-        return getThis().find(query, new Object[]{paramValue }, new Type[]{paramType });
+        return getThis().find(query, new Object[]{paramValue}, new Type[]{paramType});
     }
 
     /**
@@ -179,7 +177,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         return getHibernateTemplate().execute(new HibernateCallback<List<T>>()
         {
 
-            @SuppressWarnings("unchecked")
             public List<T> doInHibernate(final Session ses) throws HibernateException
             {
                 // hibernate 3
@@ -345,7 +342,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public K save(T obj)
     {
         return (K) getHibernateTemplate().save(obj);
@@ -407,7 +403,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         return getHibernateTemplate().execute(new HibernateCallback<T>()
         {
 
-            @SuppressWarnings("unchecked")
             public T doInHibernate(final Session ses) throws HibernateException
             {
                 return (T) ses.merge(obj);
@@ -560,7 +555,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         return getHibernateTemplate().execute(new HibernateCallback<List<Object>>()
         {
 
-            @SuppressWarnings("unchecked")
             public List<Object> doInHibernate(final Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
@@ -592,7 +586,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         return getHibernateTemplate().execute(new HibernateCallback<List<Object>>()
         {
 
-            @SuppressWarnings("unchecked")
             public List<Object> doInHibernate(final Session ses) throws HibernateException
             {
                 Query q = ses.getNamedQuery(name);
@@ -705,7 +698,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     /**
      * @return This is needed as for http://opensource.atlassian.com/projects/spring/browse/SPR-2226
      */
-    @SuppressWarnings("unchecked")
     private HibernateDAO<T, K> getThis()
     {
         try
@@ -863,7 +855,6 @@ class ExampleTreeCallback<R> implements HibernateCallback<List<R>>
         return crit;
     }
 
-    @SuppressWarnings("unchecked")
     public List<R> doInHibernate(Session session) throws HibernateException, SQLException
     {
         return createCriteria(session).list();
