@@ -39,7 +39,7 @@ import java.util.Map;
 import org.aopalliance.aop.AspectException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -166,7 +166,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> find(String query, Object paramValue, Type paramType)
     {
-        return getThis().find(query, new Object[]{paramValue}, new Type[]{paramType});
+        return getThis().find(query, new Object[]{paramValue }, new Type[]{paramType });
     }
 
     /**
