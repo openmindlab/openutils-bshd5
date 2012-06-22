@@ -65,7 +65,7 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
 
     /*
      * TODO tests to perform: 1) find filtered with collection with zero, one or more elements 2) find filtered with
-     * additional criteria 3) filter metadata support 4) find filtered with id 5) find filtered with backref
+     * additional criteria 3) filter metadata support
      */
 
     @Autowired
@@ -221,7 +221,7 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
         Designer designer = priusDesigner(prius);
 
         personDAO.save(designer);
-        // FIXME evicting breaks the test, there must be something wrong in the hibernate mapping configuration
+        // evicting breaks equals() on persistent bags
         // personDAO.evict(designer);
 
         // cannot use load() with entity inheritance, see https://forum.hibernate.org/viewtopic.php?p=2418875
@@ -462,6 +462,44 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
         Assert.assertEquals(alicesProperties[1], alice.getBirthDate());
 
     }
+
+    /**
+     * BSHD-15 check backref property accessors
+     */
+    @Test
+    public void testOneToMany()
+    {
+        Sticker st1 = new Sticker();
+        st1.setName("Warning! Baby on board!");
+        st1.setHeight(20d);
+        st1.setWidth(10d);
+        Sticker st2 = new Sticker();
+        st2.setName("Objects in the mirror are losing");
+        st2.setHeight(5d);
+        st2.setWidth(10d);
+
+        Car chucksPrius = chucksPrius(chuck(), prius(toyota()));
+        chucksPrius.setStickers(Collections.singletonList(st1));
+        Long savedId = carDAO.save(chucksPrius);
+        chucksPrius = carDAO.load(savedId);
+        // evicting breaks equals() on persistent bags
+        // carDAO.evict(chucksPrius);
+
+        Car filter = chucksPrius.clone();
+        // filter.setOwner(null);
+        // filter.setModel(null);
+        filter.setStickers(null);
+        // filter.setRegistrationDate(null);
+        // filter.setMarketValue(null);
+        // filter.setId(null);
+
+        Car found = carDAO.findFilteredFirst(filter);
+        Assert.assertEquals(found, chucksPrius);
+
+        // found = carDAO.findFilteredFirst(chucksPrius);
+        // Assert.assertEquals(found, chucksPrius);
+    }
+
     // @Test
     // public void testExampleAssociations()
     // {

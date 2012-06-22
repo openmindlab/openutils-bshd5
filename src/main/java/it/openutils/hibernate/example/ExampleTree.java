@@ -50,6 +50,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.property.BackrefPropertyAccessor;
 import org.hibernate.type.Type;
 
 
@@ -67,8 +68,6 @@ public class ExampleTree implements Serializable
     private Character escapeCharacter;
 
     private PropertySelector selector;
-
-    private DefaultPropertySelector defaultSelector = DefaultPropertySelector.NOT_NULL;
 
     private MatchMode matchMode;
 
@@ -132,8 +131,11 @@ public class ExampleTree implements Serializable
      */
     public ExampleTree setPropertySelector(PropertySelector selector)
     {
-        this.selector = selector;
-        defaultSelector = null;
+        if (selector == null)
+        {
+            throw new NullPointerException("Null selector specified");
+        }
+        this.selector = new ExcludeBackrefPropertySelector(selector); // BSHD-15
         return this;
     }
 
@@ -143,7 +145,7 @@ public class ExampleTree implements Serializable
      */
     public ExampleTree excludeZeroes()
     {
-        return setDefaultSelector(DefaultPropertySelector.NOT_NULL_OR_ZERO);
+        return setPropertySelector(ExampleTreePropertySelectorSupport.NOT_NULL_OR_ZERO);
     }
 
     /**
@@ -152,7 +154,7 @@ public class ExampleTree implements Serializable
      */
     public ExampleTree excludeNone()
     {
-        return setDefaultSelector(DefaultPropertySelector.ALL);
+        return setPropertySelector(ExampleTreePropertySelectorSupport.ALL);
     }
 
     /**
@@ -233,17 +235,6 @@ public class ExampleTree implements Serializable
     {
         excludeProperty(associationPath, propertyName);
         return add(associationPath, override);
-    }
-
-    private static enum DefaultPropertySelector {
-        NOT_NULL, NOT_NULL_OR_ZERO, ALL;
-    }
-
-    private ExampleTree setDefaultSelector(DefaultPropertySelector defaultSelector)
-    {
-        this.defaultSelector = defaultSelector;
-        selector = null;
-        return this;
     }
 
     private class ExampleTreeWalker implements Serializable
@@ -351,24 +342,7 @@ public class ExampleTree implements Serializable
             {
                 ex.ignoreCase();
             }
-            if (selector != null)
-            {
-                ex.setPropertySelector(selector);
-            }
-            else
-            {
-                switch (defaultSelector)
-                {
-                    case NOT_NULL_OR_ZERO :
-                        ex.excludeZeroes();
-                        break;
-                    case ALL :
-                        ex.excludeNone();
-                        break;
-                    default :
-                        break;
-                }
-            }
+            ex.setPropertySelector(selector != null ? selector : new ExcludeBackrefPropertySelector()); // BSHD-15
             Set<String> excludedPropertiesForPath = excludedProperties.get(associationPath);
             if (excludedPropertiesForPath != null)
             {
@@ -468,6 +442,100 @@ public class ExampleTree implements Serializable
             String[] result = Arrays.copyOf(propertyNames, propertyNames.length + 1);
             result[propertyNames.length] = propertyName;
             return result;
+        }
+    }
+
+}
+
+
+/**
+ * support for BSHD-15
+ * @author gcatania
+ * @version $Id$
+ */
+class ExcludeBackrefPropertySelector implements PropertySelector
+{
+
+    private static final long serialVersionUID = -2803322309158823550L;
+
+    private final PropertySelector selector;
+
+    public ExcludeBackrefPropertySelector(PropertySelector selector)
+    {
+        this.selector = selector;
+    }
+
+    public ExcludeBackrefPropertySelector()
+    {
+        selector = ExampleTreePropertySelectorSupport.NOT_NULL;
+    }
+
+    public boolean include(Object propertyValue, String propertyName, Type type)
+    {
+        if (BackrefPropertyAccessor.UNKNOWN.equals(propertyValue))
+        {
+            return false;
+        }
+        return selector.include(propertyValue, propertyName, type);
+    }
+
+}
+
+
+/**
+ * workaround to {@link Example} not exposing internal property selectors
+ * @author gcatania
+ * @version $Id$
+ */
+@SuppressWarnings({"serial", "static-method"})
+class ExampleTreePropertySelectorSupport
+{
+
+    static final PropertySelector NOT_NULL = new NotNullPropertySelector();
+
+    static final PropertySelector ALL = new AllPropertySelector();
+
+    static final PropertySelector NOT_NULL_OR_ZERO = new NotNullOrZeroPropertySelector();
+
+    static final class AllPropertySelector implements PropertySelector
+    {
+
+        public boolean include(Object object, String propertyName, Type type)
+        {
+            return true;
+        }
+
+        private Object readResolve()
+        {
+            return ALL;
+        }
+    }
+
+    static final class NotNullPropertySelector implements PropertySelector
+    {
+
+        public boolean include(Object object, String propertyName, Type type)
+        {
+            return object != null;
+        }
+
+        private Object readResolve()
+        {
+            return NOT_NULL;
+        }
+    }
+
+    static final class NotNullOrZeroPropertySelector implements PropertySelector
+    {
+
+        public boolean include(Object object, String propertyName, Type type)
+        {
+            return object != null && (!(object instanceof Number) || ((Number) object).longValue() != 0);
+        }
+
+        private Object readResolve()
+        {
+            return NOT_NULL_OR_ZERO;
         }
     }
 
