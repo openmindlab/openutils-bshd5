@@ -25,6 +25,7 @@
 
 package it.openutils.hibernate.test.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -38,7 +39,7 @@ import javax.persistence.OneToMany;
  * @author gcatania
  */
 @Entity
-public class CarMaker
+public class CarMaker implements Cloneable
 {
 
     @Id
@@ -204,6 +205,34 @@ public class CarMaker
             .append(models)
             .append("]");
         return builder.toString();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public CarMaker clone()
+    {
+        CarMaker clone;
+        try
+        {
+            clone = (CarMaker) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
+        if (capitalization != null)
+        {
+            clone.capitalization = capitalization.clone();
+        }
+        if (models != null)
+        {
+            clone.models = new ArrayList<CarModel>();
+            for (CarModel m : models)
+            {
+                clone.models.add(m.clone());
+            }
+        }
+        return clone;
     }
 
 }

@@ -33,7 +33,7 @@ import javax.persistence.Embeddable;
  * @author gcatania
  */
 @Embeddable
-public class FullName
+public class FullName implements Cloneable
 {
 
     private Title title;
@@ -171,6 +171,20 @@ public class FullName
     public String toString()
     {
         return "FullName [familyName=" + familyName + ", givenName=" + givenName + ", title=" + title + "]";
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FullName clone()
+    {
+        try
+        {
+            return (FullName) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
     }
 
 }

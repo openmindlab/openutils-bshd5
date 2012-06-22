@@ -25,6 +25,7 @@
 
 package it.openutils.hibernate.test.model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -42,7 +44,7 @@ import javax.persistence.OneToMany;
  * @author gcatania
  */
 @Entity
-public class Car
+public class Car implements Cloneable
 {
 
     @Id
@@ -62,6 +64,8 @@ public class Car
     private CurrencyAmount marketValue;
 
     @OneToMany(cascade = CascadeType.ALL)
+    // join table appears problematic, using single join column instead
+    @JoinColumn(name = "carId", nullable = false)
     private List<Sticker> stickers;
 
     /**
@@ -223,7 +227,7 @@ public class Car
                 return false;
             }
         }
-        else if (!registrationDate.equals(other.registrationDate))
+        else if (registrationDate.compareTo(other.registrationDate) != 0)
         {
             return false;
         }
@@ -248,17 +252,47 @@ public class Car
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        builder
-            .append("Car [id=")
-            .append(id)
-            .append(", registrationDate=")
-            .append(registrationDate)
+        builder.append("Car [id=").append(id).append(", model=").append(model)
+        // .append(", registrationDate=")
+        // .append(registrationDate)
             .append(", marketValue=")
             .append(marketValue)
             .append(", stickers=")
             .append(stickers)
             .append("]");
         return builder.toString();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Car clone()
+    {
+        Car clone;
+        try
+        {
+            clone = (Car) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
+        if (model != null)
+        {
+            clone.model = model.clone();
+        }
+        if (registrationDate != null)
+        {
+            clone.registrationDate = (Calendar) registrationDate.clone();
+        }
+        if (stickers != null)
+        {
+            clone.stickers = new ArrayList<Sticker>();
+            for (Sticker s : stickers)
+            {
+                clone.stickers.add(s.clone());
+            }
+        }
+        return clone;
     }
 
 }

@@ -36,7 +36,7 @@ import javax.persistence.Id;
  * @author gcatania
  */
 @Entity
-public class Address
+public class Address implements Cloneable
 {
 
     @Id
@@ -291,6 +291,20 @@ public class Address
             + ", zipCode="
             + zipCode
             + "]";
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Address clone()
+    {
+        try
+        {
+            return (Address) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
     }
 
 }

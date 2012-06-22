@@ -25,6 +25,7 @@
 
 package it.openutils.hibernate.test.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -128,6 +129,22 @@ public class Designer extends Employee
             return false;
         }
         return true;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Designer clone()
+    {
+        Designer clone = (Designer) super.clone();
+        if (designedModels != null)
+        {
+            clone.designedModels = new HashSet<CarModel>();
+            for (CarModel m : designedModels)
+            {
+                clone.designedModels.add(m.clone());
+            }
+        }
+        return clone;
     }
 
 }

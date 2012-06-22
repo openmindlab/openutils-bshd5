@@ -47,7 +47,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "personType")
-public class Person
+public class Person implements Cloneable
 {
 
     @Id
@@ -188,7 +188,7 @@ public class Person
                 return false;
             }
         }
-        else if (!birthDate.equals(other.birthDate))
+        else if (birthDate.compareTo(other.birthDate) != 0)
         {
             return false;
         }
@@ -255,6 +255,39 @@ public class Person
             .append(fiscalAddress)
             .append("]");
         return builder.toString();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Person clone()
+    {
+        Person clone;
+        try
+        {
+            clone = (Person) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
+
+        if (name != null)
+        {
+            clone.name = name.clone();
+        }
+        if (birthDate != null)
+        {
+            clone.birthDate = (Calendar) birthDate.clone();
+        }
+        if (currentAddress != null)
+        {
+            clone.currentAddress = currentAddress.clone();
+        }
+        if (fiscalAddress != null)
+        {
+            clone.fiscalAddress = fiscalAddress.clone();
+        }
+        return clone;
     }
 
 }

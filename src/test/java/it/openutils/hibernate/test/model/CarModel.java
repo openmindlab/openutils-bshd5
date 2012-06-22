@@ -38,7 +38,7 @@ import javax.persistence.ManyToOne;
  * @author gcatania
  */
 @Entity
-public class CarModel
+public class CarModel implements Cloneable
 {
 
     @Id
@@ -215,6 +215,20 @@ public class CarModel
             .append(year)
             .append("]");
         return builder.toString();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public CarModel clone()
+    {
+        try
+        {
+            return (CarModel) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
     }
 
 }

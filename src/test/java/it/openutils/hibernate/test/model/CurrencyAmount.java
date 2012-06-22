@@ -32,7 +32,7 @@ import javax.persistence.Embeddable;
  * @author gcatania
  */
 @Embeddable
-public class CurrencyAmount
+public class CurrencyAmount implements Cloneable
 {
 
     private double amount;
@@ -143,4 +143,17 @@ public class CurrencyAmount
         return new StringBuilder().append(currency).append(' ').append(amount).toString();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public CurrencyAmount clone()
+    {
+        try
+        {
+            return (CurrencyAmount) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
+    }
 }

@@ -25,6 +25,7 @@
 
 package it.openutils.hibernate.test.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -123,6 +124,26 @@ public class Owner extends Person
             return false;
         }
         return true;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Owner clone()
+    {
+        Owner clone = (Owner) super.clone();
+        if (cars != null)
+        {
+            clone.cars = new HashSet<Car>();
+            for (Car car : cars)
+            {
+                clone.cars.add(car.clone());
+            }
+        }
+        if (totalValueOfCars != null)
+        {
+            clone.totalValueOfCars = totalValueOfCars.clone();
+        }
+        return clone;
     }
 
 }

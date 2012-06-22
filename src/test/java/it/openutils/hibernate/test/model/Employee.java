@@ -190,7 +190,7 @@ public class Employee extends Person
                 return false;
             }
         }
-        else if (!employedSince.equals(other.employedSince))
+        else if (employedSince.compareTo(other.employedSince) != 0)
         {
             return false;
         }
@@ -228,6 +228,26 @@ public class Employee extends Person
             return false;
         }
         return true;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Employee clone()
+    {
+        Employee clone = (Employee) super.clone();
+        if (employer != null)
+        {
+            clone.employer = employer.clone();
+        }
+        if (grossAnnualSalary != null)
+        {
+            clone.grossAnnualSalary = grossAnnualSalary.clone();
+        }
+        if (employedSince != null)
+        {
+            clone.employedSince = (Calendar) employedSince.clone();
+        }
+        return clone;
     }
 
 }

@@ -35,7 +35,7 @@ import javax.persistence.Id;
  * @author gcatania
  */
 @Entity
-public class Sticker
+public class Sticker implements Cloneable
 {
 
     @Id
@@ -216,4 +216,17 @@ public class Sticker
         return builder.toString();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public Sticker clone()
+    {
+        try
+        {
+            return (Sticker) super.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new InternalError(e.getMessage());
+        }
+    }
 }
