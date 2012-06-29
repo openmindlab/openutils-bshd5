@@ -27,11 +27,11 @@ package it.openutils.hibernate.example;
 
 import it.openutils.hibernate.selectors.ExcludeBackrefPropertySelector;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.MapUtils;
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
@@ -65,7 +65,7 @@ public class FilterMetadataSupport
             throw new NullPointerException("Null entity.");
         }
         this.entity = entity;
-        this.filterMetadata = filterMetadata;
+        this.filterMetadata = filterMetadata != null ? filterMetadata : Collections.<String, FilterMetadata> emptyMap();
     }
 
     /**
@@ -106,10 +106,7 @@ public class FilterMetadataSupport
 
         public Criteria walk(Criteria rootCriteria, Object rootEntity)
         {
-            if (MapUtils.isNotEmpty(filterMetadata))
-            {
-                createSubExamples(rootCriteria, rootEntity, new String[0]);
-            }
+            createSubExamples(rootCriteria, rootEntity, new String[0]);
             return rootCriteria;
         }
 
