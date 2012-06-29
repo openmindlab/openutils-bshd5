@@ -130,7 +130,7 @@ public class FilterMetadataSupport
                 }
                 Object propertyValue = classMetadata.getPropertyValue(entity, propertyName, entityMode);
                 FilterMetadata fm = currFilterMetadata.get(propertyName);
-                if (fm != null)
+                if (fm != null && propertyValue != null)
                 {
                     fm.createFilter(crit, propertyName, propertyValue);
                     continue;
