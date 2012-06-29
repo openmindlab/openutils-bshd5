@@ -38,6 +38,7 @@ import java.util.Map;
 
 import org.aopalliance.aop.AspectException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
@@ -482,8 +483,16 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
         List< ? extends Criterion> criteria, Order... orders)
     {
-        return getHibernateTemplate().execute(
-            new LegacySupportCallback<T>(filter, maxResults, page, metadata, criteria, orders));
+        HibernateCallback<List<T>> callback;
+        if (MapUtils.isEmpty(metadata) && CollectionUtils.isEmpty(criteria))
+        {
+            callback = new ExampleTreeCallback<T>(new ExampleTree(filter), maxResults, page, orders);
+        }
+        else
+        {
+            callback = new LegacySupportCallback<T>(filter, maxResults, page, metadata, criteria, orders);
+        }
+        return getHibernateTemplate().execute(callback);
     }
 
     /**
@@ -506,8 +515,23 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         Map<String, ? extends FilterMetadata> metadata, int maxResults, int page, List< ? extends Criterion> criteria,
         List<String> properties)
     {
-        return getHibernateTemplate().execute(
-            new LegacySupportPropertiesCallback(filter, maxResults, page, metadata, criteria, properties, orders));
+        HibernateCallback<List<Object>> callback;
+        if (MapUtils.isEmpty(metadata) && CollectionUtils.isEmpty(criteria))
+        {
+            callback = new ExampleTreePropertiesCallback(new ExampleTree(filter), maxResults, page, properties, orders);
+        }
+        else
+        {
+            callback = new LegacySupportPropertiesCallback(
+                filter,
+                maxResults,
+                page,
+                metadata,
+                criteria,
+                properties,
+                orders);
+        }
+        return getHibernateTemplate().execute(callback);
     }
 
     /**
