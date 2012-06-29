@@ -193,6 +193,7 @@ public class FilterMetadataSupport
         private Example example(Object entity, Set<String> propertiesToExclude)
         {
             Example ex = Example.create(entity);
+            ex.setPropertySelector(new ExcludeBackrefPropertySelector()); // BSHD-15
             for (String propertyName : propertiesToExclude)
             {
                 // skip properties handled by filterMetadata

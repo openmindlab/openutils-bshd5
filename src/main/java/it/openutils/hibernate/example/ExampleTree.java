@@ -67,7 +67,7 @@ public class ExampleTree implements Serializable
 
     private Character escapeCharacter;
 
-    private PropertySelector selector;
+    private PropertySelector selector = new ExcludeBackrefPropertySelector(); // BSHD-15
 
     private MatchMode matchMode;
 
@@ -342,7 +342,7 @@ public class ExampleTree implements Serializable
             {
                 ex.ignoreCase();
             }
-            ex.setPropertySelector(selector != null ? selector : new ExcludeBackrefPropertySelector()); // BSHD-15
+            ex.setPropertySelector(selector);
             Set<String> excludedPropertiesForPath = excludedProperties.get(associationPath);
             if (excludedPropertiesForPath != null)
             {
