@@ -105,6 +105,11 @@ public final class EntityBuilder
         return prius;
     }
 
+    public static CarModel prius()
+    {
+        return prius(toyota());
+    }
+
     public static Designer priusDesigner(CarModel prius)
     {
         FullName fullName = new FullName("Ken", "Shiro");
@@ -132,6 +137,11 @@ public final class EntityBuilder
         bobsPrius.setOwner(bob);
         bob.setCars(Collections.singleton(bobsPrius));
         return bobsPrius;
+    }
+
+    public static Car bobsPrius()
+    {
+        return bobsPrius(bob(), prius());
     }
 
     public static Car chucksPrius(Owner chuck, CarModel prius)

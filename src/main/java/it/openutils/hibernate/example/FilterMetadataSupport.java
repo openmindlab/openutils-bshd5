@@ -172,10 +172,12 @@ public class FilterMetadataSupport
                 {
                     continue;
                 }
-                String leftover = key.substring(path.length() + 1);
-                // skip subproperties
+                // need to take into account leading dot for subproperties
+                int trimLength = path.isEmpty() ? 0 : path.length() + 1;
+                String leftover = key.substring(trimLength);
                 if (leftover.contains("."))
                 {
+                    // skip subproperties
                     continue;
                 }
                 result.put(leftover, filterMetadata.get(key));

@@ -38,7 +38,6 @@ import java.util.Map;
 
 import org.aopalliance.aop.AspectException;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
@@ -166,7 +165,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> find(String query, Object paramValue, Type paramType)
     {
-        return getThis().find(query, new Object[]{paramValue }, new Type[]{paramType });
+        return getThis().find(query, new Object[]{paramValue}, new Type[]{paramType});
     }
 
     /**
@@ -723,7 +722,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      * @author gcatania
      */
     @SuppressWarnings("deprecation")
-    private class LegacySupportCallback<R> extends ExampleTreeCallback<R>
+    private class LegacySupportCallback<R> extends BaseCallback<R>
     {
 
         private final T rootEntity;
@@ -740,7 +739,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
             List< ? extends Criterion> additionalCriteria,
             Order... orders)
         {
-            super(new ExampleTree(rootEntity), maxResults, page, orders);
+            super(maxResults, page, orders);
             this.rootEntity = rootEntity;
             this.filterMetadata = metadata;
             this.additionalCriteria = additionalCriteria;
@@ -749,11 +748,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         @Override
         protected Criteria createCriteria(Session session)
         {
-            Criteria crit = super.createCriteria(session);
-            if (MapUtils.isNotEmpty(filterMetadata))
-            {
-                new FilterMetadataSupport(rootEntity, filterMetadata).appendTo(crit, session);
-            }
+            Criteria crit = new FilterMetadataSupport(rootEntity, filterMetadata).create(session);
             if (additionalCriteria != null)
             {
                 for (Criterion c : additionalCriteria)
@@ -793,7 +788,11 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         protected Criteria createCriteria(Session session)
         {
             Criteria crit = super.createCriteria(session);
-            if (!CollectionUtils.isEmpty(properties))
+            if (CollectionUtils.isEmpty(properties))
+            {
+                crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+            }
+            else
             {
                 ProjectionList projectionList = Projections.projectionList();
                 for (String property : properties)
@@ -813,7 +812,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
  * @author gcatania
  * @param R the result class
  */
-class ExampleTreeCallback<R> implements HibernateCallback<List<R>>
+abstract class BaseCallback<R> implements HibernateCallback<List<R>>
 {
 
     private final Order[] orders;
@@ -822,26 +821,23 @@ class ExampleTreeCallback<R> implements HibernateCallback<List<R>>
 
     private final int page;
 
-    private final ExampleTree exampleTree;
-
-    protected ExampleTreeCallback(ExampleTree exampleTree, int maxResults, int page, Order... orders)
+    protected BaseCallback(int maxResults, int page, Order... orders)
     {
-        this.exampleTree = exampleTree;
         this.maxResults = maxResults;
         this.page = page;
         this.orders = orders;
     }
 
     /**
-     * internal method that creates the query criteria. Subclasses may override but should call {@code super()}
+     * internal method that creates the query criteria.
      * @param session the hibernate session
      * @return the hibernate criteria
      */
-    protected Criteria createCriteria(Session session)
-    {
-        Criteria crit = exampleTree.create(session);
+    protected abstract Criteria createCriteria(Session session);
 
-        crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+    public final List<R> doInHibernate(Session session) throws HibernateException, SQLException
+    {
+        Criteria crit = createCriteria(session);
         crit.setMaxResults(maxResults);
         crit.setFirstResult(maxResults * page);
         if (orders != null)
@@ -851,13 +847,35 @@ class ExampleTreeCallback<R> implements HibernateCallback<List<R>>
                 crit.addOrder(o);
             }
         }
+        return crit.list();
+    }
+}
 
-        return crit;
+
+/**
+ * @author gcatania
+ * @param R the result class
+ */
+class ExampleTreeCallback<R> extends BaseCallback<R>
+{
+
+    private final ExampleTree exampleTree;
+
+    protected ExampleTreeCallback(ExampleTree exampleTree, int maxResults, int page, Order... orders)
+    {
+        super(maxResults, page, orders);
+        this.exampleTree = exampleTree;
     }
 
-    public List<R> doInHibernate(Session session) throws HibernateException, SQLException
+    /**
+     * internal method that creates the query criteria. Subclasses may override.
+     * @param session the hibernate session
+     * @return the hibernate criteria
+     */
+    @Override
+    protected Criteria createCriteria(Session session)
     {
-        return createCriteria(session).list();
+        return exampleTree.create(session);
     }
 }
 
@@ -867,9 +885,12 @@ class ExampleTreePropertiesCallback extends ExampleTreeCallback<Object>
 
     private final List<String> properties;
 
-    protected ExampleTreePropertiesCallback(ExampleTree exampleTree, int maxResults, int page,
-
-    List<String> properties, Order... orders)
+    protected ExampleTreePropertiesCallback(
+        ExampleTree exampleTree,
+        int maxResults,
+        int page,
+        List<String> properties,
+        Order... orders)
     {
         super(exampleTree, maxResults, page, orders);
         this.properties = properties;
@@ -879,7 +900,11 @@ class ExampleTreePropertiesCallback extends ExampleTreeCallback<Object>
     protected Criteria createCriteria(Session session)
     {
         Criteria crit = super.createCriteria(session);
-        if (!CollectionUtils.isEmpty(properties))
+        if (CollectionUtils.isEmpty(properties))
+        {
+            crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+        }
+        else
         {
             ProjectionList projectionList = Projections.projectionList();
             for (String property : properties)
