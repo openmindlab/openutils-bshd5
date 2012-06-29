@@ -101,7 +101,9 @@ public class HibernateDAOFilterMetadataTest extends AbstractTransactionalTestNGS
                 criteria.add(Restrictions.lt(propertyName, 22d));
             }
         };
-        List<Sticker> found = stickerDAO.findFiltered(new Sticker(), Collections.singletonMap("height", fm));
+        Sticker stickerFilter = new Sticker();
+        stickerFilter.setHeight(12d); // unused but must be not null for backwards compatibility
+        List<Sticker> found = stickerDAO.findFiltered(stickerFilter, Collections.singletonMap("height", fm));
         Assert.assertEquals(found.size(), 1);
         Assert.assertEquals(found.get(0), st1);
     }
@@ -143,7 +145,9 @@ public class HibernateDAOFilterMetadataTest extends AbstractTransactionalTestNGS
             }
         };
         Car filter = new Car();
-        filter.setStickers(Collections.singletonList(new Sticker()));
+        Sticker stickerFilter = new Sticker();
+        stickerFilter.setHeight(12d); // unused but must be not null for backwards compatibility
+        filter.setStickers(Collections.singletonList(stickerFilter));
         List<Car> found = carDAO.findFiltered(filter, Collections.singletonMap("stickers.height", fm));
         Assert.assertEquals(found.size(), 1);
         Car actual = found.get(0);
