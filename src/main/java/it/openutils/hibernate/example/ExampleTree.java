@@ -25,11 +25,10 @@
 
 package it.openutils.hibernate.example;
 
+import it.openutils.hibernate.selectors.ExcludeBackrefPropertySelector;
+
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
@@ -50,7 +48,6 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.metadata.ClassMetadata;
-import org.hibernate.property.BackrefPropertyAccessor;
 import org.hibernate.type.Type;
 
 
@@ -67,7 +64,7 @@ public class ExampleTree implements Serializable
 
     private Character escapeCharacter;
 
-    private PropertySelector selector = new ExcludeBackrefPropertySelector(); // BSHD-15
+    private PropertySelector selector = new ExcludeBackrefPropertySelector(ExampleTreePropertySelectorSupport.NOT_NULL); // BSHD-15
 
     private MatchMode matchMode;
 
@@ -260,7 +257,7 @@ public class ExampleTree implements Serializable
 
         private void createSubExamples(Criteria crit, Object entity, String[] walkedProperties)
         {
-            String associationPath = getAssociationPath(walkedProperties);
+            String associationPath = ExampleTreeUtils.getPath(walkedProperties);
             crit.add(example(entity, associationPath));
             for (Criterion c : getAdditionalConditions(associationPath))
             {
@@ -281,7 +278,7 @@ public class ExampleTree implements Serializable
                     continue;
                 }
                 String propertyName = names[i];
-                if (alreadyWalked(walkedProperties, propertyName))
+                if (ExampleTreeUtils.alreadyWalked(walkedProperties, propertyName))
                 {
                     continue;
                 }
@@ -289,7 +286,7 @@ public class ExampleTree implements Serializable
                 Object propertyValue = classMetadata.getPropertyValue(entity, propertyName, entityMode);
                 if (propertyType.isCollectionType())
                 {
-                    propertyValue = getValueFromCollection(propertyValue);
+                    propertyValue = ExampleTreeUtils.getValueFromCollection(propertyValue);
                 }
                 if (propertyValue == null)
                 {
@@ -298,7 +295,7 @@ public class ExampleTree implements Serializable
                 }
 
                 Criteria subCrit = crit.createCriteria(propertyName);
-                String[] subProperties = append(walkedProperties, propertyName);
+                String[] subProperties = ExampleTreeUtils.append(walkedProperties, propertyName);
                 createSubExamples(subCrit, propertyValue, subProperties);
             }
         }
@@ -320,11 +317,6 @@ public class ExampleTree implements Serializable
                     crit.add(Restrictions.idEq(idValue));
                 }
             }
-        }
-
-        private String getAssociationPath(String[] walkedProperties)
-        {
-            return walkedProperties.length > 0 ? StringUtils.join(walkedProperties, '.') : StringUtils.EMPTY;
         }
 
         private Example example(Object entity, String associationPath)
@@ -364,128 +356,13 @@ public class ExampleTree implements Serializable
             return result;
         }
 
-        /**
-         * check the property with the input name was already walked in the input path
-         * @param path the current path
-         * @param propertyName the property name about to be walked
-         * @return true if the property with the input name was already walked in the input path
-         */
-        private boolean alreadyWalked(String[] walkedProperties, String propertyName)
-        {
-            if (walkedProperties.length <= 2)
-            {
-                return false;
-            }
-            String parent = walkedProperties[walkedProperties.length - 1];
-            boolean lastWasChild = false;
-            for (int i = walkedProperties.length - 2; i > 0; i--)
-            {
-                String currPropertyName = walkedProperties[i];
-                if (currPropertyName.equals(propertyName))
-                {
-                    lastWasChild = true;
-                    continue;
-                }
-                if (lastWasChild)
-                {
-                    if (currPropertyName.equals(parent))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        lastWasChild = false;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-879
-        private Object getValueFromCollection(Object collectionValue)
-        {
-            if (collectionValue != null)
-            {
-                if (collectionValue instanceof Collection< ? >)
-                {
-                    Collection< ? > coll = (Collection< ? >) collectionValue;
-                    int size = coll.size();
-                    if (size == 1)
-                    {
-                        return coll.iterator().next();
-                    }
-                    if (size > 1)
-                    {
-                        throw new IllegalArgumentException("More than one element in filter collection is unsupported.");
-                    }
-                }
-                Class< ? extends Object> clazz = collectionValue.getClass();
-                if (clazz.isArray())
-                {
-                    int length = Array.getLength(collectionValue);
-                    if (length == 1)
-                    {
-                        return Array.get(collectionValue, 0);
-                    }
-                    if (length > 1)
-                    {
-                        throw new IllegalArgumentException("More than one element in filter array is unsupported.");
-                    }
-                }
-                // TODO other cases?
-            }
-            return null;
-        }
-
-        private String[] append(String[] propertyNames, String propertyName)
-        {
-            String[] result = Arrays.copyOf(propertyNames, propertyNames.length + 1);
-            result[propertyNames.length] = propertyName;
-            return result;
-        }
     }
-
-}
-
-
-/**
- * support for BSHD-15
- * @author gcatania
- * @version $Id$
- */
-class ExcludeBackrefPropertySelector implements PropertySelector
-{
-
-    private static final long serialVersionUID = -2803322309158823550L;
-
-    private final PropertySelector selector;
-
-    public ExcludeBackrefPropertySelector(PropertySelector selector)
-    {
-        this.selector = selector;
-    }
-
-    public ExcludeBackrefPropertySelector()
-    {
-        selector = ExampleTreePropertySelectorSupport.NOT_NULL;
-    }
-
-    public boolean include(Object propertyValue, String propertyName, Type type)
-    {
-        if (BackrefPropertyAccessor.UNKNOWN.equals(propertyValue))
-        {
-            return false;
-        }
-        return selector.include(propertyValue, propertyName, type);
-    }
-
 }
 
 
 /**
  * workaround to {@link Example} not exposing internal property selectors
  * @author gcatania
- * @version $Id$
  */
 @SuppressWarnings({"serial", "static-method"})
 class ExampleTreePropertySelectorSupport

@@ -25,15 +25,13 @@
 
 package it.openutils.hibernate.example;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
+import it.openutils.hibernate.selectors.ExcludeBackrefPropertySelector;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
@@ -117,7 +115,7 @@ public class FilterMetadataSupport
 
         private void createSubExamples(Criteria crit, Object entity, String[] walkedProperties)
         {
-            String path = getPath(walkedProperties);
+            String path = ExampleTreeUtils.getPath(walkedProperties);
             Map<String, FilterMetadata> currFilterMetadata = getFilterMetadata(path);
             crit.add(example(entity, currFilterMetadata.keySet()));
             ClassMetadata classMetadata = sessionFactory.getClassMetadata(Hibernate.getClass(entity));
@@ -126,7 +124,7 @@ public class FilterMetadataSupport
             for (int i = 0; i < types.length; i++)
             {
                 String propertyName = names[i];
-                if (alreadyWalked(walkedProperties, propertyName))
+                if (ExampleTreeUtils.alreadyWalked(walkedProperties, propertyName))
                 {
                     continue;
                 }
@@ -147,7 +145,7 @@ public class FilterMetadataSupport
 
                 if (propertyType.isCollectionType())
                 {
-                    propertyValue = getValueFromCollection(propertyValue);
+                    propertyValue = ExampleTreeUtils.getValueFromCollection(propertyValue);
                 }
                 if (propertyValue == null)
                 {
@@ -156,7 +154,7 @@ public class FilterMetadataSupport
                 }
 
                 Criteria subCrit = crit.createCriteria(propertyName);
-                String[] subProperties = append(walkedProperties, propertyName);
+                String[] subProperties = ExampleTreeUtils.append(walkedProperties, propertyName);
                 createSubExamples(subCrit, propertyValue, subProperties);
             }
         }
@@ -185,15 +183,10 @@ public class FilterMetadataSupport
             return result;
         }
 
-        private String getPath(String[] walkedProperties)
-        {
-            return walkedProperties.length > 0 ? StringUtils.join(walkedProperties, '.') : StringUtils.EMPTY;
-        }
-
         private Example example(Object entity, Set<String> propertiesToExclude)
         {
             Example ex = Example.create(entity);
-            ex.setPropertySelector(new ExcludeBackrefPropertySelector()); // BSHD-15
+            ex.setPropertySelector(new ExcludeBackrefPropertySelector(ExampleTreePropertySelectorSupport.NOT_NULL)); // BSHD-15
             for (String propertyName : propertiesToExclude)
             {
                 // skip properties handled by filterMetadata
@@ -202,84 +195,6 @@ public class FilterMetadataSupport
             return ex;
         }
 
-        /**
-         * check the property with the input name was already walked in the input path
-         * @param path the current path
-         * @param propertyName the property name about to be walked
-         * @return true if the property with the input name was already walked in the input path
-         */
-        private boolean alreadyWalked(String[] walkedProperties, String propertyName)
-        {
-            if (walkedProperties.length <= 2)
-            {
-                return false;
-            }
-            String parent = walkedProperties[walkedProperties.length - 1];
-            boolean lastWasChild = false;
-            for (int i = walkedProperties.length - 2; i > 0; i--)
-            {
-                String currPropertyName = walkedProperties[i];
-                if (currPropertyName.equals(propertyName))
-                {
-                    lastWasChild = true;
-                    continue;
-                }
-                if (lastWasChild)
-                {
-                    if (currPropertyName.equals(parent))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        lastWasChild = false;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private Object getValueFromCollection(Object collectionValue)
-        {
-            if (collectionValue != null)
-            {
-                if (collectionValue instanceof Collection< ? >)
-                {
-                    Collection< ? > coll = (Collection< ? >) collectionValue;
-                    int size = coll.size();
-                    if (size == 1)
-                    {
-                        return coll.iterator().next();
-                    }
-                    if (size > 1)
-                    {
-                        throw new IllegalArgumentException("More than one element in filter collection is unsupported.");
-                    }
-                }
-                Class< ? extends Object> clazz = collectionValue.getClass();
-                if (clazz.isArray())
-                {
-                    int length = Array.getLength(collectionValue);
-                    if (length == 1)
-                    {
-                        return Array.get(collectionValue, 0);
-                    }
-                    if (length > 1)
-                    {
-                        throw new IllegalArgumentException("More than one element in filter array is unsupported.");
-                    }
-                }
-                // TODO other cases?
-            }
-            return null;
-        }
-
-        private String[] append(String[] propertyNames, String propertyName)
-        {
-            String[] result = Arrays.copyOf(propertyNames, propertyNames.length + 1);
-            result[propertyNames.length] = propertyName;
-            return result;
-        }
     }
 
 }
