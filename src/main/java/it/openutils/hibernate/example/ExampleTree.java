@@ -45,8 +45,6 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Example.PropertySelector;
 import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.engine.SessionImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.Type;
 
@@ -265,7 +263,7 @@ public class ExampleTree implements Serializable
             }
             ClassMetadata classMetadata = sessionFactory.getClassMetadata(Hibernate.getClass(entity));
 
-            addIdentifierRestriction(crit, entity, classMetadata); // BSHD-11
+            ExampleTreeUtils.addIdentifierRestriction(crit, entity, classMetadata, sessionFactory.getCurrentSession()); // BSHD-11
 
             Type[] types = classMetadata.getPropertyTypes();
             String[] names = classMetadata.getPropertyNames();
@@ -297,25 +295,6 @@ public class ExampleTree implements Serializable
                 Criteria subCrit = crit.createCriteria(propertyName);
                 String[] subProperties = ExampleTreeUtils.append(walkedProperties, propertyName);
                 createSubExamples(subCrit, propertyValue, subProperties);
-            }
-        }
-
-        /*
-         * BSHD-11
-         */
-        private void addIdentifierRestriction(Criteria crit, Object entity, ClassMetadata classMetadata)
-        {
-            String identifierName = classMetadata.getIdentifierPropertyName();
-            if (identifierName != null)
-            {
-                // TODO is this cast really necessary? Will it fail in future hibernate versions?
-                SessionImplementor si = (SessionImplementor) sessionFactory.getCurrentSession();
-
-                Object idValue = classMetadata.getIdentifier(entity, si);
-                if (idValue != null) // TODO should we use property selectors instead?
-                {
-                    crit.add(Restrictions.idEq(idValue));
-                }
             }
         }
 

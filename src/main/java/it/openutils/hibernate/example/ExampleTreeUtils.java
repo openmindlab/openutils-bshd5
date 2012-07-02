@@ -30,6 +30,11 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.metadata.ClassMetadata;
 
 
 /**
@@ -142,6 +147,30 @@ final class ExampleTreeUtils
     public static String getPath(String[] propertyNames)
     {
         return propertyNames.length > 0 ? StringUtils.join(propertyNames, '.') : StringUtils.EMPTY;
+    }
+
+    /**
+     * adds the identifier restriction to the input criteria, if required
+     * @param crit the criteria
+     * @param entity the entity to use as example
+     * @param classMetadata the class metadata to use
+     * @param ses the current session
+     * @see BSHD-11
+     */
+    public static void addIdentifierRestriction(Criteria crit, Object entity, ClassMetadata classMetadata, Session ses)
+    {
+        String identifierName = classMetadata.getIdentifierPropertyName();
+        if (identifierName != null)
+        {
+            // TODO is this cast really necessary? Will it fail in future hibernate versions?
+            SessionImplementor si = (SessionImplementor) ses;
+
+            Object idValue = classMetadata.getIdentifier(entity, si);
+            if (idValue != null) // TODO should we use property selectors instead?
+            {
+                crit.add(Restrictions.idEq(idValue));
+            }
+        }
     }
 
 }
