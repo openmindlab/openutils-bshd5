@@ -190,7 +190,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> findFiltered(T filter)
     {
-        return getThis().findFiltered(new ExampleTree(filter), Integer.MAX_VALUE, 0, getDefaultOrder());
+        return getThis().findFiltered(defaultExample(filter), Integer.MAX_VALUE, 0, getDefaultOrder());
     }
 
     /**
@@ -206,7 +206,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> findFiltered(T filter, Order... orders)
     {
-        return getThis().findFiltered(new ExampleTree(filter), Integer.MAX_VALUE, 0, orders);
+        return getThis().findFiltered(defaultExample(filter), Integer.MAX_VALUE, 0, orders);
     }
 
     /**
@@ -222,7 +222,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> findFiltered(T filter, int maxResults, int page)
     {
-        return getThis().findFiltered(new ExampleTree(filter), maxResults, page, getDefaultOrder());
+        return getThis().findFiltered(defaultExample(filter), maxResults, page, getDefaultOrder());
     }
 
     /**
@@ -302,7 +302,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public T findFilteredFirst(T filter, List< ? extends Criterion> criteria)
     {
-        ExampleTree exampleTree = new ExampleTree(filter);
+        ExampleTree exampleTree = defaultExample(filter);
         appendToRoot(exampleTree, criteria);
         return getFirstInCollection(getThis().findFiltered(exampleTree, Integer.MAX_VALUE, 0, getDefaultOrder()));
     }
@@ -434,7 +434,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     public List<Object> findFilteredProperties(T filter, int maxResults, int page, List<String> properties,
         Order... orders)
     {
-        return getThis().findFilteredProperties(new ExampleTree(filter), maxResults, page, properties, orders);
+        return getThis().findFilteredProperties(defaultExample(filter), maxResults, page, properties, orders);
     }
 
     /**
@@ -486,7 +486,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         HibernateCallback<List<T>> callback;
         if (MapUtils.isEmpty(metadata) && CollectionUtils.isEmpty(criteria))
         {
-            callback = new ExampleTreeCallback<T>(new ExampleTree(filter), maxResults, page, orders);
+            callback = new ExampleTreeCallback<T>(defaultExample(filter), maxResults, page, orders);
         }
         else
         {
@@ -518,7 +518,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         HibernateCallback<List<Object>> callback;
         if (MapUtils.isEmpty(metadata) && CollectionUtils.isEmpty(criteria))
         {
-            callback = new ExampleTreePropertiesCallback(new ExampleTree(filter), maxResults, page, properties, orders);
+            callback = new ExampleTreePropertiesCallback(defaultExample(filter), maxResults, page, properties, orders);
         }
         else
         {
@@ -674,11 +674,22 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     }
 
     /**
+     * Returns the default example tree that will be applied to a filtered search by entity. The default implementation
+     * just returns an {@link ExampleTree}, subclasses may override.
+     * @param entity the example (filter) entity
+     * @return an example for the entity
+     */
+    protected ExampleTree defaultExample(T entity)
+    {
+        return new ExampleTree(entity);
+    }
+
+    /**
      * Returns the default set of FilterMetadata that will be applied to any query. The default implementation doesn't
      * set any default filter, subclasses may override this.
      * @return map of property name - filter metadata
-     * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
-     * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)}
+     * @deprecated this method uses the deprecated class {@link FilterMetadata}, use {@link #defaultExample(Object)}
+     * instead
      */
     @Deprecated
     protected Map<String, ? extends FilterMetadata> getDefaultFilterMetadata()
