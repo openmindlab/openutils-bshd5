@@ -29,6 +29,12 @@
     <url>http://openutils.svn.sourceforge.net/viewcvs.cgi/openutils/trunk/openutils-bshd5</url>
   </scm>
   <build>
+    <testResources>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -142,12 +148,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.2.6</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
       <version>${hibernate.version}</version>
@@ -174,4 +174,61 @@
     <javassist.version>3.16.1-GA</javassist.version>
     <spring.version>3.0.0.RELEASE</spring.version>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>test-hsql</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <hibernate.driver>org.hsqldb.jdbcDriver</hibernate.driver>
+        <hibernate.url>jdbc:hsqldb:mem:daotest</hibernate.url>
+        <hibernate.user>sa</hibernate.user>
+        <hibernate.password></hibernate.password>
+        <hibernate.dialect>org.hibernate.dialect.HSQLDialect</hibernate.dialect>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <version>2.2.8</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>test-derby</id>
+      <properties>
+        <hibernate.driver>org.apache.derby.jdbc.EmbeddedDriver</hibernate.driver>
+        <hibernate.url>jdbc:derby:memory:daotest;create=true</hibernate.url>
+        <hibernate.user>sa</hibernate.user>
+        <hibernate.password></hibernate.password>
+        <hibernate.dialect>org.hibernate.dialect.DerbyDialect</hibernate.dialect>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemProperties>
+                <property>
+                  <name>derby.stream.error.file</name>
+                  <value>${project.build.directory}/derby.log</value>
+                </property>
+              </systemProperties>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.derby</groupId>
+          <artifactId>derby</artifactId>
+          <version>10.9.1.0</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
