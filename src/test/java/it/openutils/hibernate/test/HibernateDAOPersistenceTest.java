@@ -128,7 +128,7 @@ public class HibernateDAOPersistenceTest extends AbstractTransactionalTestNGSpri
         Assert.assertEquals(rd.getEmployer(), toyota);
         Assert.assertEquals(prius.getMake(), toyota);
         Assert.assertEquals(rd.getHipsterFactor(), 97);
-        Assert.assertEquals(rd.getDesignedModels().iterator().next().getYear(), Integer.valueOf(2008));
+        Assert.assertEquals(rd.getDesignedModels().iterator().next().getLaunchYear(), Integer.valueOf(2008));
     }
 
     @Test

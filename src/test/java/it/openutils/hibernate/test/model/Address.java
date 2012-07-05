@@ -47,7 +47,7 @@ public class Address implements Cloneable
     private String street;
 
     @Column(nullable = false, scale = 4)
-    private Integer no;
+    private Integer streetNumber;
 
     @Column(nullable = false, length = 50)
     private String city;
@@ -62,10 +62,10 @@ public class Address implements Cloneable
     {
     }
 
-    public Address(String street, Integer no, String city, String county, Integer zipCode)
+    public Address(String street, Integer streetNumber, String city, String county, Integer zipCode)
     {
         this.street = street;
-        this.no = no;
+        this.streetNumber = streetNumber;
         this.city = city;
         this.county = county;
         this.zipCode = zipCode;
@@ -104,19 +104,19 @@ public class Address implements Cloneable
     }
 
     /**
-     * @return the no
+     * @return the streetNumber
      */
-    public Integer getNo()
+    public Integer getStreetNumber()
     {
-        return no;
+        return streetNumber;
     }
 
     /**
-     * @param no the no to set
+     * @param streetNumber the no to set
      */
-    public void setNo(Integer no)
+    public void setStreetNumber(Integer streetNumber)
     {
-        this.no = no;
+        this.streetNumber = streetNumber;
     }
 
     /**
@@ -178,7 +178,7 @@ public class Address implements Cloneable
         result = prime * result + ((city == null) ? 0 : city.hashCode());
         result = prime * result + ((county == null) ? 0 : county.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((no == null) ? 0 : no.hashCode());
+        result = prime * result + ((streetNumber == null) ? 0 : streetNumber.hashCode());
         result = prime * result + ((street == null) ? 0 : street.hashCode());
         result = prime * result + ((zipCode == null) ? 0 : zipCode.hashCode());
         return result;
@@ -236,14 +236,14 @@ public class Address implements Cloneable
         {
             return false;
         }
-        if (no == null)
+        if (streetNumber == null)
         {
-            if (other.no != null)
+            if (other.streetNumber != null)
             {
                 return false;
             }
         }
-        else if (!no.equals(other.no))
+        else if (!streetNumber.equals(other.streetNumber))
         {
             return false;
         }
@@ -284,8 +284,8 @@ public class Address implements Cloneable
             + county
             + ", id="
             + id
-            + ", no="
-            + no
+            + ", streetNumber="
+            + streetNumber
             + ", street="
             + street
             + ", zipCode="

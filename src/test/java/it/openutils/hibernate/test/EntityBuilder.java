@@ -115,7 +115,7 @@ public final class EntityBuilder
         CarModel prius = new CarModel();
         prius.setName("Prius");
         prius.setMake(toyota);
-        prius.setYear(Integer.valueOf(2008));
+        prius.setLaunchYear(Integer.valueOf(2008));
 
         List<CarModel> toyotaModels = toyota.getModels();
         if (toyotaModels == null)

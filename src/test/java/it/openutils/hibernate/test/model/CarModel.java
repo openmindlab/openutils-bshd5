@@ -52,7 +52,7 @@ public class CarModel implements Cloneable
     private String name;
 
     @Column
-    private Integer year;
+    private Integer launchYear;
 
     /**
      * @return the id
@@ -103,19 +103,19 @@ public class CarModel implements Cloneable
     }
 
     /**
-     * @return the year
+     * @return the launchYear
      */
-    public Integer getYear()
+    public Integer getLaunchYear()
     {
-        return year;
+        return launchYear;
     }
 
     /**
-     * @param year the year to set
+     * @param launchYear the launchYear to set
      */
-    public void setYear(Integer year)
+    public void setLaunchYear(Integer launchYear)
     {
-        this.year = year;
+        this.launchYear = launchYear;
     }
 
     /**
@@ -129,7 +129,7 @@ public class CarModel implements Cloneable
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((make == null) ? 0 : make.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((year == null) ? 0 : year.hashCode());
+        result = prime * result + ((launchYear == null) ? 0 : launchYear.hashCode());
         return result;
     }
 
@@ -185,14 +185,14 @@ public class CarModel implements Cloneable
         {
             return false;
         }
-        if (year == null)
+        if (launchYear == null)
         {
-            if (other.year != null)
+            if (other.launchYear != null)
             {
                 return false;
             }
         }
-        else if (!year.equals(other.year))
+        else if (!launchYear.equals(other.launchYear))
         {
             return false;
         }
@@ -211,8 +211,8 @@ public class CarModel implements Cloneable
             .append(id)
             .append(", name=")
             .append(name)
-            .append(", year=")
-            .append(year)
+            .append(", launchYear=")
+            .append(launchYear)
             .append("]");
         return builder.toString();
     }
