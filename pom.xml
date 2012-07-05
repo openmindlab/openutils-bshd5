@@ -53,7 +53,14 @@
           </descriptors>
         </configuration>
       </plugin>
-      <plugin>
+         <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- BSHD-16 without manifest only jar, hibernate has classpath issues -->
+          <useManifestOnlyJar>true</useManifestOnlyJar>
+        </configuration>
+      </plugin>
+   <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <version>2.3.7</version>
@@ -147,6 +154,7 @@
       <version>6.5.2</version>
       <scope>test</scope>
     </dependency>
+<!--
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
@@ -167,10 +175,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+-->
   </dependencies>
   <properties>
     <slf4j.version>1.6.6</slf4j.version>
-    <hibernate.version>3.5.6-Final</hibernate.version>
+    <hibernate.version>4.1.1.Final</hibernate.version>
     <javassist.version>3.16.1-GA</javassist.version>
     <spring.version>3.1.1.RELEASE</spring.version>
   </properties>
@@ -204,7 +213,7 @@
         <hibernate.url>jdbc:derby:memory:daotest;create=true</hibernate.url>
         <hibernate.user>sa</hibernate.user>
         <hibernate.password></hibernate.password>
-        <hibernate.dialect>org.hibernate.dialect.DerbyDialect</hibernate.dialect>
+        <hibernate.dialect>org.hibernate.dialect.DerbyTenSevenDialect</hibernate.dialect>
       </properties>
       <build>
         <plugins>

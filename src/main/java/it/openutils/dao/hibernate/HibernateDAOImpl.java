@@ -30,7 +30,6 @@ import it.openutils.hibernate.example.FilterMetadata;
 import it.openutils.hibernate.example.FilterMetadataSupport;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,9 +41,9 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
@@ -52,9 +51,9 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
 /**
@@ -64,10 +63,12 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @param <T> Persistence class
  * @param <K> Object Key
  */
-public abstract class HibernateDAOImpl<T, K extends Serializable> extends HibernateDaoSupport
-    implements
-    HibernateDAO<T, K>
+public abstract class HibernateDAOImpl<T, K extends Serializable> implements HibernateDAO<T, K>
 {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private SessionFactory sessionFactory;
 
     private Class<T> referenceClass;
 
@@ -106,6 +107,20 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         this.referenceClass = referenceClass;
     }
 
+    private Session getCurrentSession()
+    {
+        return sessionFactory.getCurrentSession();
+    }
+
+    /**
+     * creates a criteria for this dao's reference class, associated to the current session
+     * @return a new criteria for the reference class
+     */
+    private Criteria createCriteria()
+    {
+        return getCurrentSession().createCriteria(getReferenceClass());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -128,29 +143,22 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> find(final List< ? extends Criterion> criteria, final Order... orders)
     {
-        return getHibernateTemplate().execute(new HibernateCallback<List<T>>()
+        Criteria crit = createCriteria();
+        if (criteria != null)
         {
-
-            public List<T> doInHibernate(final Session ses) throws HibernateException
+            for (Criterion c : criteria)
             {
-                Criteria crit = ses.createCriteria(getReferenceClass());
-                if (criteria != null)
-                {
-                    for (Criterion c : criteria)
-                    {
-                        crit.add(c);
-                    }
-                }
-                if (orders != null)
-                {
-                    for (Order o : orders)
-                    {
-                        crit.addOrder(o);
-                    }
-                }
-                return crit.list();
+                crit.add(c);
             }
-        });
+        }
+        if (orders != null)
+        {
+            for (Order o : orders)
+            {
+                crit.addOrder(o);
+            }
+        }
+        return crit.list();
     }
 
     /**
@@ -158,7 +166,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> find(String query)
     {
-        return getHibernateTemplate().find(query);
+        return getCurrentSession().createQuery(query).list();
     }
 
     /**
@@ -174,15 +182,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> find(final String query, final Object[] paramValues, final Type[] paramTypes)
     {
-        return getHibernateTemplate().execute(new HibernateCallback<List<T>>()
-        {
-
-            public List<T> doInHibernate(final Session ses) throws HibernateException
-            {
-                // hibernate 3
-                return ses.createQuery(query).setParameters(paramValues, paramTypes).list();
-            }
-        });
+        return getCurrentSession().createQuery(query).setParameters(paramValues, paramTypes).list();
     }
 
     /**
@@ -312,23 +312,18 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public T load(K key)
     {
-        T result = getHibernateTemplate().load(getReferenceClass(), key);
+        T result = (T) sessionFactory.getCurrentSession().load(getReferenceClass(), key);
         Hibernate.initialize(result);
         return result;
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated same as {@link #get(Serializable)};
      */
+    @Deprecated
     public T loadIfAvailable(K key)
     {
-        T result = getHibernateTemplate().get(getReferenceClass(), key);
-        if (result != null)
-        {
-            Hibernate.initialize(result);
-            return result;
-        }
-        return null;
+        return get(key);
     }
 
     /**
@@ -336,7 +331,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public T get(K key)
     {
-        return getHibernateTemplate().get(getReferenceClass(), key);
+        return (T) sessionFactory.getCurrentSession().get(getReferenceClass(), key);
     }
 
     /**
@@ -344,7 +339,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public K save(T obj)
     {
-        return (K) getHibernateTemplate().save(obj);
+        return (K) sessionFactory.getCurrentSession().save(obj);
     }
 
     /**
@@ -352,7 +347,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public void update(T obj)
     {
-        getHibernateTemplate().update(obj);
+        sessionFactory.getCurrentSession().update(obj);
     }
 
     /**
@@ -360,7 +355,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public void saveOrUpdate(T obj)
     {
-        getHibernateTemplate().saveOrUpdate(obj);
+        sessionFactory.getCurrentSession().saveOrUpdate(obj);
     }
 
     /**
@@ -368,15 +363,10 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public boolean delete(final K key)
     {
-        return getHibernateTemplate().execute(new HibernateCallback<Boolean>()
-        {
-
-            public Boolean doInHibernate(final Session ses) throws HibernateException
-            {
-                ses.delete(ses.load(getReferenceClass(), key));
-                return true;
-            }
-        });
+        Session s = getCurrentSession();
+        Object toDelete = s.load(getReferenceClass(), key);
+        s.delete(toDelete);
+        return true;
     }
 
     /**
@@ -384,7 +374,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public void refresh(T obj)
     {
-        getHibernateTemplate().refresh(obj);
+        getCurrentSession().refresh(obj);
     }
 
     /**
@@ -392,7 +382,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public void evict(T obj)
     {
-        getHibernateTemplate().evict(obj);
+        getCurrentSession().evict(obj);
     }
 
     /**
@@ -400,15 +390,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public T merge(final T obj)
     {
-        return getHibernateTemplate().execute(new HibernateCallback<T>()
-        {
-
-            public T doInHibernate(final Session ses) throws HibernateException
-            {
-                return (T) ses.merge(obj);
-            }
-        });
-
+        return (T) getCurrentSession().merge(obj);
     }
 
     /**
@@ -425,7 +407,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     public List<T> findFiltered(ExampleTree exampleTree, int maxResults, int page, Order... orders)
     {
-        return getHibernateTemplate().execute(new ExampleTreeCallback<T>(exampleTree, maxResults, page, orders));
+        return new ExampleTreeCallback<T>(exampleTree, maxResults, page, orders).doInHibernate(getCurrentSession());
     }
 
     /**
@@ -443,8 +425,8 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     public List<Object> findFilteredProperties(ExampleTree exampleTree, int maxResults, int page,
         List<String> properties, Order... orders)
     {
-        return getHibernateTemplate().execute(
-            new ExampleTreePropertiesCallback(exampleTree, maxResults, page, properties, orders));
+        return new ExampleTreePropertiesCallback(exampleTree, maxResults, page, properties, orders)
+            .doInHibernate(getCurrentSession());
     }
 
     /**
@@ -483,7 +465,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
         List< ? extends Criterion> criteria, Order... orders)
     {
-        HibernateCallback<List<T>> callback;
+        BaseCallback<T> callback;
         if (MapUtils.isEmpty(metadata) && CollectionUtils.isEmpty(criteria))
         {
             callback = new ExampleTreeCallback<T>(defaultExample(filter), maxResults, page, orders);
@@ -492,7 +474,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         {
             callback = new LegacySupportCallback<T>(filter, maxResults, page, metadata, criteria, orders);
         }
-        return getHibernateTemplate().execute(callback);
+        return callback.doInHibernate(getCurrentSession());
     }
 
     /**
@@ -515,7 +497,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         Map<String, ? extends FilterMetadata> metadata, int maxResults, int page, List< ? extends Criterion> criteria,
         List<String> properties)
     {
-        HibernateCallback<List<Object>> callback;
+        BaseCallback<Object> callback;
         if (MapUtils.isEmpty(metadata) && CollectionUtils.isEmpty(criteria))
         {
             callback = new ExampleTreePropertiesCallback(defaultExample(filter), maxResults, page, properties, orders);
@@ -531,7 +513,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
                 properties,
                 orders);
         }
-        return getHibernateTemplate().execute(callback);
+        return callback.doInHibernate(getCurrentSession());
     }
 
     /**
@@ -575,26 +557,19 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     protected List<Object> findByNamedQuery(final String name, final Serializable[] params, final Integer maxResults)
     {
-        return getHibernateTemplate().execute(new HibernateCallback<List<Object>>()
+        Query q = getCurrentSession().getNamedQuery(name);
+        if (maxResults != null)
         {
-
-            public List<Object> doInHibernate(final Session ses) throws HibernateException
+            q.setMaxResults(maxResults);
+        }
+        if (params != null)
+        {
+            for (int i = 0; i < params.length; i++)
             {
-                Query q = ses.getNamedQuery(name);
-                if (maxResults != null)
-                {
-                    q.setMaxResults(maxResults);
-                }
-                if (params != null)
-                {
-                    for (int i = 0; i < params.length; i++)
-                    {
-                        q.setParameter(i, params[i]);
-                    }
-                }
-                return q.list();
+                q.setParameter(i, params[i]);
             }
-        });
+        }
+        return q.list();
     }
 
     /**
@@ -606,27 +581,20 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
      */
     protected List<Object> findByNamedQuery(final String name, final Map<String, ? > params, final Integer maxResults)
     {
-        return getHibernateTemplate().execute(new HibernateCallback<List<Object>>()
+        Query q = getCurrentSession().getNamedQuery(name);
+        if (maxResults != null)
         {
+            q.setMaxResults(maxResults);
+        }
 
-            public List<Object> doInHibernate(final Session ses) throws HibernateException
+        if (params != null)
+        {
+            for (Map.Entry<String, ? > entry : params.entrySet())
             {
-                Query q = ses.getNamedQuery(name);
-                if (maxResults != null)
-                {
-                    q.setMaxResults(maxResults);
-                }
-
-                if (params != null)
-                {
-                    for (Map.Entry<String, ? > entry : params.entrySet())
-                    {
-                        setParameterValue(q, entry.getKey(), entry.getValue());
-                    }
-                }
-                return q.list();
+                setParameterValue(q, entry.getKey(), entry.getValue());
             }
-        });
+        }
+        return q.list();
     }
 
     /**
@@ -743,14 +711,30 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
         }
         catch (AspectException exc)
         {
-            logger.debug("Not running inside an AOP proxy, so no proxy can be returned: " + exc.getMessage());
+            logger.debug("Not running inside an AOP proxy, so no proxy can be returned: {}", exc.getMessage());
         }
         catch (IllegalStateException e)
         {
-            logger.warn("Cannot access proxy: " + e.getMessage());
+            logger.warn("Cannot access proxy: {}", e.getMessage());
             aopenabled = false;
         }
         return this;
+    }
+
+    /**
+     * @param sessionFactory the sessionFactory to set
+     */
+    public void setSessionFactory(SessionFactory sessionFactory)
+    {
+        this.sessionFactory = sessionFactory;
+    }
+
+    /**
+     * @return the sessionFactory
+     */
+    public SessionFactory getSessionFactory()
+    {
+        return sessionFactory;
     }
 
     /**
@@ -847,7 +831,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> extends Hibern
  * @author gcatania
  * @param R the result class
  */
-abstract class BaseCallback<R> implements HibernateCallback<List<R>>
+abstract class BaseCallback<R>
 {
 
     private final Order[] orders;
@@ -870,7 +854,7 @@ abstract class BaseCallback<R> implements HibernateCallback<List<R>>
      */
     protected abstract Criteria createCriteria(Session session);
 
-    public final List<R> doInHibernate(Session session) throws HibernateException, SQLException
+    public final List<R> doInHibernate(Session session)
     {
         Criteria crit = createCriteria(session);
         crit.setMaxResults(maxResults);

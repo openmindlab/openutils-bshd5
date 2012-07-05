@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
-import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -96,12 +95,9 @@ public class FilterMetadataSupport
 
         private final SessionFactory sessionFactory;
 
-        private final EntityMode entityMode;
-
         public ExampleTreeWalker(Session session)
         {
             sessionFactory = session.getSessionFactory();
-            entityMode = session.getEntityMode();
         }
 
         public Criteria walk(Criteria rootCriteria, Object rootEntity)
@@ -128,7 +124,7 @@ public class FilterMetadataSupport
                 {
                     continue;
                 }
-                Object propertyValue = classMetadata.getPropertyValue(entity, propertyName, entityMode);
+                Object propertyValue = classMetadata.getPropertyValue(entity, propertyName);
                 FilterMetadata fm = currFilterMetadata.get(propertyName);
                 if (fm != null && propertyValue != null)
                 {

@@ -318,7 +318,9 @@ public interface HibernateDAO<T, K extends Serializable>
      * Load object matching the given key and return it. Lazy object will be initialized.
      * @param key the id of the entity instance to load
      * @return the found entity instance, or null if none found
+     * @deprecated same as {@link #get(Serializable)}
      */
+    @Deprecated
     T loadIfAvailable(K key);
 
     /**

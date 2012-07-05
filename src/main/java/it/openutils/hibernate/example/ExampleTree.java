@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
-import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -239,12 +238,9 @@ public class ExampleTree implements Serializable
 
         private final SessionFactory sessionFactory;
 
-        private final EntityMode entityMode;
-
         public ExampleTreeWalker(Session session)
         {
             sessionFactory = session.getSessionFactory();
-            entityMode = session.getEntityMode();
         }
 
         public Criteria walk(Criteria rootCriteria)
@@ -281,7 +277,7 @@ public class ExampleTree implements Serializable
                     continue;
                 }
 
-                Object propertyValue = classMetadata.getPropertyValue(entity, propertyName, entityMode);
+                Object propertyValue = classMetadata.getPropertyValue(entity, propertyName);
                 if (propertyType.isCollectionType())
                 {
                     propertyValue = ExampleTreeUtils.getValueFromCollection(propertyValue);
