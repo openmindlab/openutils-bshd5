@@ -1,0 +1,17 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <mapping class="it.openutils.hibernate.test.model.Address" />
+    <mapping class="it.openutils.hibernate.test.model.Car" />
+    <mapping class="it.openutils.hibernate.test.model.CarMaker" />
+    <mapping class="it.openutils.hibernate.test.model.CarModel" />
+    <mapping class="it.openutils.hibernate.test.model.Designer" />
+    <mapping class="it.openutils.hibernate.test.model.Employee" />
+    <mapping class="it.openutils.hibernate.test.model.FullName" />
+    <mapping class="it.openutils.hibernate.test.model.Owner" />
+    <mapping class="it.openutils.hibernate.test.model.Person" />
+    <mapping class="it.openutils.hibernate.test.model.Sticker" />
+  </session-factory>
+</hibernate-configuration>
