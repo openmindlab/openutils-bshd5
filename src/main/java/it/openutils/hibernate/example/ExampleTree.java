@@ -257,10 +257,9 @@ public class ExampleTree implements Serializable
             {
                 crit.add(c);
             }
-            ClassMetadata classMetadata = sessionFactory.getClassMetadata(Hibernate.getClass(entity));
 
+            ClassMetadata classMetadata = ExampleTreeUtils.getClassMetadata(entity, sessionFactory);
             ExampleTreeUtils.addIdentifierRestriction(crit, entity, classMetadata, sessionFactory.getCurrentSession()); // BSHD-11
-
             Type[] types = classMetadata.getPropertyTypes();
             String[] names = classMetadata.getPropertyNames();
             for (int i = 0; i < types.length; i++)

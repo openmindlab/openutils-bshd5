@@ -31,7 +31,9 @@ import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.metadata.ClassMetadata;
@@ -106,7 +108,8 @@ final class ExampleTreeUtils
                 }
                 if (size > 1)
                 {
-                    throw new IllegalArgumentException("More than one element in filter collection is unsupported.");
+                    throw new IllegalArgumentException("More than one element in filter collection is unsupported.\n"
+                        + coll);
                 }
             }
             Class< ? extends Object> clazz = collectionValue.getClass();
@@ -125,6 +128,25 @@ final class ExampleTreeUtils
             // TODO other cases?
         }
         return null;
+    }
+
+    /**
+     * obtains the hibernate class metadata for the input entity
+     * @param entity the hibernate entity
+     * @param sessionFactory the session factory to retrieve metadata from
+     * @return the class metadata
+     * @throws IllegalStateException if no class metadata is configured for the input entity
+     */
+    public static ClassMetadata getClassMetadata(Object entity, SessionFactory sessionFactory)
+        throws IllegalStateException
+    {
+        Class< ? > cl = Hibernate.getClass(entity);
+        ClassMetadata classMetadata = sessionFactory.getClassMetadata(cl);
+        if (classMetadata == null)
+        {
+            throw new IllegalStateException("No hibernate class metadata found for: " + cl);
+        }
+        return classMetadata;
     }
 
     /**
