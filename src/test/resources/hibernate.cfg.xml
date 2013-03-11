@@ -13,5 +13,8 @@
     <mapping class="it.openutils.hibernate.test.model.Owner" />
     <mapping class="it.openutils.hibernate.test.model.Person" />
     <mapping class="it.openutils.hibernate.test.model.Sticker" />
+    
+    <mapping class="it.openutils.hibernate.test.model.Foo" />
+    <mapping class="it.openutils.hibernate.test.model.Bar" />
   </session-factory>
 </hibernate-configuration>
