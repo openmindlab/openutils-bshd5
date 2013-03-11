@@ -113,10 +113,7 @@ public class HibernateDAOLazyLoadTest extends AbstractTransactionalTestNGSpringC
         testFindLazy(1L, "foo1_2");
     }
 
-    /**
-     * FIXME enable this test and fix BSHD-19
-     */
-    @Test(enabled = false)
+    @Test
     public void testFindWithLazyParent2()
     {
         testFindLazy(1L, "fooX_X");
@@ -132,10 +129,7 @@ public class HibernateDAOLazyLoadTest extends AbstractTransactionalTestNGSpringC
         testDontFind(fooStr, bar1);
     }
 
-    /**
-     * FIXME enable this test and fix BSHD-19
-     */
-    @Test(enabled = false)
+    @Test
     public void testDontFindWithLazyParent()
     {
         long barId = 1L;
