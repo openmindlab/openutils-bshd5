@@ -108,12 +108,22 @@ public class FilterMetadataSupport
 
         private void createSubExamples(Criteria crit, Object entity, String[] walkedProperties)
         {
+            ClassMetadata classMetadata = ExampleTreeUtils.getClassMetadata(entity, sessionFactory);
+            boolean isIdSet = ExampleTreeUtils.addIdentifierRestriction(
+                crit,
+                entity,
+                classMetadata,
+                sessionFactory.getCurrentSession()); // BSHD-11
+            if (isIdSet)
+            {
+                // BSHD-20 if the identifier is set on a property, do not impose further conditions
+                return;
+            }
+
             String path = ExampleTreeUtils.getPath(walkedProperties);
             Map<String, FilterMetadata> currFilterMetadata = getFilterMetadata(path);
             crit.add(example(entity, currFilterMetadata.keySet()));
 
-            ClassMetadata classMetadata = ExampleTreeUtils.getClassMetadata(entity, sessionFactory);
-            ExampleTreeUtils.addIdentifierRestriction(crit, entity, classMetadata, sessionFactory.getCurrentSession()); // BSHD-11
             Type[] types = classMetadata.getPropertyTypes();
             String[] names = classMetadata.getPropertyNames();
             for (int i = 0; i < types.length; i++)

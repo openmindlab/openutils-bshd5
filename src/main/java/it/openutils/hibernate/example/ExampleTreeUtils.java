@@ -177,9 +177,11 @@ final class ExampleTreeUtils
      * @param entity the entity to use as example
      * @param classMetadata the class metadata to use
      * @param ses the current session
-     * @see BSHD-11
+     * @return true if the identifier restriction has been added, false otherwise
+     * @see BSHD-11, BSHD-20
      */
-    public static void addIdentifierRestriction(Criteria crit, Object entity, ClassMetadata classMetadata, Session ses)
+    public static boolean addIdentifierRestriction(Criteria crit, Object entity, ClassMetadata classMetadata,
+        Session ses)
     {
         String identifierName = classMetadata.getIdentifierPropertyName();
         if (identifierName != null)
@@ -191,8 +193,10 @@ final class ExampleTreeUtils
             if (idValue != null) // TODO should we use property selectors instead?
             {
                 crit.add(Restrictions.idEq(idValue));
+                return true;
             }
         }
+        return false;
     }
 
 }
