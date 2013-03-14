@@ -25,7 +25,7 @@
 
 package it.openutils.hibernate.test;
 
-import it.openutils.hibernate.test.dao.BarDAO;
+import it.openutils.hibernate.example.ExampleTree;
 import it.openutils.hibernate.test.dao.FooDAO;
 import it.openutils.hibernate.test.model.Bar;
 import it.openutils.hibernate.test.model.Foo;
@@ -45,14 +45,11 @@ import org.testng.annotations.Test;
  * @author gcatania
  */
 @ContextConfiguration(locations = "/spring-tests.xml")
-public class HibernateDAOLazyLoadTest extends AbstractTransactionalTestNGSpringContextTests
+public class HibernateDAOFindIdentifierTest extends AbstractTransactionalTestNGSpringContextTests
 {
 
     @Autowired
     private FooDAO fooDAO;
-
-    @Autowired
-    private BarDAO barDAO;
 
     @BeforeClass
     protected final void preloadData()
@@ -66,83 +63,80 @@ public class HibernateDAOLazyLoadTest extends AbstractTransactionalTestNGSpringC
         super.deleteFromTables("foo", "bar");
     }
 
-    private List<Foo> findFoo(String s, Bar bar)
+    private List<Foo> searchFoos(Long barId, String barStr, Long fooId, String fooStr)
     {
-        Foo filter = new Foo();
-        filter.setBar(bar);
-        filter.setS(s);
-        List<Foo> found = fooDAO.findFiltered(filter);
-        return found;
+        Bar barFilter = new Bar();
+        barFilter.setId(barId);
+        barFilter.setS(barStr);
+        Foo fooFilter = new Foo();
+        fooFilter.setId(fooId);
+        fooFilter.setBar(barFilter);
+        fooFilter.setS(fooStr);
+        return fooDAO.findFiltered(fooFilter);
     }
 
-    private void testFind(long barId, String fooStr, Bar bar)
+    private Foo findFoo(Long barId, String barStr, Long fooId, String fooStr)
     {
-        List<Foo> found = findFoo(fooStr, bar);
+        List<Foo> found = searchFoos(barId, barStr, fooId, fooStr);
         Assert.assertEquals(found.size(), 1);
-        Foo foo = found.get(0);
-        Assert.assertEquals(foo.getS(), fooStr);
-        Assert.assertEquals(foo.getBar().getId().longValue(), barId);
+        return found.get(0);
     }
 
-    private void testDontFind(String fooStr, Bar bar)
+    private void dontFindFoo(Long barId, String barStr, Long fooId, String fooStr)
     {
-        List<Foo> found = findFoo(fooStr, bar);
+        List<Foo> found = searchFoos(barId, barStr, fooId, fooStr);
         Assert.assertEquals(found.size(), 0);
     }
 
-    private void testFindEager(long barId, String fooStr)
+    @Test
+    public void testFindWithParentId()
     {
-        Bar bar = barDAO.get(barId);
-        testFind(barId, fooStr, bar);
-    }
-
-    private void testFindLazy(long barId, String fooStr)
-    {
-        Bar bar = barDAO.load(barId);
-        testFind(barId, fooStr, bar);
+        Foo foundFoo = findFoo(1L, null, null, "fooX_X");
+        Assert.assertEquals(foundFoo.getId().longValue(), 3L);
     }
 
     @Test
-    public void testFindWithEagerParent1()
+    public void testFindWithParentProperty()
     {
-        testFindEager(1L, "foo1_2");
+        Foo foundFoo = findFoo(null, "bar1", null, "fooX_X");
+        Assert.assertEquals(foundFoo.getId().longValue(), 3L);
     }
 
     @Test
-    public void testFindWithEagerParent2()
+    public void testDontFindWithParentId()
     {
-        testFindEager(1L, "fooX_X");
+        dontFindFoo(1L, null, null, "foo2_1");
     }
 
     @Test
-    public void testFindWithLazyParent1()
+    public void testDontFindWithParentProperty()
     {
-        testFindLazy(1L, "foo1_2");
+        dontFindFoo(null, "bar1", null, "foo2_1");
     }
 
     @Test
-    public void testFindWithLazyParent2()
+    public void testFindWithBothParentIdAndPropertyKeepingInMindTheMagicFlagIsDisabled()
     {
-        testFindLazy(1L, "fooX_X");
+        List<Foo> foundFoos = searchFoos(2L, "bar1", null, null);
+        Assert.assertEquals(foundFoos.size(), 3);
+        for (Foo foo : foundFoos)
+        {
+            Assert.assertEquals(foo.getBar().getId().longValue(), 2L);
+        }
     }
 
     @Test
-    public void testDontFindWithEagerParent()
+    public void testDontFindWithBothParentIdAndPropertyKeepingInMindTheMagicFlagIsEnabled()
     {
-        long barId = 1L;
-        String fooStr = "foo2_2";
-
-        Bar bar1 = barDAO.get(barId);
-        testDontFind(fooStr, bar1);
+        Bar barFilter = new Bar();
+        barFilter.setId(2L);
+        barFilter.setS("bar1");
+        Foo fooFilter = new Foo();
+        fooFilter.setBar(barFilter);
+        ExampleTree et = new ExampleTree(fooFilter);
+        et.enableJointPropertyAndIdentifierFiltering();
+        List<Foo> foundFoos = fooDAO.findFiltered(et);
+        Assert.assertEquals(foundFoos.size(), 0);
     }
 
-    @Test
-    public void testDontFindWithLazyParent()
-    {
-        long barId = 1L;
-        String fooStr = "foo2_2";
-
-        Bar bar1 = barDAO.load(barId);
-        testDontFind(fooStr, bar1);
-    }
 }

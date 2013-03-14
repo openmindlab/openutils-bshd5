@@ -38,6 +38,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
 
 
@@ -109,16 +110,7 @@ public class FilterMetadataSupport
         private void createSubExamples(Criteria crit, Object entity, String[] walkedProperties)
         {
             ClassMetadata classMetadata = ExampleTreeUtils.getClassMetadata(entity, sessionFactory);
-            boolean isIdSet = ExampleTreeUtils.addIdentifierRestriction(
-                crit,
-                entity,
-                classMetadata,
-                sessionFactory.getCurrentSession()); // BSHD-11
-            if (isIdSet)
-            {
-                // BSHD-20 if the identifier is set on a property, do not impose further conditions
-                return;
-            }
+            ExampleTreeUtils.addIdentifierRestriction(crit, entity, classMetadata, sessionFactory.getCurrentSession()); // BSHD-11
 
             String path = ExampleTreeUtils.getPath(walkedProperties);
             Map<String, FilterMetadata> currFilterMetadata = getFilterMetadata(path);
@@ -192,6 +184,14 @@ public class FilterMetadataSupport
 
         private Example example(Object entity, Set<String> propertiesToExclude)
         {
+            if (HibernateProxy.class.isInstance(entity))
+            {
+                // BSHD-19 javassist hibernate proxies do not seem to work with examples (property values are not
+                // returned)
+                HibernateProxy proxy = (HibernateProxy) entity;
+                entity = proxy.getHibernateLazyInitializer().getImplementation();
+            }
+
             Example ex = Example.create(entity);
             ex.setPropertySelector(new ExcludeBackrefPropertySelector(ExampleTreePropertySelectorSupport.NOT_NULL)); // BSHD-15
             for (String propertyName : propertiesToExclude)

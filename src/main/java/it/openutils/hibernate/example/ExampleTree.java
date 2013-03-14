@@ -45,6 +45,7 @@ import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Example.PropertySelector;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
 
 
@@ -66,6 +67,8 @@ public class ExampleTree implements Serializable
     private MatchMode matchMode;
 
     private boolean isIgnoreCaseEnabled;
+
+    private boolean jointPropertyAndIdentifierFiltering;
 
     private final Map<String, Set<String>> excludedProperties = new HashMap<String, Set<String>>();
 
@@ -182,6 +185,18 @@ public class ExampleTree implements Serializable
     }
 
     /**
+     * The default behaviour of this class ignores properties set on a filter entity with a non-null identifier.
+     * Invoking this method reverses the default behaviour by enabling property filtering regardless of identifier
+     * presence.
+     * @return this, for method concatenation
+     */
+    public ExampleTree enableJointPropertyAndIdentifierFiltering()
+    {
+        jointPropertyAndIdentifierFiltering = true;
+        return this;
+    }
+
+    /**
      * add an additional criterion for properties of the subentity at the given path
      * @param associationPath the association path with respect to the filter entity
      * @param criterion the criterion to add
@@ -257,9 +272,12 @@ public class ExampleTree implements Serializable
                 entity,
                 classMetadata,
                 sessionFactory.getCurrentSession()); // BSHD-11
-            if (isIdSet)
+            if (isIdSet && (HibernateProxy.class.isInstance(entity) || !jointPropertyAndIdentifierFiltering))
             {
-                // BSHD-20 if the identifier is set on a property, do not impose further conditions
+                // BSHD-20 only impose the identifier conditions in the following cases:
+                // 1) if the current entity is an hibernate proxy (because we assume the identifier restriction is
+                // enough and the entity is already aligned
+                // 2) if the corresponding flag has not been explicitly activated
                 return;
             }
 

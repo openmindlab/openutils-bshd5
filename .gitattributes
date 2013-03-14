@@ -15,6 +15,7 @@ src/site/apt/index.apt svneol=native#text/plain
 src/site/changes/changes.xml svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/EntityBuilder.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/HibernateDAOFilterMetadataTest.java svneol=native#text/plain
+src/test/java/it/openutils/hibernate/test/HibernateDAOFindIdentifierTest.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/HibernateDAOHierarchyTest.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/HibernateDAOLazyLoadTest.java svneol=native#text/plain
 src/test/java/it/openutils/hibernate/test/HibernateDAOPersistenceTest.java svneol=native#text/plain
