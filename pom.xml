@@ -9,7 +9,7 @@
   <artifactId>openutils-bshd5</artifactId>
   <packaging>bundle</packaging>
   <name>openutils base Spring-Hibernate DAO</name>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0</version>
   <description>Openutils base Spring-Hibernate DAO (for java 5 and more)</description>
   <licenses>
     <license>
@@ -24,9 +24,9 @@
   </issueManagement>
   <inceptionYear>2005</inceptionYear>
   <scm>
-    <connection>scm:svn:svn+ssh://svn.code.sf.net/p/openutils/code/trunk/openutils-bshd5</connection>
-    <developerConnection>scm:svn:svn+ssh://svn.code.sf.net/p/openutils/code/trunk/openutils-bshd5</developerConnection>
-    <url>http://sourceforge.net/p/openutils/code/HEAD/tree/trunk/openutils-bshd5</url>
+    <connection>scm:svn:svn+ssh://svn.code.sf.net/p/openutils/code/tags/openutils-bshd5-3.0.0</connection>
+    <developerConnection>scm:svn:svn+ssh://svn.code.sf.net/p/openutils/code/tags/openutils-bshd5-3.0.0</developerConnection>
+    <url>http://sourceforge.net/p/openutils/code/HEAD/tree/tags/openutils-bshd5-3.0.0</url>
   </scm>
   <build>
     <testResources>
@@ -190,7 +190,7 @@
         <hibernate.driver>org.hsqldb.jdbcDriver</hibernate.driver>
         <hibernate.url>jdbc:hsqldb:mem:daotest</hibernate.url>
         <hibernate.user>sa</hibernate.user>
-        <hibernate.password></hibernate.password>
+        <hibernate.password />
         <hibernate.dialect>org.hibernate.dialect.HSQLDialect</hibernate.dialect>
       </properties>
       <dependencies>
@@ -208,7 +208,7 @@
         <hibernate.driver>org.apache.derby.jdbc.EmbeddedDriver</hibernate.driver>
         <hibernate.url>jdbc:derby:memory:daotest;create=true</hibernate.url>
         <hibernate.user>sa</hibernate.user>
-        <hibernate.password></hibernate.password>
+        <hibernate.password />
         <hibernate.dialect>org.hibernate.dialect.DerbyTenSevenDialect</hibernate.dialect>
       </properties>
       <build>
