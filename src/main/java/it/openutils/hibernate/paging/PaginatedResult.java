@@ -2,7 +2,7 @@
  *
  * openutils base Spring-Hibernate DAO (http://www.openmindlab.com/lab/products/bshd5.html)
  *
- * Copyright(C) 2005-2012, Openmind S.r.l. http://www.openmindonline.it
+ * Copyright(C) 2005-2013, Openmind S.r.l. http://www.openmindonline.it
  *
  *
  * This library is free software; you can redistribute it and/or
@@ -22,7 +22,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package it.openutils.hibernate.paging;
 
 import java.io.Serializable;
