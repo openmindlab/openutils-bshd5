@@ -28,6 +28,7 @@
     <developerConnection>scm:svn:svn+ssh://svn.code.sf.net/p/openutils/code/trunk/openutils-bshd5</developerConnection>
     <url>http://sourceforge.net/p/openutils/code/HEAD/tree/trunk/openutils-bshd5</url>
   </scm>
+  
   <build>
     <testResources>
       <testResource>
