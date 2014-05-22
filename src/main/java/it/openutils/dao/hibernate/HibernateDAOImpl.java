@@ -727,7 +727,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     }
 
     /**
-     * @return This is needed as for http://opensource.atlassian.com/projects/spring/browse/SPR-2226
+     * @return This is needed as for https://jira.spring.io/browse/SPR-2226
      */
     private HibernateDAO<T, K> getThis()
     {
