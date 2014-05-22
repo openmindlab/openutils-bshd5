@@ -29,7 +29,6 @@ import it.openutils.hibernate.example.FilterMetadata;
 import it.openutils.hibernate.example.FilterMetadataSupport;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -269,7 +268,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      */
     public T findFilteredFirst(T filter)
     {
-        return getFirstInCollection(findFiltered(filter));
+        return findFilteredFirst(defaultExample(filter));
     }
 
     /**
@@ -277,7 +276,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      */
     public T findFilteredFirst(ExampleTree exampleTree)
     {
-        return getFirstInCollection(findFiltered(exampleTree));
+        return findFilteredFirst(exampleTree, new Order[0]);
     }
 
     /**
@@ -285,15 +284,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      */
     public T findFilteredFirst(T filter, final Order... orders)
     {
-        return getFirstInCollection(findFiltered(filter, orders));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public T findFilteredFirst(ExampleTree exampleTree, final Order... orders)
-    {
-        return getFirstInCollection(findFiltered(exampleTree, orders));
+        return findFilteredFirst(defaultExample(filter), orders);
     }
 
     /**
@@ -303,7 +294,22 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     {
         ExampleTree exampleTree = defaultExample(filter);
         appendToRoot(exampleTree, criteria);
-        return getFirstInCollection(getThis().findFiltered(exampleTree, Integer.MAX_VALUE, 0, getDefaultOrder()));
+        return findFilteredFirst(exampleTree, new Order[0]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public T findFilteredFirst(ExampleTree exampleTree, final Order... orders)
+    {
+        List<T> found = getThis().findFiltered(exampleTree, 1, 0, orders);
+        if (found.isEmpty())
+        {
+            return null;
+        }
+        T result = found.get(0);
+        Hibernate.initialize(result);
+        return result;
     }
 
     /**
@@ -662,22 +668,6 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     protected Map<String, ? extends FilterMetadata> getDefaultFilterMetadata()
     {
         return Collections.emptyMap();
-    }
-
-    /**
-     * Returns the first object in the collection or null if the collection is null or empty.
-     * @param list collection
-     * @return first element in the list
-     */
-    private T getFirstInCollection(Collection< ? extends T> list)
-    {
-        if (list != null && !list.isEmpty())
-        {
-            T result = list.iterator().next();
-            Hibernate.initialize(result);
-            return result;
-        }
-        return null;
     }
 
     /**
