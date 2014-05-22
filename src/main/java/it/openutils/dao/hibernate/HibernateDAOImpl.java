@@ -122,6 +122,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findAll()
     {
         return getThis().find(Collections.<Criterion> emptyList(), getDefaultOrder());
@@ -130,6 +131,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findAll(Order... orders)
     {
 
@@ -139,6 +141,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> find(final List< ? extends Criterion> criteria, final Order... orders)
     {
         Criteria crit = createCriteria();
@@ -162,6 +165,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> find(String query)
     {
         return getCurrentSession().createQuery(query).list();
@@ -170,14 +174,16 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> find(String query, Object paramValue, Type paramType)
     {
-        return getThis().find(query, new Object[]{paramValue}, new Type[]{paramType});
+        return getThis().find(query, new Object[]{paramValue }, new Type[]{paramType });
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> find(final String query, final Object[] paramValues, final Type[] paramTypes)
     {
         return getCurrentSession().createQuery(query).setParameters(paramValues, paramTypes).list();
@@ -186,6 +192,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findFiltered(T filter)
     {
         return getThis().findFiltered(defaultExample(filter), Integer.MAX_VALUE, 0, getDefaultOrder());
@@ -194,6 +201,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findFiltered(ExampleTree exampleTree)
     {
         return getThis().findFiltered(exampleTree, Integer.MAX_VALUE, 0, getDefaultOrder());
@@ -202,6 +210,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findFiltered(T filter, Order... orders)
     {
         return getThis().findFiltered(defaultExample(filter), Integer.MAX_VALUE, 0, orders);
@@ -210,6 +219,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findFiltered(ExampleTree exampleTree, Order... orders)
     {
         return getThis().findFiltered(exampleTree, Integer.MAX_VALUE, 0, orders);
@@ -218,6 +228,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findFiltered(T filter, int maxResults, int page)
     {
         return getThis().findFiltered(defaultExample(filter), maxResults, page, getDefaultOrder());
@@ -226,6 +237,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findFiltered(ExampleTree exampleTree, int maxResults, int page)
     {
         return getThis().findFiltered(exampleTree, maxResults, page, getDefaultOrder());
@@ -235,6 +247,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata)
     {
@@ -251,6 +264,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page)
     {
@@ -266,6 +280,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T findFilteredFirst(T filter)
     {
         return findFilteredFirst(defaultExample(filter));
@@ -274,6 +289,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T findFilteredFirst(ExampleTree exampleTree)
     {
         return findFilteredFirst(exampleTree, new Order[0]);
@@ -282,6 +298,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T findFilteredFirst(T filter, final Order... orders)
     {
         return findFilteredFirst(defaultExample(filter), orders);
@@ -290,6 +307,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T findFilteredFirst(T filter, List< ? extends Criterion> criteria)
     {
         ExampleTree exampleTree = defaultExample(filter);
@@ -300,6 +318,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T findFilteredFirst(ExampleTree exampleTree, final Order... orders)
     {
         List<T> found = getThis().findFiltered(exampleTree, 1, 0, orders);
@@ -315,6 +334,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T load(K key)
     {
         T result = (T) sessionFactory.getCurrentSession().load(getReferenceClass(), key);
@@ -325,6 +345,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * @deprecated same as {@link #get(Serializable)};
      */
+    @Override
     @Deprecated
     public T loadIfAvailable(K key)
     {
@@ -334,6 +355,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T get(K key)
     {
         return (T) sessionFactory.getCurrentSession().get(getReferenceClass(), key);
@@ -342,6 +364,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public K save(T obj)
     {
         return (K) sessionFactory.getCurrentSession().save(obj);
@@ -350,6 +373,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public void update(T obj)
     {
         sessionFactory.getCurrentSession().update(obj);
@@ -358,6 +382,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public void saveOrUpdate(T obj)
     {
         sessionFactory.getCurrentSession().saveOrUpdate(obj);
@@ -366,6 +391,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean delete(final K key)
     {
         Session s = getCurrentSession();
@@ -377,6 +403,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public void refresh(T obj)
     {
         getCurrentSession().refresh(obj);
@@ -385,6 +412,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public void evict(T obj)
     {
         getCurrentSession().evict(obj);
@@ -393,6 +421,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public T merge(final T obj)
     {
         return (T) getCurrentSession().merge(obj);
@@ -401,6 +430,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<T> findAll(Order[] orders, List< ? extends Criterion> criteria)
     {
@@ -410,6 +440,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<T> findFiltered(ExampleTree exampleTree, int maxResults, int page, Order... orders)
     {
         return new ExampleTreeCallback<T>(exampleTree, maxResults, page, orders).doInHibernate(getCurrentSession());
@@ -418,6 +449,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<Object> findFilteredProperties(T filter, int maxResults, int page, List<String> properties,
         Order... orders)
     {
@@ -427,6 +459,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<Object> findFilteredProperties(ExampleTree exampleTree, int maxResults, int page,
         List<String> properties, Order... orders)
     {
@@ -438,6 +471,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<T> findFiltered(T filter, Order[] customOrder, Map<String, ? extends FilterMetadata> metadata,
         int maxResults, int page)
@@ -455,6 +489,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
         Order... orders)
@@ -466,6 +501,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<T> findFiltered(T filter, Map<String, ? extends FilterMetadata> metadata, int maxResults, int page,
         List< ? extends Criterion> criteria, Order... orders)
@@ -486,6 +522,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<T> findFiltered(T filter, Order[] orders, Map<String, ? extends FilterMetadata> metadata,
         int maxResults, int page, List< ? extends Criterion> criteria)
@@ -497,6 +534,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated {@link FilterMetadata} has been deprecated in favor of {@link ExampleTree#add(String, Criterion)} and
      * {@link ExampleTree#overridePropertyFilter(String, String, Criterion)} {@inheritDoc}
      */
+    @Override
     @Deprecated
     public List<Object> findFilteredProperties(T filter, Order[] orders,
         Map<String, ? extends FilterMetadata> metadata, int maxResults, int page, List< ? extends Criterion> criteria,
@@ -548,6 +586,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * Return a list of <code>Order</code> object to be used for the default ordering of the collection.
      * @return the property name
      */
+    @SuppressWarnings("static-method")
     protected Order[] getDefaultOrder()
     {
         return new Order[0];
@@ -664,6 +703,7 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
      * @deprecated this method uses the deprecated class {@link FilterMetadata}, use {@link #defaultExample(Object)}
      * instead
      */
+    @SuppressWarnings("static-method")
     @Deprecated
     protected Map<String, ? extends FilterMetadata> getDefaultFilterMetadata()
     {
