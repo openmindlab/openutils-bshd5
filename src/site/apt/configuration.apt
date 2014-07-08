@@ -1,0 +1,67 @@
+                                 --------------------------
+                                     O p e n u t i l s
+                                 --------------------------
+                                     Fabrizio Giustina
+                                 --------------------------
+
+Using annotations
+
+ This is the preferred way of creating and configuring a new DAO using Spring 2.5 and annotations:
+
++-----------------------------------------------+
+
+public interface SampleDAO extends HibernateDAO<Sample, Integer>
+{
+
+    @Repository(value = "sampleDAO")
+    public static class SampleDAOImpl extends HibernateDAOImpl<Sample, Integer> implements SampleDAO
+    {
+
+        @Autowired
+        public SampleDAOImpl(SessionFactory factory)
+        {
+            setSessionFactory(factory);
+            setReferenceClass(Sample.class);
+        }
+    }
+}
+
++-----------------------------------------------+
+
+ Simple, isn't it? With those few lines you are:
+
+ * Creating youd DAO interface, which allows you to manage <<<Sample>>> objects with a key of type <<<Integer>>>
+
+ * Implementing your interface and setting up your DAO
+
+ * Registering you DAO in the Spring context using the <<<@Repository>>> annotation
+
+ []
+
+
+
+Using xml
+
+ You need to write at least the DAO interface; the DAO implementation can be a subclass of HibernateDAOImpl or can
+ be created by Spring you you do not need to alter or add any method.
+
++-----------------------------------------------+
+
+public interface SampleDAO extends HibernateDAO<Sample, Integer>
+{
+
+}
+  <bean id="sampleDAO" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="com.myapp.SampleDAO"/>
+    <property name="target">
+      <bean
+        class="it.openutils.dao.hibernate.HibernateDAOImpl">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="referenceClass" value="com.myapp.Sample"/>
+      </bean>
+    </property>
+  </bean>
+
++-----------------------------------------------+
+
+
