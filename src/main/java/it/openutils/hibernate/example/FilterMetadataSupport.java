@@ -141,7 +141,7 @@ public class FilterMetadataSupport
 
                 if (propertyType.isCollectionType())
                 {
-                    propertyValue = ExampleTreeUtils.getValueFromCollection(propertyValue);
+                    propertyValue = ExampleTreeUtils.getValueFromCollection(propertyName, propertyValue);
                 }
                 if (propertyValue == null)
                 {

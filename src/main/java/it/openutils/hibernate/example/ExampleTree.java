@@ -306,7 +306,7 @@ public class ExampleTree implements Serializable
                 Object propertyValue = classMetadata.getPropertyValue(entity, propertyName);
                 if (propertyType.isCollectionType())
                 {
-                    propertyValue = ExampleTreeUtils.getValueFromCollection(propertyValue);
+                    propertyValue = ExampleTreeUtils.getValueFromCollection(propertyName, propertyValue);
                 }
                 if (propertyValue == null)
                 {
@@ -365,7 +365,7 @@ public class ExampleTree implements Serializable
  * workaround to {@link Example} not exposing internal property selectors
  * @author gcatania
  */
-@SuppressWarnings({"serial", "static-method"})
+@SuppressWarnings({"serial", "static-method" })
 class ExampleTreePropertySelectorSupport
 {
 
@@ -378,6 +378,7 @@ class ExampleTreePropertySelectorSupport
     static final class AllPropertySelector implements PropertySelector
     {
 
+        @Override
         public boolean include(Object object, String propertyName, Type type)
         {
             return true;
@@ -392,6 +393,7 @@ class ExampleTreePropertySelectorSupport
     static final class NotNullPropertySelector implements PropertySelector
     {
 
+        @Override
         public boolean include(Object object, String propertyName, Type type)
         {
             return object != null;
@@ -406,6 +408,7 @@ class ExampleTreePropertySelectorSupport
     static final class NotNullOrZeroPropertySelector implements PropertySelector
     {
 
+        @Override
         public boolean include(Object object, String propertyName, Type type)
         {
             return object != null && (!(object instanceof Number) || ((Number) object).longValue() != 0);

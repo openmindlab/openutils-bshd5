@@ -25,6 +25,7 @@
 package it.openutils.hibernate.example;
 
 import java.lang.reflect.Array;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -87,13 +88,15 @@ final class ExampleTreeUtils
     }
 
     /**
-     * retrieves a value from a collection
+     * retrieves a value from a collection property
+     * @param propertyName the property name (will be reported in the exception)
      * @param collectionValue the collection
      * @return a value
      * @see http://opensource2.atlassian.com/projects/hibernate/browse/HHH-879
      * @throws IllegalArgumentException if the input collection contains more than one value
      */
-    public static Object getValueFromCollection(Object collectionValue) throws IllegalArgumentException
+    public static Object getValueFromCollection(String propertyName, Object collectionValue)
+        throws IllegalArgumentException
     {
         if (collectionValue != null)
         {
@@ -107,8 +110,10 @@ final class ExampleTreeUtils
                 }
                 if (size > 1)
                 {
-                    throw new IllegalArgumentException("More than one element in filter collection is unsupported.\n"
-                        + coll);
+                    throw new IllegalArgumentException(MessageFormat.format(
+                        "More than one element in filter collection is unsupported.\nproperty: {0}, value: {1}",
+                        propertyName,
+                        coll));
                 }
             }
             Class< ? extends Object> clazz = collectionValue.getClass();
@@ -121,7 +126,13 @@ final class ExampleTreeUtils
                 }
                 if (length > 1)
                 {
-                    throw new IllegalArgumentException("More than one element in filter array is unsupported.");
+                    throw new IllegalArgumentException(
+                        MessageFormat
+                            .format(
+                                "More than one element in filter array is unsupported.\nproperty: {0}, value: {1} - length: {2}",
+                                propertyName,
+                                collectionValue,
+                                length));
                 }
             }
             // TODO other cases?
