@@ -796,7 +796,8 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
         @Override
         protected Criteria createCriteria(Session session)
         {
-            Criteria crit = new FilterMetadataSupport(rootEntity, filterMetadata).create(session);
+            Criteria crit = new FilterMetadataSupport(rootEntity, filterMetadata).create(session).setResultTransformer(
+                CriteriaSpecification.DISTINCT_ROOT_ENTITY);
             if (additionalCriteria != null)
             {
                 for (Criterion c : additionalCriteria)
@@ -829,18 +830,13 @@ public abstract class HibernateDAOImpl<T, K extends Serializable> implements Hib
         {
             super(rootEntity, maxResults, page, metadata, additionalCriteria, orders);
             this.properties = properties;
-
         }
 
         @Override
         protected Criteria createCriteria(Session session)
         {
             Criteria crit = super.createCriteria(session);
-            if (CollectionUtils.isEmpty(properties))
-            {
-                crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-            }
-            else
+            if (CollectionUtils.isNotEmpty(properties))
             {
                 ProjectionList projectionList = Projections.projectionList();
                 for (String property : properties)
@@ -923,7 +919,7 @@ class ExampleTreeCallback<R> extends BaseCallback<R>
     @Override
     protected Criteria createCriteria(Session session)
     {
-        return exampleTree.create(session);
+        return exampleTree.create(session).setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
     }
 }
 
@@ -948,11 +944,7 @@ class ExampleTreePropertiesCallback extends ExampleTreeCallback<Object>
     protected Criteria createCriteria(Session session)
     {
         Criteria crit = super.createCriteria(session);
-        if (CollectionUtils.isEmpty(properties))
-        {
-            crit.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-        }
-        else
+        if (CollectionUtils.isNotEmpty(properties))
         {
             ProjectionList projectionList = Projections.projectionList();
             for (String property : properties)
